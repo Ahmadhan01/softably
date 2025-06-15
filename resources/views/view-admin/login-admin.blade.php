@@ -28,7 +28,7 @@
             <input type="password" placeholder="Password"
                 class="w-full mb-6 px-4 py-2 rounded border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-500" />
 
-            <a href="index.html"
+            <a href="/dashboard-admin"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded text-center mb-6 block">
                 LOGIN
             </a>
@@ -48,7 +48,7 @@
 
             <p class="text-center text-sm text-gray-400">
                 Not have account?
-                <a href="register.html" class="text-red-500 hover:underline">Sign up now</a>
+                <a href="/register-admin" class="text-red-500 hover:underline">Sign up now</a>
             </p>
         </div>
     </div>
