@@ -1,28 +1,20 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('view-admin/login-admin');
+    return view('auth/login');
 });
 
-Route::get('/dashboard-admin', function () {
-    return view('view-admin/dashboard-admin');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/register-admin', function () {
-    return view('view-admin/register-admin');
-});
-
-Route::get('/chart-admin', function () {
-    return view('view-admin/chart-admin');
-});
-
-Route::get('/faq-admin', function () {
-    return view('view-admin/faq-admin');
-});
-
-//routers customer
-Route::get('/produk-customer', function () {
-    return view('view-customer/produk-customer');
-});
+require __DIR__.'/auth.php';
