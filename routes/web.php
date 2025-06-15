@@ -21,3 +21,8 @@ Route::get('/chart-admin', function () {
 Route::get('/faq-admin', function () {
     return view('view-admin/faq-admin');
 });
+
+//routers customer
+Route::get('/produk-customer', function () {
+    return view('view-customer/produk-customer');
+});
