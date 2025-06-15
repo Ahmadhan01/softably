@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Chart</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -14,16 +14,17 @@
     <div class="flex min-h-screen">
 
         <aside class="w-64 bg-[#1e293b] flex flex-col justify-between fixed top-0 left-0 h-full">
+
             <div>
                 <div class="p-4 text-xl font-bold border-b border-gray-700">Mancasan ID</div>
                 <nav class="p-4 space-y-2 text-sm text-gray-300">
-                    <a href="#" class="flex items-center space-x-2 bg-white/10 text-white px-3 py-2 rounded">
+                    <a href="/dashboard-admin" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
                         <span>🏠</span><span>Dashboard</span>
                     </a>
                     <a href="/produk-admin" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
                         <span>🛒</span><span>Product</span>
                     </a>
-                    <a href="/chart-admin" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+                    <a href="/chart-admin" class="flex items-center space-x-2 bg-white/10 text-white px-3 py-2 rounded">
                         <span>📊</span><span>Charts</span>
                     </a>
                     <a href="/table_user-admin" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
@@ -59,71 +60,61 @@
             </div>
         </aside>
 
-
         <main class="flex-1 p-6 space-y-6 ml-64">
+
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-bold">Welcome back, Fuad Pharaoh</h1>
-                    <p class="text-gray-400">Measure everything and report website traffic.</p>
+                    <h1 class="text-2xl font-semibold mb-2">Charts</h1>
+                    <p class="text-gray-400 mb-6">All data is displayed here.</p>
                 </div>
                 <button class="bg-white text-black px-4 py-2 rounded">Print report</button>
             </div>
 
 
-            <div class="grid grid-cols-4 gap-4">
-                <div class="bg-[#1e293b] p-4 rounded">
-                    <div class="text-gray-400">👁 Pageviews</div>
-                    <div class="text-2xl font-semibold">40.7K</div>
-                    <div class="text-green-400 text-sm">+8.1%</div>
-                </div>
-                <div class="bg-[#1e293b] p-4 rounded">
-                    <div class="text-gray-400">👥 Monthly users</div>
-                    <div class="text-2xl font-semibold">11.2K</div>
-                    <div class="text-red-400 text-sm">-30.2%</div>
-                </div>
-                <div class="bg-[#1e293b] p-4 rounded">
-                    <div class="text-gray-400">📝 New sign ups</div>
-                    <div class="text-2xl font-semibold">208</div>
-                    <div class="text-green-400 text-sm">+1.2%</div>
-                </div>
-                <div class="bg-[#1e293b] p-4 rounded">
-                    <div class="text-gray-400">🛍 Monthly transactions</div>
-                    <div class="text-2xl font-semibold">5.1K</div>
-                    <div class="text-green-400 text-sm">+4.1%</div>
-                </div>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
 
 
-            <div class="grid grid-cols-3 gap-4">
-                <div class="col-span-2 bg-[#1e293b] p-6 rounded">
-                    <div class="mb-4">
-                        <h2 class="text-lg font-semibold">Total revenue</h2>
-                        <div class="text-3xl font-bold mt-1">$540.5K</div>
-                        <div class="text-green-400 text-sm">+8.1%</div>
-                        <canvas id="revenueChart"></canvas>
+                <div class="bg-[#1e293b] p-4 rounded">
+                    <div class="flex items-start justify-between mb-2">
+                        <h2 class="text-lg font-medium text-white">Pageviews</h2>
+                        <div class="flex gap-4 text-xs text-white -mt-1">
+                            <div class="flex items-center gap-1">
+                                <span class="w-3 h-2 bg-green-500 inline-block"></span> View
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="w-3 h-2 bg-blue-500 inline-block"></span> Sign up
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="w-3 h-2 bg-yellow-400 inline-block"></span> Transaction
+                            </div>
+                        </div>
                     </div>
-
+                    <div class="relative w-[300px] h-[300px] mx-auto">
+                        <canvas id="pageviewsChart" class="w-full h-full"></canvas>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-4">
-                    <div class="bg-[#1e293b] p-4 rounded">
-                        <h2 class="text-sm text-gray-400 mb-1">Total profit</h2>
-                        <div class="text-xl font-bold">$234.2K</div>
-                        <div class="text-green-400 text-sm">+8.1%</div>
-                        <canvas id="profitChart" class="w-32 h-32"></canvas>
-                    </div>
-                    <div class="bg-[#1e293b] p-4 rounded">
-                        <h2 class="text-sm text-gray-400 mb-1">Online users</h2>
-                        <div class="text-xl font-bold">283</div>
-                        <div class="text-red-400 text-sm">-3.2 %</div>
-                        <canvas id="usersChart"></canvas>
 
-                    </div>
+
+
+                <div id="barContainer" class="bg-[#1e293b] p-4 rounded">
+                    <h2 class="text-lg font-medium mb-2">Revenue by customer type</h2>
+                    <canvas id="revenueChart" class="w-32 h-32"></canvas>
+                </div>
+
+                <div class="bg-[#1e293b] p-4 rounded">
+                    <h2 class="text-lg font-medium mb-2">Monthly online users</h2>
+                    <canvas id="usersChart"></canvas>
+                </div>
+
+                <div class="bg-[#1e293b] p-4 rounded">
+                    <h2 class="text-lg font-medium mb-2">Monthly products sold</h2>
+                    <canvas id="productsChart"></canvas>
                 </div>
             </div>
         </main>
-    </div>
-    <script src="js/index.js" defer></script>
 
+    </div>
+    <script src="js/chart.js" defer></script>
 
 </body>
 
