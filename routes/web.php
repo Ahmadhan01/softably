@@ -1,12 +1,15 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProductController; // Tambahkan ini
 use App\Http\Controllers\WishlistController; // Tambahkan ini
 use App\Http\Controllers\CartController; // Tambahkan ini
 use App\Models\Product; // Tambahkan ini
+
+use App\Http\Controllers\AuthController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,20 +24,30 @@ use App\Models\Product; // Tambahkan ini
 
 // Halaman utama (login)
 Route::get('/', function () {
-    return view('auth/login');
+    return view('welcome');
 });
+
 
 // Dashboard (sudah ada)
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+
+
 // Profil pengguna (sudah ada)
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/admin/dashboard', fn() => view('view-admin.dashboard-admin'))->name('admin.dashboard');
+    Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
+    Route::get('/customer/produks', fn() => view('view-customer.produk-customer'))->name('customer.produk');
 });
+
 
 // Admin routes (sudah ada)
 Route::get('/register-admin', function () {
@@ -119,3 +132,4 @@ Route::get('/setting-customer', function () {
 })->name('setting-customer');
 
 require __DIR__.'/auth.php';
+
