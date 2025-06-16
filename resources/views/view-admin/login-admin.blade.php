@@ -28,7 +28,7 @@
             <input type="password" placeholder="Password"
                 class="w-full mb-6 px-4 py-2 rounded border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-500" />
 
-            <a href="/dashboard-admin"
+            <a href="/view-customer/produk-customer"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded text-center mb-6 block">
                 LOGIN
             </a>
