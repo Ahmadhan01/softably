@@ -33,7 +33,7 @@
                 @csrf
 
                 <!-- Email -->
-                <input type="email" name="email" placeholder="Email"
+                <input type="email" name="login" placeholder="Email"
                     value="{{ old('email') }}"
                     required autofocus
                     class="w-full mb-4 px-4 py-2 rounded border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-500" />

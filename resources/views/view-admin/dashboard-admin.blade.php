@@ -53,9 +53,12 @@
                 <a href="/setting-admin" class="flex items-center space-x-2 text-gray-400 hover:text-white">
                     <span>⚙️</span><span>Settings</span>
                 </a>
-                <a href="/login-admin" class="flex items-center space-x-2 text-gray-400 hover:text-white">
-                    <span>🚪</span><span>Log Out</span>
-                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="flex items-center space-x-2 text-gray-400 hover:text-white">
+                        <span>🚪</span><span>Log Out</span>
+                    </button>
+                </form>
             </div>
         </aside>
 
@@ -63,7 +66,7 @@
         <main class="flex-1 p-6 space-y-6 ml-64">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-bold">Welcome back, Fuad Pharaoh</h1>
+                    <h1 class="text-2xl font-bold">Welcome back, {{ Auth::user()->name }}</h1>
                     <p class="text-gray-400">Measure everything and report website traffic.</p>
                 </div>
                 <button class="bg-white text-black px-4 py-2 rounded">Print report</button>
