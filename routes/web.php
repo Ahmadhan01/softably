@@ -3,10 +3,10 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\ProductController; // Tambahkan ini
-use App\Http\Controllers\WishlistController; // Tambahkan ini
-use App\Http\Controllers\CartController; // Tambahkan ini
-use App\Models\Product; // Tambahkan ini
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\CartController;
+use App\Models\Product;
 
 use App\Http\Controllers\AuthController;
 
@@ -41,11 +41,12 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [AuthController::class, 'register']);
 
 
-// Profil pengguna (sudah ada)
+// Profil pengguna (sudah ada) - Pastikan HANYA rute yang memanggil controller yang ada di sini
 Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', fn() => view('view-admin.dashboard-admin'))->name('admin.dashboard');
     Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
-    Route::get('/customer/produks', fn() => view('view-customer.produk-customer'))->name('customer.produk');
+    // RUTE INI DIHAPUS/DIKOMENTARI KARENA MENGGANGGU RUTE /produk-customer
+    // Route::get('/customer/produks', fn() => view('view-customer.produk-customer'))->name('customer.produk');
 });
 
 
@@ -64,7 +65,7 @@ Route::get('/faq-admin', function () {
 // CUSTOMER ROUTES
 
 // Rute untuk Halaman Daftar Produk Customer
-// ***PENTING: Ubah ini menjadi ProductController@index***
+// Ini adalah rute yang akan memanggil ProductController@index
 Route::get('/produk-customer', [ProductController::class, 'index'])
     ->name('produk-customer.index');
 
@@ -75,30 +76,33 @@ Route::get('/view-product/{product}', function (Product $product) {
 
 // Rute Komentar
 Route::post('/comments/{product}', [CommentController::class, 'store'])
-    ->middleware('auth') // Hanya user terautentikasi yang bisa berkomentar
-    ->name('comments.store'); // PASTIKAN NAMA RUTE INI ADALAH 'comments.store'
+    ->middleware('auth')
+    ->name('comments.store');
 
 Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
-    ->middleware('auth') // Hanya user terautentikasi yang bisa menghapus
+    ->middleware('auth')
     ->name('comments.destroy');
 
 // Rute Wishlist
 Route::middleware('auth')->group(function () {
-    Route::get('/wishlist-customer', [WishlistController::class, 'index'])->name('wishlist-customer.index'); // Halaman wishlist
-    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store'); // Tambah/Hapus dari wishlist
-    // Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])->name('wishlist.destroy'); // Jika perlu hapus per item dari halaman wishlist
+    Route::get('/wishlist-customer', [WishlistController::class, 'index'])->name('wishlist-customer.index');
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
 });
 
 
 // Rute Cart
 Route::middleware('auth')->group(function () {
-    Route::get('/cart-customer', [CartController::class, 'index'])->name('cart-customer.index'); // Halaman keranjang
-    Route::post('/cart', [CartController::class, 'store'])->name('cart.store'); // Tambah/update ke keranjang
-    Route::patch('/cart/{cart}', [CartController::class, 'update'])->name('cart.update'); // Update kuantitas
-    Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy'); // Hapus item dari keranjang
+    Route::get('/cart-customer', [CartController::class, 'index'])->name('cart-customer.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/{cart}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+    // Rute baru untuk menghapus banyak item
+    // Route::delete('/cart/multiple', [CartController::class, 'destroyMultiple'])->name('cart.destroy.multiple');
+    Route::delete('/cart/multiple', [App\Http\Controllers\CartController::class, 'destroyMultiple'])->name('cart.destroy.multiple');
 });
 
-// Rute-rute customer lainnya (sudah ada, tambahkan nama rute yang benar jika belum)
+// Rute-rute customer lainnya
 Route::get('/chat-customer', function () {
     return view('view-customer/chat-customer');
 })->name('chat-customer');
@@ -130,6 +134,3 @@ Route::get('/order-customer', function () {
 Route::get('/setting-customer', function () {
     return view('view-customer/setting-customer');
 })->name('setting-customer');
-
-require __DIR__.'/auth.php';
-

@@ -6,76 +6,137 @@ use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log; // Tambahkan ini untuk debugging
 
 class CartController extends Controller
 {
-    // Menampilkan daftar cart user (opsional, jika ada halaman cart_customer)
-    public function index()
+    /**
+     * Menampilkan semua item di keranjang pengguna yang sedang login.
+     * Menerapkan fitur pencarian.
+     */
+    public function index(Request $request)
     {
-        $carts = Auth::user()->carts()->with('product')->get();
-        return view('view-customer.cart-customer', compact('carts'));
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $query = $user->carts()->with('product');
+
+        // Logika pencarian
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->whereHas('product', function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
+
+        $cartItems = $query->latest()->get();
+
+        return view('view-customer.cart-customer', compact('cartItems'));
     }
 
-    // Menambah produk ke keranjang
+    /**
+     * Menambahkan produk ke keranjang atau memperbarui kuantitasnya.
+     */
     public function store(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'nullable|integer|min:1', // Kuantitas opsional, default 1
+            'quantity' => 'nullable|integer|min:1',
         ]);
 
-        if (!Auth::check()) {
-            return response()->json(['success' => false, 'message' => 'Anda harus login untuk menambah ke keranjang.'], 401);
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $userId = Auth::id();
-        $productId = $request->product_id;
+        $product_id = $request->product_id;
         $quantity = $request->quantity ?? 1;
 
-        $existingCartItem = Cart::where('user_id', $userId)
-                                ->where('product_id', $productId)
-                                ->first();
+        $cartItem = Cart::where('user_id', $user->id)
+                        ->where('product_id', $product_id)
+                        ->first();
 
-        if ($existingCartItem) {
-            // Jika produk sudah ada di keranjang, update kuantitasnya
-            $existingCartItem->quantity += $quantity;
-            $existingCartItem->save();
-            return response()->json(['success' => true, 'action' => 'updated', 'message' => 'Kuantitas produk di keranjang diperbarui.']);
+        if ($cartItem) {
+            $cartItem->quantity += $quantity;
+            $cartItem->save();
+            $message = 'Kuantitas produk di keranjang berhasil diperbarui!';
         } else {
-            // Jika belum ada, tambahkan sebagai item baru
             Cart::create([
-                'user_id' => $userId,
-                'product_id' => $productId,
+                'user_id' => $user->id,
+                'product_id' => $product_id,
                 'quantity' => $quantity,
             ]);
-            return response()->json(['success' => true, 'action' => 'added', 'message' => 'Produk ditambahkan ke keranjang.']);
+            $message = 'Produk berhasil ditambahkan ke keranjang!';
         }
+
+        return response()->json(['message' => $message, 'cartCount' => $user->carts()->count()]);
     }
 
-    // Mengupdate kuantitas item di keranjang
+    /**
+     * Memperbarui kuantitas item di keranjang.
+     */
     public function update(Request $request, Cart $cart)
     {
+        if ($cart->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'quantity' => 'required|integer|min:1',
         ]);
 
-        if ($cart->user_id !== Auth::id()) {
-            return response()->json(['success' => false, 'message' => 'Tidak berhak mengupdate item keranjang ini.'], 403);
-        }
-
         $cart->quantity = $request->quantity;
         $cart->save();
-        return response()->json(['success' => true, 'message' => 'Kuantitas keranjang berhasil diperbarui.']);
+
+        return response()->json(['message' => 'Kuantitas berhasil diperbarui.', 'newTotal' => $cart->quantity * $cart->product->price]);
     }
 
-    // Menghapus item dari keranjang
-    public function destroy(Cart $cart)
+    /**
+     * Menghapus item dari keranjang.
+     */
+    public function destroy(Request $request, Cart $cart)
     {
         if ($cart->user_id !== Auth::id()) {
-            return response()->json(['success' => false, 'message' => 'Tidak berhak menghapus item keranjang ini.'], 403);
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $cart->delete();
-        return response()->json(['success' => true, 'message' => 'Produk dihapus dari keranjang.']);
+
+        return response()->json(['message' => 'Produk berhasil dihapus dari keranjang.', 'cartCount' => Auth::user()->carts()->count()]);
+    }
+
+    /**
+     * Menghapus banyak item dari keranjang (fitur baru untuk tombol 'Delete').
+     */
+    public function destroyMultiple(Request $request)
+    {
+        Log::info('DestroyMultiple request received:', $request->all()); // Log masuk
+        
+        $request->validate([
+            'cart_item_ids' => 'required|array',
+            'cart_item_ids.*' => 'exists:carts,id',
+        ]);
+
+        $deletedCount = Cart::whereIn('id', $request->cart_item_ids)
+                            ->where('user_id', Auth::id())
+                            ->delete();
+
+        Log::info('Deleted count for user ' . Auth::id() . ':', ['ids' => $request->cart_item_ids, 'count' => $deletedCount]); // Log hasil
+
+        if ($deletedCount > 0) {
+            return response()->json([
+                'message' => $deletedCount . ' produk berhasil dihapus dari keranjang.',
+                'cartCount' => Auth::user()->carts()->count()
+            ]);
+        } else {
+            // Mengembalikan status 200 OK karena permintaan diproses, hanya tidak ada item yang match.
+            return response()->json([
+                'message' => 'Tidak ada produk yang dihapus (mungkin sudah dihapus atau tidak valid).',
+                'cartCount' => Auth::user()->carts()->count()
+            ], 200); 
+        }
     }
 }

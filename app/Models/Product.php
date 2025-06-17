@@ -13,6 +13,9 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'image_path',
+        // Tambahkan kolom 'sales_count' di sini jika Anda menggunakannya untuk 'best_seller'
+        // 'sales_count',
     ];
 
     // Relasi ke Comments (sudah ada)
@@ -32,4 +35,9 @@ class Product extends Model
     {
         return $this->hasMany(Cart::class);
     }
+
+    // Pastikan ada relasi user di model Comment jika belum ada
+    // public function user() {
+    //     return $this->belongsTo(User::class);
+    // }
 }

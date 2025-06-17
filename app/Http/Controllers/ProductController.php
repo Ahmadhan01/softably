@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // Tambahkan ini jika Anda menggunakan Auth::check() di controller ini
 
 class ProductController extends Controller
 {
@@ -37,8 +38,10 @@ class ProductController extends Controller
             case 'price_desc':
                 $query->orderBy('price', 'desc');
                 break;
-            case 'best_seller': // Anda perlu menambahkan kolom 'sales_count' atau sejenisnya di tabel products
-                $query->orderBy('sales_count', 'desc'); // Contoh
+            case 'best_seller':
+                // Anda perlu menambahkan kolom 'sales_count' atau sejenisnya di tabel products
+                // Jika tidak ada, fallback ke 'newest' atau sesuaikan
+                $query->orderBy('sales_count', 'desc'); // Contoh, pastikan kolom ini ada
                 break;
             default:
                 $query->orderBy('created_at', 'desc'); // Default sort
@@ -46,7 +49,6 @@ class ProductController extends Controller
         }
 
         // 4. Menampilkan produk dari beberapa produk (Pagination)
-        // Adjust per page as needed
         $products = $query->paginate(15); // Menampilkan 15 produk per halaman
 
         // Jika request datang dari AJAX untuk tampilan mode, kita bisa return JSON
@@ -65,21 +67,21 @@ class ProductController extends Controller
     {
         // Contoh data produk untuk testing
         $productsData = [
-            ['name' => 'Novel Hujan', 'description' => 'Sebuah novel fiksi ilmiah romantis karya Tere Liye tentang kisah cinta di tengah hujan.', 'price' => 75000.00],
-            ['name' => 'Buku Resep Masakan Nusantara', 'description' => 'Kumpulan resep masakan tradisional Indonesia dari berbagai daerah.', 'price' => 120000.00],
-            ['name' => 'E-Book Panduan Investasi', 'description' => 'Panduan lengkap untuk pemula di dunia investasi saham dan reksadana.', 'price' => 45000.00],
-            ['name' => 'Template Presentasi Powerpoint Modern', 'description' => 'Kumpulan template profesional untuk presentasi bisnis dan pendidikan.', 'price' => 85000.00],
-            ['name' => 'Course Desain Grafis Pemula', 'description' => 'Video tutorial interaktif untuk mempelajari dasar-dasar desain grafis.', 'price' => 250000.00],
-            ['name' => 'Audiobook Self-Improvement', 'description' => 'Koleksi audiobook untuk pengembangan diri dan motivasi.', 'price' => 60000.00],
-            ['name' => 'Vector Icon Pack Premium', 'description' => 'Paket ikon vektor berkualitas tinggi untuk web dan aplikasi.', 'price' => 90000.00],
-            ['name' => 'Software Video Editing Portable', 'description' => 'Aplikasi editing video ringan yang bisa dijalankan tanpa instalasi.', 'price' => 180000.00],
-            ['name' => 'Template Website HTML/CSS', 'description' => 'Template siap pakai untuk membuat website personal atau bisnis kecil.', 'price' => 110000.00],
-            ['name' => 'Preset Lightroom Pack', 'description' => 'Koleksi preset untuk editing foto profesional di Adobe Lightroom.', 'price' => 50000.00],
-            ['name' => 'Asset Game 2D Fantasy', 'description' => 'Kumpulan aset grafis untuk pengembangan game 2D bergenre fantasi.', 'price' => 200000.00],
-            ['name' => 'Modul Belajar Coding Python', 'description' => 'Modul interaktif untuk belajar pemrograman Python dari dasar hingga mahir.', 'price' => 150000.00],
-            ['name' => 'Font Pack Kreatif', 'description' => 'Koleksi font unik dan kreatif untuk proyek desain Anda.', 'price' => 30000.00],
-            ['name' => 'Mockup Desain Produk 3D', 'description' => 'Mockup 3D realistis untuk presentasi desain produk Anda.', 'price' => 70000.00],
-            ['name' => 'Kumpulan Sound Effect Cinematic', 'description' => 'Efek suara berkualitas tinggi untuk produksi video dan film.', 'price' => 100000.00],
+            ['name' => 'Novel Hujan', 'description' => 'Sebuah novel fiksi ilmiah romantis karya Tere Liye tentang kisah cinta di tengah hujan.', 'price' => 75000.00, 'image_path' => 'https://via.placeholder.com/400x400/FF0000/FFFFFF?text=Novel+Hujan'],
+            ['name' => 'Buku Resep Masakan Nusantara', 'description' => 'Kumpulan resep masakan tradisional Indonesia dari berbagai daerah.', 'price' => 120000.00, 'image_path' => 'https://via.placeholder.com/400x400/00FF00/000000?text=Buku+Resep'],
+            ['name' => 'E-Book Panduan Investasi', 'description' => 'Panduan lengkap untuk pemula di dunia investasi saham dan reksadana.', 'price' => 45000.00, 'image_path' => 'https://via.placeholder.com/400x400/0000FF/FFFFFF?text=E-Book+Investasi'],
+            ['name' => 'Template Presentasi Powerpoint Modern', 'description' => 'Kumpulan template profesional untuk presentasi bisnis dan pendidikan.', 'price' => 85000.00, 'image_path' => 'https://via.placeholder.com/400x400/FFFF00/000000?text=Template+PPT'],
+            ['name' => 'Course Desain Grafis Pemula', 'description' => 'Video tutorial interaktif untuk mempelajari dasar-dasar desain grafis.', 'price' => 250000.00, 'image_path' => 'https://via.placeholder.com/400x400/FF00FF/FFFFFF?text=Course+Desain'],
+            ['name' => 'Audiobook Self-Improvement', 'description' => 'Koleksi audiobook untuk pengembangan diri dan motivasi.', 'price' => 60000.00, 'image_path' => 'https://via.placeholder.com/400x400/00FFFF/000000?text=Audiobook'],
+            ['name' => 'Vector Icon Pack Premium', 'description' => 'Paket ikon vektor berkualitas tinggi untuk web dan aplikasi.', 'price' => 90000.00, 'image_path' => 'https://via.placeholder.com/400x400/C0C0C0/000000?text=Icon+Pack'],
+            ['name' => 'Software Video Editing Portable', 'description' => 'Aplikasi editing video ringan yang bisa dijalankan tanpa instalasi.', 'price' => 180000.00, 'image_path' => 'https://via.placeholder.com/400x400/808000/FFFFFF?text=Video+Software'],
+            ['name' => 'Template Website HTML/CSS', 'description' => 'Template siap pakai untuk membuat website personal atau bisnis kecil.', 'price' => 110000.00, 'image_path' => 'https://via.placeholder.com/400x400/008000/FFFFFF?text=Web+Template'],
+            ['name' => 'Preset Lightroom Pack', 'description' => 'Koleksi preset untuk editing foto profesional di Adobe Lightroom.', 'price' => 50000.00, 'image_path' => 'https://via.placeholder.com/400x400/000080/FFFFFF?text=Lightroom+Preset'],
+            ['name' => 'Asset Game 2D Fantasy', 'description' => 'Kumpulan aset grafis untuk pengembangan game 2D bergenre fantasi.', 'price' => 200000.00, 'image_path' => 'https://via.placeholder.com/400x400/800080/FFFFFF?text=Game+Assets'],
+            ['name' => 'Modul Belajar Coding Python', 'description' => 'Modul interaktif untuk belajar pemrograman Python dari dasar hingga mahir.', 'price' => 150000.00, 'image_path' => 'https://via.placeholder.com/400x400/808080/FFFFFF?text=Python+Module'],
+            ['name' => 'Font Pack Kreatif', 'description' => 'Koleksi font unik dan kreatif untuk proyek desain Anda.', 'price' => 30000.00, 'image_path' => 'https://via.placeholder.com/400x400/A0A0A0/000000?text=Creative+Fonts'],
+            ['name' => 'Mockup Desain Produk 3D', 'description' => 'Mockup 3D realistis untuk presentasi desain produk Anda.', 'price' => 70000.00, 'image_path' => 'https://via.placeholder.com/400x400/B0B0B0/000000?text=3D+Mockup'],
+            ['name' => 'Kumpulan Sound Effect Cinematic', 'description' => 'Efek suara berkualitas tinggi untuk produksi video dan film.', 'price' => 100000.00, 'image_path' => 'https://via.placeholder.com/400x400/D0D0D0/000000?text=Sound+Effects'],
         ];
 
         foreach ($productsData as $data) {
