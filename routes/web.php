@@ -86,41 +86,6 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rute-rute customer lainnya (sudah ada, tambahkan nama rute yang benar jika belum)
-Route::get('/chat-customer', function () {
-    return view('view-customer/chat-customer');
-})->name('chat-customer');
-
-Route::get('/checkout-customer', function () {
-    return view('view-customer/checkout-customer');
-})->name('checkout-customer');
-
-Route::get('/detailorder-customer', function () {
-    return view('view-customer/detailorder-customer');
-})->name('detailorder-customer');
-
-Route::get('/bantuan-customer', function () {
-    return view('view-customer/bantuan-customer');
-})->name('bantuan-customer');
-
-Route::get('/landingpage-customer', function () {
-    return view('view-customer/landingpage-customer');
-})->name('landingpage-customer');
-
-Route::get('/notif-customer', function () {
-    return view('view-customer/notif-customer');
-})->name('notif-customer');
-
-Route::get('/order-customer', function () {
-    return view('view-customer/order-customer');
-})->name('order-customer');
-
-Route::get('/setting-customer', function () {
-    return view('view-customer/setting-customer');
-})->name('setting-customer');
-
-Route::get('/cart-customer', function () {
-    return view('view-customer//cart-customer');
-})->name('cart-customer');
 
 Route::get('/chart-admin', function () {
     return view('view-admin/chart-admin');
@@ -142,4 +107,18 @@ Route::get('/register-admin', function () {
     return view('view-admin/register-admin');
 })->name('register-admin');
 
-require __DIR__.'/auth.php';
+Route::get('/notif-admin', function () {
+    return view('view-admin/notif-admin');
+})->name('notif-admin');
+
+Route::get('/produk-admin', function () {
+    return view('view-admin/produk-admin');
+})->name('produk-admin');
+
+Route::get('/setting-admin', function () {
+    return view('view-admin/setting-admin');
+})->name('setting-admin');
+
+Route::get('/table_user-admin', function () {
+    return view('view-admin/table_user-admin');
+})->name('table_user-admin');
