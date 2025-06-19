@@ -20,6 +20,7 @@
                 <div class="p-4 text-xl font-bold border-b border-gray-700"><img src="img/logo-softably.png" alt="" width="120px"></div>
                 <nav class="p-4 space-y-2 text-sm text-gray-300">
 
+<<<<<<< HEAD
                     <a href="produk_customer.html"
                         class="flex items-center space-x-2 bg-white/10 text-white px-3 py-2 rounded">
                         <i class="fa-solid fa-box" style="color: #ffffff;"></i><span>Product</span>
@@ -39,6 +40,27 @@
                         <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">10</span>
                     </a>
                     <a href="faq_customer.html" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+=======
+                    <a href="/produk_customer.html"
+                        class="flex items-center space-x-2 bg-white/10 text-white px-3 py-2 rounded">
+                        <i class="fa-solid fa-box" style="color: #ffffff;"></i><span>Product</span>
+                    </a>
+                    <a href="/cart_customer.html" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+                        <i class="fa-solid fa-cart-shopping"></i><span>Cart</span>
+                    </a>
+                    <a href="/order_customer.html" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+                        <i class="fa-solid fa-list-ul"></i><span>My Orders</span>
+                    </a>
+                    <a href="/notif_customer.html" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+                        <i class="fa-solid fa-bell"></i><span>Notification</span>
+                        <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">4</span>
+                    </a>
+                    <a href="/chat_customer.html" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+                        <i class="fa-solid fa-comments"></i><span>Chat</span>
+                        <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">10</span>
+                    </a>
+                    <a href="/faq_customer.html" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                         <i class="fa-solid fa-circle-question"></i><span>FAQ</span>
                     </a>
                 </nav>
@@ -48,13 +70,18 @@
                             <img src="img/man.jpg" alt="" class="w-full h-full object-cover">
                         </div>
                         <div>
+<<<<<<< HEAD
                             <div class="font-medium">{{ Auth::user()->name }}</div>
+=======
+                            <div class="font-medium">Fuad Pharaoh</div>
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                             <div class="text-sm text-gray-400"><a href="setting_customer.html">Account settings</a></div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="p-4 space-y-2">
+<<<<<<< HEAD
                 <a href="setting_customer.html" class="flex items-center space-x-2 text-gray-400 hover:text-white">
                     <span>⚙️</span><span>Settings</span>
                 </a>
@@ -64,6 +91,14 @@
                         <span>🚪</span><span>Log Out</span>
                     </button>
                 </form>
+=======
+                <a href="/setting_customer.html" class="flex items-center space-x-2 text-gray-400 hover:text-white">
+                    <span>⚙️</span><span>Settings</span>
+                </a>
+                <a href="/login.html" class="flex items-center space-x-2 text-gray-400 hover:text-white">
+                    <span>🚪</span><span>Log Out</span>
+                </a>
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
             </div>
         </aside>
 
@@ -94,8 +129,13 @@
 
                 <!-- Bookmark & Cart -->
                 <div class="flex gap-4 items-center">
+<<<<<<< HEAD
                     <a href="wishlist_customer.html" class="text-lg hover:text-blue-400"><i class="fa-solid fa-bookmark"></i></a>
                     <a href="cart_customer.html" class="text-lg hover:text-blue-400"><i class="fa-solid fa-cart-shopping"></i></a>
+=======
+                    <a href="/wishlist_customer.html" class="text-lg hover:text-blue-400"><i class="fa-solid fa-bookmark"></i></a>
+                    <a href="/cart_customer.html" class="text-lg hover:text-blue-400"><i class="fa-solid fa-cart-shopping"></i></a>
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                 </div>
             </div>
 

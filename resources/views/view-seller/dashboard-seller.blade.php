@@ -3,10 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>Admin Dashboard - Fuad Pharaoh</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://kit.fontawesome.com/1531486bb6.js" crossorigin="anonymous"></script>
+=======
+    <title>Dashboard seller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://kit.fontawesome.com/1531486bb6.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
     <script>
         tailwind.config = {
             theme: {
@@ -22,6 +30,7 @@
     </script>
 </head>
 <body class="bg-gray-900 text-white">
+<<<<<<< HEAD
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-gray-800 shadow-lg">
@@ -32,6 +41,17 @@
                        <img src="/img/man.jpg" alt="" class="">
                     </div>
                     <span class="text-white font-semibold">Ini Logo Web</span>
+=======
+    <div class="flex h-screen fixed">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 shadow-lg">
+            <!-- Logo -->
+            <div class="p-2 mt-4 border-b border-gray-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center">
+                       <img src="" alt="" class="">
+                    </div>
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                 </div>
             </div>
 
@@ -39,6 +59,7 @@
             <div class="p-4">
                 <p class="text-gray-400 text-xs uppercase tracking-wider mb-4">MENU</p>
                 <nav class="space-y-2">
+<<<<<<< HEAD
                     <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                         <i class="fa-solid fa-store"></i>
                         <span>Dashboard</span>
@@ -52,13 +73,32 @@
                         <span>Chat</span>
                     </a>
                     <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+=======
+                    <a href="/dashboard-seller" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 bg-gray-700 hover:text-white font-semibold transition-colors">
+                        <i class="fa-solid fa-store"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/My-product-seller" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                        <i class="fas fa-file-alt text-gray-300"></i>
+                        <span>My Product</span>
+                    </a>
+                    <a href="/Chat-seller" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                        <i class="fa-solid fa-message"></i>
+                        <span>Chat</span>
+                    </a>
+                    <a href="/Notification-seller" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                         <i class="fa-solid fa-bell"></i>
                         <span>Notification</span>
                         <div class="flex items-center w-3 h-3 bg-green-600 rounded-full right-5 justify-center py-3 px-4">
                             <div class="flex">4</div>
                         </div>
                     </a>
+<<<<<<< HEAD
                      <a href="help_center.html"
+=======
+                     <a href="/Help-Center-seller"
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                             class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                             <i class="fa-solid fa-circle-question"></i>
                             <span>Help Center</span>
@@ -73,11 +113,16 @@
                         <img src="/img/man.jpg" alt="" class="rounded-full 1xl">
                     </div>
                     <div class="flex-1">
+<<<<<<< HEAD
                         <p class="text-white text-sm font-medium 1xl">{{ Auth::user()->name }}</p>
+=======
+                        <p class="text-white text-sm font-medium 1xl">Fuad Store</p>
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                         <p class="text-gray-400 text-xs">Store settings</p>
                     </div>
                 </div>
                 <div class="mt-20 space-y-2">
+<<<<<<< HEAD
                     <a href="#" class="flex items-center space-x-3 p-2 text-gray-300 hover:text-white transition-colors">
                         <i class="fa-solid fa-gear"></i>
                         <span class="text-sm">Settings</span>
@@ -88,6 +133,16 @@
                         <span>🚪</span><span>Log Out</span>
                     </button>
                 </form>
+=======
+                    <a href="/Settings-seller" class="flex items-center space-x-3 p-2 text-gray-300 hover:text-white transition-colors">
+                        <i class="fa-solid fa-gear"></i>
+                        <span class="text-sm">Settings</span>
+                    </a>
+                    <a href="/Log-Out-seller" class="flex items-center space-x-3 p-2 text-gray-300 hover:text-white transition-colors">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="text-sm">Log Out</span>
+                    </a>
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                 </div>
             </div>
         </div>
@@ -95,6 +150,7 @@
         <!-- Main Content -->
         <div class="flex-1 overflow-auto border-lg">
             <!-- Header -->
+<<<<<<< HEAD
             <div class=" p-2.5 border-gray-700">
                 <div class="flex justify-between items-center">
                     <div>
@@ -102,6 +158,15 @@
                         <p class="text-gray-400 mt-1">Measure everything and export website traffic.</p>
                     </div>
                     <button class="bg-white text-gray-900 px-3 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+=======
+            <div class="p-2.5 border-gray-700">
+                <div class="flex justify-between items-center">
+                    <div class=" p-2 text-center items-center space-x-4">
+                        <h1 class="text-2xl font-bold text-white">Welcome back, Fuad Pharaoh</h1>
+                        <p class="text-gray-400 mt-1">Measure everything and export website traffic.</p>
+                    </div>
+                    <button class="bg-white text-gray-900 px-3 py-3 rounded-lg font-medium hover:bg-green-500 transition-colors pr-4">
+>>>>>>> 4c6865526052c2cef83ae7d84409f13e45d8ee85
                         <span>Print report</span>
                         <i class="fa-solid fa-print"></i>
                     </button>
