@@ -8,16 +8,6 @@ use App\Http\Controllers\WishlistController; // Tambahkan ini
 use App\Http\Controllers\CartController; // Tambahkan ini
 use App\Models\Product; // Tambahkan ini
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 // Halaman utama (login)
 Route::get('/', function () {
@@ -35,18 +25,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-// Admin routes (sudah ada)
-Route::get('/register-admin', function () {
-    return view('view-admin/register-admin');
-})->name('register-admin');
-Route::get('/chart-admin', function () {
-    return view('view-admin/chart-admin');
-})->name('chart-admin');
-Route::get('/faq-admin', function () {
-    return view('view-admin/faq-admin');
-})->name('faq-admin');
-
 
 // CUSTOMER ROUTES
 
@@ -122,3 +100,45 @@ Route::get('/setting-admin', function () {
 Route::get('/table_user-admin', function () {
     return view('view-admin/table_user-admin');
 })->name('table_user-admin');
+
+
+// Route buat View-Seller
+
+Route::get('/dashboard-seller', function () {
+    return view('/view-seller/dashboard-seller');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/My-product-seller', function () {
+    return view('/view-seller/My-product-seller');
+})->middleware(['auth', 'verified'])->name('My-product');
+
+Route::get('/Chat-seller', function () {
+    return view('/view-seller/Chat-seller');
+})->middleware(['auth', 'verified'])->name('Chat-seller');
+
+Route::get('/Notification-seller', function () {
+    return view('/view-seller/Notifikasi-seller');
+})->middleware(['auth', 'verified'])->name('Notifikasi-seller');
+
+Route::get('/Help-Center-seller', function () {
+    return view('/view-seller/Help-Center-seller');
+})->middleware(['auth', 'verified'])->name('Help-Center-seller');
+
+Route::get('/Settings-seller', function () {
+    return view('/view-seller/Settings-seller');
+})->middleware(['auth', 'verified'])->name('Settings-seller');
+
+Route::get('/Details-Product-seller', function () {
+    return view('/view-seller/Details-Product-seller');
+})->middleware(['auth', 'verified'])->name('Details-Product-seller');
+
+Route::get('/Add-Product-seller', function () {
+    return view('/view-seller/Add-Product-seller');
+})->middleware(['auth', 'verified'])->name('Add-Product-seller');
+
+Route::get('/Edit-Product-seller', function () {
+    return view('/view-seller/Edit-Product-seller');
+})->middleware(['auth', 'verified'])->name('Edit-Product-seller');
+
+
+require __DIR__.'/auth.php';
