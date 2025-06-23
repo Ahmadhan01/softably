@@ -31,3 +31,7 @@ Broadcast::channel('presence-chat', function ($user) {
     }
     return false;
 });
+
+Broadcast::channel('admin-notif', function ($user) {
+    return $user->role === 'admin';
+});

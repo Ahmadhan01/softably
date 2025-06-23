@@ -7,7 +7,7 @@
             <a href="/admin/dashboard" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
                 <i class="fa-solid fa-gauge"></i><span>Dashboard</span>
             </a>
-            <a href="/view-produk" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+            <a href="/admin/products" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
                 <i class="fa-solid fa-cart-shopping"></i><span>Product</span>
             </a>
             <a href="/admin/links" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">

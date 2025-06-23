@@ -3,7 +3,7 @@
 <body class="bg-[#0f172a] text-white font-sans">
     <div class="flex min-h-screen">
 
-       <x-sidebar-admin />
+        <x-sidebar-admin />
 
         <main class="flex w-full h-screen bg-[#0f172a] text-white ml-64">
             <!-- Chat Sidebar -->
@@ -18,98 +18,8 @@
                 </div>
 
                 <!-- Chat List -->
-                <ul class="space-y-3 overflow-y-auto max-h-[calc(100vh-200px)] pr-2">
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                            <img src="img/man.jpg" alt="Profile" class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='img/default-user.jpg';" />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">Toko Ahmad</p>
-                            <p class="text-sm text-gray-400 truncate">
-                                Hai aku ahmad te....
-                            </p>
-                        </div>
-                        <span class="text-sm text-gray-400">21.22</span>
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                            <img src="img/man.jpg" alt="Profile" class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='img/default-user.jpg';" />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">Toko Ahmad</p>
-                            <p class="text-sm text-gray-400 truncate">
-                                Hai aku ahmad te....
-                            </p>
-                        </div>
-                        <span class="text-sm text-gray-400">21.22</span>
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                            <img src="img/man.jpg" alt="Profile" class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='img/default-user.jpg';" />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">Toko Ahmad</p>
-                            <p class="text-sm text-gray-400 truncate">
-                                Hai aku ahmad te....
-                            </p>
-                        </div>
-                        <span class="text-sm text-gray-400">21.22</span>
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                            <img src="img/man.jpg" alt="Profile" class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='img/default-user.jpg';" />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">Toko Ahmad</p>
-                            <p class="text-sm text-gray-400 truncate">
-                                Hai aku ahmad te....
-                            </p>
-                        </div>
-                        <span class="text-sm text-gray-400">21.22</span>
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                            <img src="img/man.jpg" alt="Profile" class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='img/default-user.jpg';" />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">Toko Ahmad</p>
-                            <p class="text-sm text-gray-400 truncate">
-                                Hai aku ahmad te....
-                            </p>
-                        </div>
-                        <span class="text-sm text-gray-400">21.22</span>
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                            <img src="img/man.jpg" alt="Profile" class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='img/default-user.jpg';" />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">Toko Ahmad</p>
-                            <p class="text-sm text-gray-400 truncate">
-                                Hai aku ahmad te....
-                            </p>
-                        </div>
-                        <span class="text-sm text-gray-400">21.22</span>
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700">
-                            <img src="img/man.jpg" alt="Profile" class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='img/default-user.jpg';" />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">Toko Ahmad</p>
-                            <p class="text-sm text-gray-400 truncate">
-                                Hai aku ahmad te....
-                            </p>
-                        </div>
-                        <span class="text-sm text-gray-400">21.22</span>
-                    </li>
+                <ul id="customerList" class="space-y-3 overflow-y-auto max-h-[calc(100vh-200px)] pr-2">
+                    <!-- Diisi lewat JavaScript -->
                 </ul>
             </div>
 
@@ -118,103 +28,22 @@
                 <!-- Chat Header -->
                 <div class="flex justify-between items-center border-b border-gray-700 pb-4">
                     <div>
-                        <p class="font-bold text-lg">Template Canva</p>
-                        <p class="text-sm text-gray-400">Selesai pada 2-21-2025</p>
+                        <p id="chat-customer-name" class="font-bold text-lg">Pilih Customer</p>
+                        <p class="text-sm text-gray-400">Riwayat Percakapan</p>
                     </div>
-                    <button class="bg-[#1d4ed8] hover:bg-[#2563eb] px-4 py-1 text-sm rounded text-white">
-                        Check Details
-                    </button>
-                </div>
-
-                <!-- Date Separator -->
-                <div class="text-center">
-                    <span class="bg-[#1e293b] text-sm px-4 py-1 rounded-full">Hari ini</span>
                 </div>
 
                 <!-- Chat Messages -->
-                <div class="flex flex-col space-y-4 overflow-y-auto max-h-[calc(100vh-300px)] pr-2">
-                    <!-- Message from other -->
-                    <div class="bg-[#1e293b] p-4 rounded max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
-
-                    <!-- Message from user -->
-                    <div class="bg-[#1e293b] p-4 rounded self-end max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
-                    <div class="bg-[#1e293b] p-4 rounded max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
-
-                    <!-- Message from user -->
-                    <div class="bg-[#1e293b] p-4 rounded self-end max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
-                    <div class="bg-[#1e293b] p-4 rounded max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
-
-                    <!-- Message from user -->
-                    <div class="bg-[#1e293b] p-4 rounded self-end max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
-                    <div class="bg-[#1e293b] p-4 rounded max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
-
-                    <!-- Message from user -->
-                    <div class="bg-[#1e293b] p-4 rounded self-end max-w-xl">
-                        <p class="text-sm leading-relaxed text-gray-200">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                            suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                            massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                            odio leo gravida lectus ipsum.
-                        </p>
-                    </div>
+                <div id="chat-messages" class="flex flex-col space-y-4 overflow-y-auto max-h-[calc(100vh-300px)] pr-2">
+                    <!-- Diisi lewat JavaScript -->
                 </div>
 
-                <!-- Chat Input (Opsional) -->
-
+                <!-- Chat Input -->
                 <div class="mt-auto pt-4 border-t border-gray-700">
                     <div class="flex gap-2">
-                        <input type="text" placeholder="Ketik pesan..."
+                        <input type="text" id="adminReplyInput" placeholder="Ketik pesan..."
                             class="flex-1 px-4 py-2 bg-[#1e293b] text-white rounded focus:outline-none" />
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded">
+                        <button id="adminSendBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded">
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
                     </div>
@@ -223,6 +52,85 @@
         </main>
     </div>
 
+    <script>
+        let selectedCustomerId = null;
+        const replyInput = document.getElementById('adminReplyInput');
+        const sendBtn = document.getElementById('adminSendBtn');
+        const chatMessages = document.getElementById('chat-messages');
+
+        function sendMessageToCustomer() {
+            const msg = replyInput.value.trim();
+            if (!msg || !selectedCustomerId) return;
+
+            fetch(`/admin/chat/send/${selectedCustomerId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: msg })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Gagal mengirim pesan');
+                    return res.json();
+                })
+                .then(data => {
+                    replyInput.value = '';
+                    loadMessagesForCustomer(selectedCustomerId);
+                })
+                .catch(error => {
+                    alert("Gagal mengirim pesan.");
+                    console.error(error);
+                });
+        }
+
+        sendBtn?.addEventListener('click', sendMessageToCustomer);
+        replyInput?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessageToCustomer();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ambil daftar customer
+            fetch('/admin/chat/customers')
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById('customerList');
+                    data.forEach(cust => {
+                        const li = document.createElement('li');
+                        li.textContent = cust.name;
+                        li.className = "p-2 hover:bg-gray-700 cursor-pointer";
+                        li.addEventListener('click', () => {
+                            selectedCustomerId = cust.id;
+                            document.getElementById('chat-customer-name').innerText = cust.name;
+                            loadMessagesForCustomer(selectedCustomerId);
+                        });
+                        list.appendChild(li);
+                    });
+                });
+        });
+
+        function loadMessagesForCustomer(id) {
+            fetch(`/admin/chat/messages/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    chatMessages.innerHTML = '';
+                    data.forEach(msg => {
+                        const isMine = msg.sender_id == {{ auth()->id() }};
+                        const div = document.createElement('div');
+                        div.className = 'flex ' + (isMine ? 'justify-end' : 'justify-start') + ' mb-2';
+                        div.innerHTML = `
+                            <div class="${isMine ? 'bg-blue-600 text-white' : 'bg-gray-700'} p-2 rounded-lg max-w-xs">
+                                ${msg.content}
+                            </div>`;
+                        chatMessages.appendChild(div);
+                    });
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+        }
+    </script>
 </body>
 
 </html>

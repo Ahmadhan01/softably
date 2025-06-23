@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminProductController;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\Artisan;
@@ -18,11 +19,7 @@ use App\Http\Controllers\NotificationController; // Pastikan ini di-import
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
+
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
@@ -195,8 +192,11 @@ Route::middleware(['auth', UpdateLastSeen::class])->group(function () {
 });
 
 
-Route::get('/view-produk', function () {
-    return view('view-admin.view-produk-admin');
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products.index');
+    Route::get('/products/{id}/edit', [AdminProductController::class, 'edit'])->name('admin.products.edit');
+    Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('admin.products.update');
+    Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('admin.products.destroy');
 });
 
 Route::get('/helpcenter-admin', function () {
@@ -231,3 +231,21 @@ Route::get('/go/{id}', function ($id) {
     $link->increment('clicks');
     return redirect()->away($link->url);
 })->name('link.redirect');
+
+// Ambil daftar customer yang pernah kirim chat
+Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin'])->middleware('auth');
+
+// Ambil isi chat antara admin dan 1 customer tertentu
+Route::get('/admin/chat/customer/{id}', [ChatController::class, 'viewChatWithCustomer'])->middleware('auth');
+
+Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin']);
+Route::get('/admin/chat/messages/{id}', [ChatController::class, 'fetchMessagesWithCustomer']);
+Route::post('/admin/chat/send/{id}', [ChatController::class, 'sendMessageToCustomer']);
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/chat/admin/messages', [ChatController::class, 'fetchMessagesWithAdmin']);
+    Route::post('/chat/admin/send', [ChatController::class, 'sendMessageToAdmin']);
+});
+
+
