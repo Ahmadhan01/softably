@@ -37,9 +37,8 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('login')->with('success', 'Register berhasil. Silakan login.');
+        return redirect()->route('login')->with('status', 'Register berhasil. Silakan login.');
     }
-
 
     public function login(Request $request)
     {
@@ -48,15 +47,24 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Cek apakah input login itu email atau username
+        // Tentukan apakah login menggunakan email atau username
         $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        // Auth::attempt dengan kondisi loginType
+        // Coba login
         if (Auth::attempt([$loginType => $request->login, 'password' => $request->password], $request->remember)) {
             $request->session()->regenerate();
+
             $user = Auth::user();
 
-            // Redirect berdasarkan role
+            // ✅ Cek apakah user dibanned
+            if ($user->is_banned) {
+                Auth::logout();
+                return redirect()->back()->withErrors([
+                    'login' => 'Akun Anda telah dibanned.',
+                ])->withInput();
+            }
+
+            // Redirect sesuai role
             return match ($user->role) {
                 'admin' => redirect()->route('admin.dashboard'),
                 'seller' => redirect()->route('seller.dashboard'),
@@ -65,13 +73,11 @@ class AuthController extends Controller
             };
         }
 
-        // Kalau gagal
+        // Jika gagal login
         return back()->withErrors([
-            'login' => 'Username/email atau password salah.',
+            'login' => 'Email atau password salah.',
         ])->withInput();
     }
-
-
 
     public function logout(Request $request)
     {

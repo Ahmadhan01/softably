@@ -19,6 +19,7 @@ class Kernel extends HttpKernel
         \Illuminate\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+
     ];
 
     /**
@@ -32,6 +33,10 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+       
+            \App\Http\Middleware\TrackPageView::class,
+
+            \App\Http\Middleware\UpdateLastSeen::class,
         ],
 
         'api' => [
@@ -48,10 +53,15 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'track.pageview' => \App\Http\Middleware\TrackPageView::class,
+
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-
-        // Custom middleware
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+
+        'log.test' => \App\Http\Middleware\LogVisitTest::class,
+
+
+
     ];
 }
