@@ -125,9 +125,15 @@
         <div class="space-y-4">
             @forelse($firstProductDetail->product->comments->sortByDesc('created_at') as $comment)
                 <div class="bg-[#1e293b] p-4 rounded-lg shadow-md flex items-start space-x-4" id="comment-item-{{ $comment->id }}">
-                    <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                        <img src="{{ $comment->user->profile_picture_url ?? asset('img/man.jpg') }}" alt="{{ $comment->user->name ?? 'Pengguna' }}" class="w-full h-full object-cover">
-                    </div>
+                    <div class="w-10 h-10 rounded-full overflow-hidden">
+                                {{-- Gunakan Auth::user() untuk gambar profil --}}
+                                @php
+                                $imagePath = Auth::user()->profile_picture
+                                ? url('storage/profile/' . Auth::user()->profile_picture)
+                                : asset('img/man.jpg');
+                                @endphp
+                                <img src="{{ url('profile/' . Auth::user()->profile_picture) . '?t=' . time() }}">
+                            </div>
                     <div class="flex-1">
                         <div class="flex items-center justify-between">
                             <p class="font-semibold text-white">{{ $comment->user->name ?? 'Pengguna Anonim' }}</p>
@@ -172,7 +178,7 @@
                 id="comment-input"
                 placeholder="Berikan Komentar Anda..."
                 class="flex-1 p-3 rounded-md bg-[#1F2A40] text-white border border-gray-600 focus:outline-none"
-                value="{{ old('content', $existingComment->content ?? '') }}"
+                value="" {{-- DIUBAH UNTUK SELALU KOSONG SECARA DEFAULT --}}
                 required
             />
             <button type="submit" class="bg-green-500 px-4 py-2 rounded-md hover:bg-green-400">
@@ -190,14 +196,49 @@
 
     @push('scripts')
     <script>
+        // Pastikan Anda memiliki fungsi showToast di layouts/sidebar.blade.php
+        // atau definisi global di tempat lain. Jika tidak, tambahkan di sini.
+        function showToast(message, type = 'success') {
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                const newToastContainer = document.createElement('div');
+                newToastContainer.id = 'toast-container';
+                newToastContainer.classList.add('fixed', 'bottom-4', 'right-4', 'z-[9999]', 'space-y-2');
+                document.body.appendChild(newToastContainer);
+                toastContainer = newToastContainer;
+            }
+
+            const toast = document.createElement('div');
+            toast.classList.add(
+                'flex', 'items-center', 'gap-2', 'px-4', 'py-2', 'rounded-md', 'shadow-md', 'text-white',
+                type === 'success' ? 'bg-green-500' : 'bg-red-500',
+                'transform', 'translate-x-full', 'transition-transform', 'duration-300'
+            );
+            toast.innerHTML =
+                `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i> <span>${message}</span>`;
+
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Variabel-variabel untuk form komentar
             const commentInput = document.getElementById('comment-input');
             const commentForm = document.getElementById('comment-form');
             const commentMethod = document.getElementById('comment-method');
             const commentButtonText = document.getElementById('comment-button-text');
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // Logika Edit Komentar - Menggunakan event delegation karena tombol edit ada di dalam loop
+            // Logika Edit Komentar - Menggunakan event delegation untuk tombol edit
+            // Ini hanya mengisi form untuk diedit, tidak mengirim form
             document.querySelectorAll('.edit-comment-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const commentId = this.dataset.commentId;
@@ -215,11 +256,70 @@
             commentInput.addEventListener('input', function() {
                 if (this.value === '' && commentMethod.value === 'PATCH') {
                     // Kembali ke action store dengan product ID
-                    const productId = commentForm.querySelector('input[name="product_id"]').value;
+                    // Menggunakan $firstProductDetail->product->id dari PHP (pastikan tidak null)
                     commentForm.action = `{{ route('comments.store', $firstProductDetail->product->id ?? 0) }}`;
                     commentMethod.value = 'POST';
                     commentButtonText.textContent = 'Kirim';
                 }
+            });
+
+            // Logika pengiriman form (baik untuk tambah baru maupun update)
+            // Ini menangani submit form baik saat POST (tambah baru) maupun PATCH (update)
+            commentForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // <-- INI KUNCI UTAMA UNTUK MENCEGAH PENGALIHAN
+
+                const url = commentForm.action;
+                const method = commentMethod.value;
+                const content = commentInput.value;
+                // Ambil product_id dari hidden input di form
+                const productId = commentForm.querySelector('input[name="product_id"]').value; 
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        product_id: productId // Kirim product_id juga untuk update jika diperlukan di backend
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        // Tangani respons non-OK (misal: validasi gagal, unauthorized)
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || 'Gagal menyimpan komentar.');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+
+                        if (method === 'PATCH') {
+                            // Update tampilan komentar yang sudah ada di DOM
+                            const commentIdToUpdate = url.split('/').pop(); // Ambil ID dari URL
+                            const commentContentDisplay = document.getElementById(`comment-content-${commentIdToUpdate}`); // Gunakan ID yang benar
+                            if (commentContentDisplay) {
+                                commentContentDisplay.textContent = content; // Perbarui teks komentar di DOM
+                            }
+                        }
+                        // Reset form setelah sukses
+                        commentInput.value = '';
+                        commentForm.action = `{{ route('comments.store', $firstProductDetail->product->id ?? 0) }}`;
+                        commentMethod.value = 'POST';
+                        commentButtonText.textContent = 'Kirim';
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting comment:', error);
+                    showToast('Terjadi kesalahan saat menyimpan komentar: ' + error.message, 'error');
+                });
             });
 
             // Logika Hapus Komentar - Menggunakan event delegation
@@ -237,11 +337,10 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert('Komentar berhasil dihapus.');
+                                showToast('Komentar berhasil dihapus.', 'success');
                                 // Hapus elemen komentar dari DOM tanpa reload halaman
                                 document.getElementById(`comment-item-${commentId}`).remove();
                                 // Optional: Reset form komentar jika yang dihapus adalah komentar yang sedang diedit
-                                const productId = commentForm.querySelector('input[name="product_id"]').value;
                                 if (commentForm.action === `/comments/${commentId}` && commentMethod.value === 'PATCH') {
                                     commentInput.value = '';
                                     commentForm.action = `{{ route('comments.store', $firstProductDetail->product->id ?? 0) }}`;
@@ -249,12 +348,12 @@
                                     commentButtonText.textContent = 'Kirim';
                                 }
                             } else {
-                                alert('Gagal menghapus komentar: ' + data.message);
+                                showToast('Gagal menghapus komentar: ' + data.message, 'error');
                             }
                         })
                         .catch(error => {
                             console.error('Error deleting comment:', error);
-                            alert('Terjadi kesalahan saat menghapus komentar.');
+                            showToast('Terjadi kesalahan saat menghapus komentar.', 'error');
                         });
                     }
                 });

@@ -12,6 +12,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
+        
 
         // 1. Search Product
         if ($request->has('search') && $request->search != '') {

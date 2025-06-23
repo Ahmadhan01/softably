@@ -20,6 +20,7 @@ class Kernel extends HttpKernel
         \Illuminate\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+
     ];
 
     /**
@@ -33,6 +34,10 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+       
+            \App\Http\Middleware\TrackPageView::class,
+
+            \App\Http\Middleware\UpdateLastSeen::class,
         ],
 
         'api' => [
@@ -46,25 +51,13 @@ class Kernel extends HttpKernel
      *
      * These middleware may be assigned to groups or used individually.
      */
-    // protected $routeMiddleware = [
-    //      // middleware default
-    // 'auth' => \App\Http\Middleware\Authenticate::class,
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
-    
-
-    //     'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-    //     'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-    //     'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-
-    //     'role' => \App\Http\Middleware\RoleMiddleware::class,
-    // ];
-
-    protected $middlewareAliases = [
-    // middleware bawaan Laravel
-    'auth' => \App\Http\Middleware\Authenticate::class,
-    'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-    'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-    'role' => \App\Http\Middleware\RoleMiddleware::class,
-];
-
+        // Custom middleware
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+    ];
 }

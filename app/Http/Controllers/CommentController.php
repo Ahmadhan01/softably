@@ -17,9 +17,9 @@ class CommentController extends Controller
         ]);
 
         // Pastikan user sudah login
-        // Middleware 'auth' di route sudah menangani ini, tapi bisa double check
         if (!Auth::check()) {
-            return back()->with('error', 'Anda harus login untuk berkomentar.');
+            // Untuk AJAX, kembalikan JSON error daripada redirect back()
+            return response()->json(['success' => false, 'message' => 'Anda harus login untuk berkomentar.'], 401);
         }
 
         // Buat komentar baru
@@ -27,9 +27,10 @@ class CommentController extends Controller
             'user_id' => Auth::id(),
             'product_id' => $product->id,
             'content' => $request->input('content'),
-        ]);
+        ]); 
 
-        return back()->with('success', 'Komentar berhasil ditambahkan!');
+        // *** PERBAIKI INI: Kembalikan respons JSON ***
+        return response()->json(['success' => true, 'message' => 'Komentar berhasil ditambahkan!']);
     }
 
     public function update(Request $request, Comment $comment)
@@ -61,7 +62,7 @@ class CommentController extends Controller
 
         try {
             $comment->delete();
-            // *** PERUBAHAN DI SINI: Kembalikan respons JSON sukses ***
+            // Kembalikan respons JSON sukses
             return response()->json(['success' => true, 'message' => 'Komentar berhasil dihapus.']);
         } catch (\Exception $e) {
             // Tangani error jika terjadi masalah saat menghapus dari DB

@@ -13,16 +13,24 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable
 {
+
     use HasFactory, Notifiable, HasApiTokens; // Mengaktifkan HasApiTokens jika Anda memakainya
+
+    // use HasFactory, Notifiable;
+
 
     protected $fillable = [
         'name',
-        'username',
         'email',
-        'password',
+        'username',
         'role',
         'phone_number',
         'profile_picture', // Pastikan ini ada dan diizinkan untuk diisi
+        'password',
+        'date_of_birth',
+        'country',
+        
+
     ];
 
     protected $hidden = [
@@ -30,12 +38,16 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'last_seen' => 'datetime',
+    ];
+
+    public function isOnline()
+
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->last_seen && $this->last_seen->gt(now()->subMinutes(5));
     }
 
     public function comments(): HasMany

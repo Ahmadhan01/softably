@@ -38,60 +38,67 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('login')->with('success', 'Register berhasil. Silakan login.');
+        return redirect()->route('login')->with('status', 'Register berhasil. Silakan login.');
     }
-
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'login' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        // Cek apakah input 'login' itu email atau username
-        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+    // Cek apakah input adalah email atau username
+    $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        if (Auth::attempt([$loginType => $request->login, 'password' => $request->password], $request->remember)) {
-            $request->session()->regenerate();
+    if (Auth::attempt([$loginType => $request->login, 'password' => $request->password], $request->remember)) {
+        $request->session()->regenerate();
 
-            $user = Auth::user(); // ambil user yang sudah login
+        $user = Auth::user();
 
-            // === Bagian Penambahan untuk Status Online (Pusher) ===
-            // Inisialisasi Pusher
-            $pusher = new Pusher(
-                env('PUSHER_APP_KEY'),
-                env('PUSHER_APP_SECRET'),
-                env('PUSHER_APP_ID'),
-                [
-                    'cluster' => env('PUSHER_APP_CLUSTER'),
-                    'useTLS' => true
-                ]
-            );
-
-            // Trigger event 'user-online' ke presence channel 'presence-chat'
-            $pusher->trigger('presence-chat', 'user-online', [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name, // Kirim nama user juga
-                ]
-            ]);
-            // === Akhir Bagian Penambahan ===
-
-            // 🔁 Arahkan berdasarkan role
-            return match ($user->role) {
-                'admin' => redirect()->route('admin.dashboard'),
-                'seller' => redirect()->route('seller.dashboard'),
-                'customer' => redirect()->route('customer.produk'),
-                default => abort(403, 'Role tidak dikenali'),
-            };
+        // Cek apakah user dibanned
+        if ($user->is_banned) {
+            Auth::logout();
+            return redirect()->back()->withErrors([
+                'login' => 'Akun Anda telah dibanned.',
+            ])->withInput();
         }
 
-        // Jika login gagal
-        return back()->withErrors([
-            'login' => 'Username/email atau password salah.',
-        ])->withInput();
+        // === Status Online dengan Pusher ===
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            [
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+                'useTLS' => true
+            ]
+        );
+
+        $pusher->trigger('presence-chat', 'user-online', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+            ]
+        ]);
+        // === Akhir status online ===
+
+        // Redirect berdasarkan role
+        return match ($user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'seller' => redirect()->route('seller.dashboard'),
+            'customer' => redirect()->route('customer.produk'),
+            default => abort(403, 'Role tidak dikenali'),
+        };
     }
+
+    // Jika gagal login
+    return back()->withErrors([
+        'login' => 'Email atau password salah.',
+    ])->withInput();
+}
+
+
 
 
     public function logout(Request $request)

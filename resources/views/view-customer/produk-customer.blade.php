@@ -76,11 +76,11 @@
         flex-grow: 1;
     }
 
-    .product-card.list-view .bookmark-icon,
-    /* .product-card.list-view .cart-icon { Removed .cart-icon from here too */
-    position: static;
-    margin-left: auto;
-    align-self: center;
+    .product-card.list-view .bookmark-icon {
+        /* .product-card.list-view .cart-icon { Removed .cart-icon from here too */
+        position: static;
+        margin-left: auto;
+        align-self: center;
     }
 
     .product-card.list-view .action-icons {
@@ -283,16 +283,23 @@
                         </div>
 
                         <div class="p-3">
-                            <select id="category-select" name="category" onchange="document.getElementById('filter-sort-form').submit();"
+                            <select id="category-select" name="category"
+                                onchange="document.getElementById('filter-sort-form').submit();"
                                 class="mt-0.5 w-full rounded border-gray-300 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white">
-                                <option value="all" {{ request('category') == 'all' || !request('category') ? 'selected' : '' }}>Semua Kategori</option>
-                                @foreach($categories as $category)
-                                    @if($category != 'all') {{-- Hindari duplikasi 'all' jika sudah ditambahkan di controller --}}
-                                        <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>
-                                            {{ ucwords(str_replace('_', ' ', $category)) }}
-                                        </option>
-                                    @endif
+                                <option value="all"
+                                    {{ request('category') == 'all' || !request('category') ? 'selected' : '' }}>Semua
+                                    Kategori</option>
+                                @if(isset($categories))
+                                @foreach ($categories as $category)
+                                @if($category != 'all')
+                                <option value="{{ $category }}"
+                                    {{ request('category') == $category ? 'selected' : '' }}>
+                                    {{ ucwords(str_replace('_', ' ', $category)) }}
+                                </option>
+                                @endif
                                 @endforeach
+                                @endif
+
                             </select>
                         </div>
                     </div>
@@ -309,15 +316,18 @@
                     </option>
                     <option value="newest"
                         {{ request('sort_by') == 'newest' || !request('sort_by') ? 'selected' : '' }}>Terbaru</option>
-                    <option value="price_asc" {{ request('sort_by') == 'price_asc' ? 'selected' : '' }}>Harga: Terendah ke
+                    <option value="price_asc" {{ request('sort_by') == 'price_asc' ? 'selected' : '' }}>Harga: Terendah
+                        ke
                         Tertinggi</option>
-                    <option value="price_desc" {{ request('sort_by') == 'price_desc' ? 'selected' : '' }}>Harga: Tertinggi ke
+                    <option value="price_desc" {{ request('sort_by') == 'price_desc' ? 'selected' : '' }}>Harga:
+                        Tertinggi ke
                         Terendah</option>
                 </select>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="flex flex-col text-right justify-center leading-snug text-gray-300">
-                    <div>Menampilkan {{ $products->firstItem() }} sampai {{ $products->lastItem() }} dari {{ $products->total() }}
+                    <div>Menampilkan {{ $products->firstItem() }} sampai {{ $products->lastItem() }} dari
+                        {{ $products->total() }}
                         hasil.</div>
                 </div>
 
@@ -367,7 +377,7 @@
 
                 {{-- Menampilkan Kategori --}}
                 @if($product->category)
-                    <p class="text-sm text-gray-500">{{ ucwords(str_replace('_', ' ', $product->category)) }}</p>
+                <p class="text-sm text-gray-500">{{ ucwords(str_replace('_', ' ', $product->category)) }}</p>
                 @endif
                 {{-- End Menampilkan Kategori --}}
 
@@ -420,27 +430,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000); // Toast disappears after 3 seconds
 
         document.querySelectorAll('.wishlist-toggle').forEach(button => {
-        button.addEventListener('click', () => {
-            const productId = button.dataset.productId;
+            button.addEventListener('click', () => {
+                const productId = button.dataset.productId;
 
-            fetch(`/wishlist/toggle/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'added') {
-                    button.innerHTML = '❤️';
-                } else if (data.status === 'removed') {
-                    button.innerHTML = '🤍';
-                }
+                fetch(`/wishlist/toggle/${productId}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'added') {
+                            button.innerHTML = '❤️';
+                        } else if (data.status === 'removed') {
+                            button.innerHTML = '🤍';
+                        }
+                    });
             });
         });
-    });
     }
 
     // Handle Toggle Wishlist button click (existing functionality)

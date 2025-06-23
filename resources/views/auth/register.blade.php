@@ -1,25 +1,17 @@
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-    <meta charset="UTF-8" />
-    <title>Register</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+<x-header-admin title="Register" />
 
 <body class="bg-[#0E1A2B] min-h-screen flex items-center justify-center font-sans">
 
-    <div class="bg-[#111C2E] text-white rounded-xl shadow-lg w-full max-w-4xl p-8 flex">
+    <div class="bg-[#111C2E] text-white rounded-xl shadow-lg w-full max-w-4xl p-8 flex flex-col md:flex-row gap-6">
 
         <!-- Gambar -->
-        <div class="md:w-1/2 relative h-64 md:h-auto overflow-hidden rounded-lg">
-            <img src="{{ asset('img/lennon.jpg') }}" alt="Register Illustration"
-                class="absolute inset-0 w-full h-full object-cover" />
+        <div class="md:w-1/2 w-full p-4 flex items-center justify-center">
+            <img src="{{ asset('img/softably-baru.png') }}" alt="Register Illustration"
+                class="max-h-60 w-auto object-contain" />
         </div>
 
         <!-- Form -->
-        <div class="w-1/2 flex flex-col justify-center px-4">
+        <div class="md:w-1/2 w-full flex flex-col justify-center px-4">
             <h2 class="text-2xl font-semibold mb-1">Create an account</h2>
             <p class="text-sm text-gray-400 mb-4">
                 Already have an account?
@@ -70,7 +62,6 @@
                     <option value="" disabled selected>Pilih Role</option>
                     <option value="customer" {{ old('role') == 'customer' ? 'selected' : '' }}>Customer</option>
                     <option value="seller" {{ old('role') == 'seller' ? 'selected' : '' }}>Seller</option>
-                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                 </select>
                 @error('role')
                     <p class="text-red-500 text-sm mb-2">{{ $message }}</p>
@@ -115,4 +106,3 @@
 </body>
 
 </html>
-

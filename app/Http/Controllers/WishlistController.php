@@ -7,6 +7,7 @@ use App\Models\Product; // Pastikan ini diimport
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log; // Untuk debugging
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WishlistController extends Controller
 {
@@ -16,11 +17,12 @@ class WishlistController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::user();   
         if (!$user) {
             return redirect()->route('login');
         }
 
+        dd($user);
         $query = $user->wishlists()->with('product', 'product.seller');
 
         // --- Implementasi Pencarian (Search) ---

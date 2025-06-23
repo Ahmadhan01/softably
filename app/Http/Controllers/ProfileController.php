@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule; // Import Rule
 use Illuminate\Support\Facades\Storage; // Import Storage
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -34,6 +35,7 @@ class ProfileController extends Controller
             ],
             'phone_number' => 'nullable|string|max:20', // Sesuaikan validasi nomor telepon jika perlu
             'date_of_birth' => 'nullable|date',
+            'profile_picture'   => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
             // 'country' => 'nullable|string|max:255', // Negara mungkin tidak perlu di-update jika disabled di frontend
         ]);
 
@@ -44,6 +46,7 @@ class ProfileController extends Controller
         $user->date_of_birth = $request->date_of_birth;
         // $user->country = $request->country; // Jika ingin bisa diupdate, hapus disabled di blade
 
+        dd($user);
         $user->save();
 
         // Redirect dengan pesan sukses
@@ -60,20 +63,27 @@ class ProfileController extends Controller
         ]);
 
         if ($request->hasFile('profile_picture')) {
-            // Hapus foto lama jika ada dan bukan gambar default
-            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture) && $user->profile_picture !== 'img/default-user.jpg') {
-                Storage::disk('public')->delete($user->profile_picture);
+            $imageName = time() . '.' . $request->file('profile_picture')->getClientOriginalExtension();
+
+            $destination = public_path('profile');
+            if (!file_exists($destination)) {
+                mkdir($destination, 0755, true);
             }
 
-            // Simpan foto baru di direktori 'profile_pictures' dalam storage/app/public
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-            $user->profile_picture = $path;
-            $user->save();
+            if ($user->profile_picture && file_exists($destination . '/' . $user->profile_picture)) {
+                unlink($destination . '/' . $user->profile_picture);
+            }
 
-            return redirect()->route('setting-customer')->with('success', 'Foto profil berhasil diunggah!');
+            $request->file('profile_picture')->move($destination, $imageName);
+            $user->profile_picture = $imageName;
+            
         }
+        dd($user);
+        $user->save();
+ 
+        return back()->with('success', 'Profil berhasil diperbarui.');
 
-        return redirect()->route('setting-customer')->with('error', 'Gagal mengunggah foto profil.');
+        // return redirect()->route('setting-customer')->with('error', 'Gagal mengunggah foto profil.');
     }
 
     // Anda juga bisa menambahkan method untuk update password, dll.
@@ -91,6 +101,7 @@ class ProfileController extends Controller
         }
 
         $user->password = Hash::make($request->password);
+        dd($user);
         $user->save();
 
         return redirect()->route('setting-customer')->with('success', 'Kata sandi berhasil diperbarui!');
