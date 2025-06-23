@@ -1,249 +1,264 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detail Order</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-  </head>
+@extends('layouts.sidebar')
 
-  <body class="bg-[#0f172a] text-white font-sans">
+@section('isi')
     <div class="flex min-h-screen">
-      <aside
-        class="w-64 bg-[#1e293b] flex flex-col justify-between fixed top-0 left-0 h-full"
-      >
-        <div>
-          <div class="p-4 text-xl font-bold border-b border-gray-700">
-            <img src="img/logo-softably.png" alt="" width="120px" />
-          </div>
-          <nav class="p-4 space-y-2 text-sm text-gray-300">
-            <a
-              href="/produk_customer"
-              class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded"
-            >
-              <i class="fa-solid fa-box" style="color: #ffffff"></i
-              ><span>Product</span>
-            </a>
-            <a
-              href="/cart_customer"
-              class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded"
-            >
-              <i class="fa-solid fa-cart-shopping"></i><span>Cart</span>
-            </a>
-            <a
-              href="/order_customer"
-              class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded"
-            >
-              <i class="fa-solid fa-list-ul"></i><span>My Orders</span>
-            </a>
-            <a
-              href="/notif_customer"
-              class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded"
-            >
-              <i class="fa-solid fa-bell"></i><span>Notification</span>
-              <span
-                class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full"
-                >4</span
-              >
-            </a>
-            <a
-              href="/chat_customer"
-              class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded"
-            >
-              <i class="fa-solid fa-comments"></i><span>Chat</span>
-              <span
-                class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full"
-                >10</span
-              >
-            </a>
-            <a
-              href="/faq_customer"
-              class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded"
-            >
-              <i class="fa-solid fa-circle-question"></i><span>FAQ</span>
-            </a>
-          </nav>
-          <div class="p-4 border-t border-gray-700">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-full overflow-hidden">
-                <img
-                  src="img/man.jpg"
-                  alt=""
-                  class="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <div class="font-medium">Fuad Pharaoh</div>
-                <div class="text-sm text-gray-400">
-                  <a href="setting_customer.html">Account settings</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="p-4 space-y-2">
-          <a
-            href="/setting_customer"
-            class="flex items-center space-x-2 text-gray-400 hover:text-white"
-          >
-            <span>⚙️</span><span>Settings</span>
-          </a>
-          <a
-            href="/login"
-            class="flex items-center space-x-2 text-gray-400 hover:text-white"
-          >
-            <span>🚪</span><span>Log Out</span>
-          </a>
-        </div>
-      </aside>
-
       <main class="flex-1 p-6 space-y-6 ml-64">
-        <a href="order_customer.html" class="text-sm text-white hover:underline"
-          ><i class="fa-solid fa-arrow-left"></i>&nbsp; Order Detail</a
-        >
+        {{-- Mengarahkan kembali ke daftar order, bukan hardcoded HTML --}}
+        <a href="{{ route('order-customer') }}" class="text-sm text-white hover:underline">
+          <i class="fa-solid fa-arrow-left"></i>&nbsp; Order Detail
+        </a>
 
         <div class="bg-[#1e293b] p-6 rounded-lg space-y-6">
           <div class="flex items-start justify-between">
             <div>
               <p class="text-gray-400">Order status</p>
-              <p class="font-semibold text-white">Finished</p>
+              {{-- Menampilkan status dinamis dari transaksi --}}
+              <p class="font-semibold text-white">{{ $transaction->status_label }}</p>
             </div>
-            <button
-              class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-semibold"
-            >
-              Give a Ratings
-            </button>
+            {{-- HAPUS TOMBOL "Give a Ratings" DI SINI --}}
           </div>
           <div>
             <p class="text-gray-400">Order id</p>
-            <p class="font-semibold">1234</p>
+            {{-- Menampilkan nomor invoice dinamis --}}
+            <p class="font-semibold">{{ $transaction->invoice_number }}</p>
           </div>
 
-          <div class="flex gap-4">
-            <!-- Gambar produk -->
-            <div class="w-48 h-36 rounded-lg bg-white flex-shrink-0">
+          {{-- Loop untuk menampilkan setiap produk dalam transaksi --}}
+          @foreach($transaction->details as $detail)
+          <div class="flex gap-4 border-b border-gray-700 pb-4 mb-4 last:border-b-0 last:pb-0">
+            <div class="w-48 h-36 rounded-lg bg-white flex-shrink-0 overflow-hidden">
               <img
-                src="img/download.jpeg"
-                alt=""
+                src="{{ $detail->product_image ?? asset('img/default-product.jpg') }}" {{-- Gunakan product_image dari detail transaksi --}}
+                alt="{{ $detail->product_name }}"
                 class="w-full h-full object-cover rounded-lg"
               />
             </div>
 
-            <!-- Info produk -->
             <div class="flex-1 space-y-1">
-              <p class="text-sm text-gray-400">Toko Ahmad</p>
-              <h2 class="text-lg font-bold">Template canva</h2>
               <p class="text-sm text-gray-400">
-                Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                odio leo gravida lectus ipsum.
+                {{-- Nama penjual dinamis --}}
+                {{ $detail->product->seller->name ?? 'Toko Tidak Dikenal' }}
+              </p>
+              <h2 class="text-lg font-bold">{{ $detail->product_name }}</h2> {{-- Nama produk dinamis --}}
+              <p class="text-sm text-gray-400">
+                {{ Str::limit($detail->product->description, 150) }} {{-- Deskripsi produk dinamis --}}
               </p>
             </div>
 
             <div class="flex flex-col items-end gap-2">
-              <button
-                class="border border-gray-500 text-white text-sm px-3 py-1 rounded hover:bg-gray-700"
-              >
+              {{-- Tombol "View Store" dinamis --}}
+              @if($detail->product->seller)
+              <a href="{{ route('view-seller.show', $detail->product->seller->id) }}" {{-- Mengarahkan ke profil seller --}}
+                 class="border border-gray-500 text-white text-sm px-3 py-1 rounded hover:bg-gray-700">
                 View Store
-              </button>
+              </a>
+              @endif
 
               <div class="flex flex-col items-end mt-2">
-                <p class="text-sm text-gray-400">x2</p>
-                <p class="text-white font-semibold">Rp. 59.999,00</p>
+                <p class="text-sm text-gray-400">x{{ $detail->quantity }}</p> {{-- Kuantitas dinamis --}}
+                <p class="text-white font-semibold">Rp. {{ number_format($detail->price, 0, ',', '.') }},00</p> {{-- Harga per unit dinamis --}}
               </div>
             </div>
           </div>
 
+          {{-- Konten Produk (hanya ditampilkan jika transaksi selesai/completed) --}}
+          @if($transaction->status === 'completed' || $transaction->status === 'finished')
           <div
             class="bg-[#334155] text-sm text-gray-200 p-3 rounded-lg flex items-center justify-between"
           >
-            <span
-              >https://Lorem ipsum dolor sit amet consectetur. Pulvinar sed
-              egestas suspendisse lorem. Mauris neque amet purus commodo nulla
-              tellus massa. Amet nisi nibh fermentum cras tincidunt feugiat leo
-              id. A odio leo gravida lectus ipsum.</span
-            >
+            {{-- Mengambil link download atau deskripsi kedua dari produk --}}
+            <span>
+                @if($detail->product->download_link)
+                    <a href="{{ $detail->product->download_link }}" target="_blank" class="text-blue-400 hover:underline">
+                        Unduh Konten: {{ $detail->product->name }}
+                    </a>
+                @elseif($detail->product->content_description)
+                    {{ $detail->product->content_description }}
+                @else
+                    Konten digital akan tersedia di sini setelah pembayaran dikonfirmasi.
+                @endif
+            </span>
           </div>
           <div class="flex items-start justify-end">
-            <button
-              class="border border-gray-500 text-white text-sm px-3 py-1 rounded hover:bg-gray-700"
-            >
-              <i class="fa-solid fa-clipboard"></i> Copy
-            </button>
+            {{-- TOMBOL COPY DIHAPUS --}}
           </div>
+          @endif
+          @endforeach {{-- Akhir loop foreach details --}}
 
-          <!-- Rincian pembayaran -->
-          <div class="text-sm text-gray-400 space-y-1">
+
+          <div class="text-sm text-gray-400 space-y-1 mt-6 pt-4 border-t border-gray-700">
             <div class="flex justify-between">
               <span>Payment method</span>
-              <span class="text-white font-medium">Rp. 59.999,00</span>
+              <span class="text-white font-medium">{{ $transaction->payment_method }}</span> {{-- Metode pembayaran dinamis --}}
             </div>
             <div class="flex justify-between">
               <span>Discount</span>
-              <span class="text-white font-medium">0</span>
+              <span class="text-white font-medium">Rp. {{ number_format($transaction->discount, 0, ',', '.') }},00</span> {{-- Diskon dinamis --}}
             </div>
             <div class="flex justify-between">
               <span>Convenience fee</span>
-              <span class="text-white font-medium">Rp. 15.000,00</span>
+              <span class="text-white font-medium">Rp. {{ number_format($transaction->convenience_fee, 0, ',', '.') }},00</span> {{-- Convenience fee dinamis --}}
             </div>
           </div>
 
           <div class="flex justify-between items-center text-lg font-bold mt-2">
             <span>Total</span>
-            <span class="text-orange-400">Rp. 133.999,00</span>
+            <span class="text-orange-400">Rp. {{ number_format($transaction->total_amount, 0, ',', '.') }},00</span> {{-- Total dinamis --}}
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="flex justify-end mt-6">
-          <div
-            class="bg-[#1e293b] p-4 rounded-lg flex items-center relative w-[80%] max-w-3xl"
-          >
-            <!-- Bagian kiri: nama dan komentar -->
-            <div class="flex-1 pr-4">
-              <div class="flex items-center justify-between mb-1">
-                <p class="text-sm font-semibold">Fuad Pharaoh</p>
-                <button class="text-white/70 hover:text-white">
-                  <i class="fas fa-pen text-xs"></i>
-                </button>
-              </div>
-              <p class="text-sm text-gray-400">
-                Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas
-                suspendisse lorem. Mauris neque amet purus commodo nulla tellus
-                massa. Amet nisi nibh fermentum cras tincidunt feugiat leo id. A
-                odio leo gravida lectus ipsum.
-              </p>
-            </div>
+        {{-- Bagian Komentar - Asumsi untuk produk pertama dalam transaksi. Sesuaikan jika perlu --}}
+        @php
+            $firstProductDetail = $transaction->details->first(); // Ambil detail produk pertama untuk komentar
+            // Variabel $existingComment ini TIDAK lagi digunakan untuk menampilkan komentar,
+            // tetapi bisa tetap digunakan untuk mengisi nilai default di form input jika diperlukan.
+            $existingComment = null;
+            if ($firstProductDetail) {
+                $existingComment = Auth::user()->comments()->where('product_id', $firstProductDetail->product->id)->first();
+            }
+        @endphp
 
-            <!-- Avatar kanan -->
-            <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-              <img
-                src="img/man.jpg"
-                alt="Avatar"
-                class="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
+        @if($firstProductDetail) {{-- Pastikan ada produk untuk dikomentari --}}
 
-        <div class="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Give A Ratings..."
-            class="flex-1 p-3 rounded-md bg-[#1F2A40] text-white border border-gray-600 focus:outline-none"
-          />
-          <button class="bg-green-500 px-4 py-2 rounded-md hover:bg-green-400">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
+        {{-- --- BAGIAN UNTUK MENAMPILKAN DAFTAR KOMENTAR --- --}}
+        <h2 class="text-xl font-semibold mt-8 mb-4 text-white">Komentar Produk</h2>
+        <div class="space-y-4">
+            @forelse($firstProductDetail->product->comments->sortByDesc('created_at') as $comment)
+                <div class="bg-[#1e293b] p-4 rounded-lg shadow-md flex items-start space-x-4" id="comment-item-{{ $comment->id }}">
+                    <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                        <img src="{{ $comment->user->profile_picture_url ?? asset('img/man.jpg') }}" alt="{{ $comment->user->name ?? 'Pengguna' }}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <p class="font-semibold text-white">{{ $comment->user->name ?? 'Pengguna Anonim' }}</p>
+                            <p class="text-xs text-gray-500">{{ $comment->created_at->diffForHumans() }}</p>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-1" id="comment-content-{{ $comment->id }}">{{ $comment->content }}</p>
+                        {{-- Opsi Edit/Hapus Komentar (hanya untuk komentar milik user yang login) --}}
+                        @if(Auth::id() === $comment->user_id)
+                            <div class="mt-2 text-right space-x-2">
+                                <button class="text-white/70 hover:text-white text-xs edit-comment-btn" data-comment-id="{{ $comment->id }}" data-comment-content="{{ $comment->content }}">
+                                    <i class="fas fa-pen text-xs"></i> Edit
+                                </button>
+                                <button class="text-red-500 hover:text-red-600 text-xs delete-comment-btn" data-comment-id="{{ $comment->id }}">
+                                    <i class="fa-solid fa-trash"></i> Hapus
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <p class="text-gray-400 text-center">Belum ada komentar untuk produk ini.</p>
+            @endforelse
         </div>
+        {{-- --- AKHIR BAGIAN DAFTAR KOMENTAR --- --}}
+
+
+        {{-- Bagian Input Komentar Pengguna --}}
+        <h2 class="text-xl font-semibold mt-8 mb-4 text-white">Berikan Komentar Anda</h2>
+        {{-- HAPUS BLOK DIV INI YANG MUNCUL DI GAMBAR DENGAN KOMENTAR SAYA SENDIRI --}}
+        {{-- <div class="flex justify-end mt-6"> ... </div> --}}
+        {{-- Kode di atas sudah dihapus. --}}
+
+        {{-- Form untuk mengirim/mengedit komentar --}}
+        <form id="comment-form" action="{{ route('comments.store', $firstProductDetail->product->id) }}" method="POST" class="flex items-center gap-2">
+            @csrf
+            <input type="hidden" name="product_id" value="{{ $firstProductDetail->product->id }}">
+            <input type="hidden" name="_method" id="comment-method" value="POST"> {{-- Default POST, bisa jadi PATCH --}}
+
+            <input
+                type="text"
+                name="content"
+                id="comment-input"
+                placeholder="Berikan Komentar Anda..."
+                class="flex-1 p-3 rounded-md bg-[#1F2A40] text-white border border-gray-600 focus:outline-none"
+                value="{{ old('content', $existingComment->content ?? '') }}"
+                required
+            />
+            <button type="submit" class="bg-green-500 px-4 py-2 rounded-md hover:bg-green-400">
+                <i class="fa-solid fa-paper-plane"></i> <span id="comment-button-text">Kirim</span>
+            </button>
+        </form>
+        @error('content')
+            <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+        @enderror
+        @endif
+
       </main>
     </div>
-    <script src="js/index.js" defer></script>
-  </body>
-</html>
+    @endsection
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentInput = document.getElementById('comment-input');
+            const commentForm = document.getElementById('comment-form');
+            const commentMethod = document.getElementById('comment-method');
+            const commentButtonText = document.getElementById('comment-button-text');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Logika Edit Komentar - Menggunakan event delegation karena tombol edit ada di dalam loop
+            document.querySelectorAll('.edit-comment-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    const commentContent = this.dataset.commentContent; // Ambil konten dari data attribute
+                    
+                    commentInput.value = commentContent; // Isi input dengan konten komentar yang ingin diedit
+                    commentForm.action = `/comments/${commentId}`; // Ganti action ke update rute
+                    commentMethod.value = 'PATCH'; // Ganti method ke PATCH
+                    commentButtonText.textContent = 'Update'; // Ubah teks tombol
+                    commentInput.focus();
+                });
+            });
+
+            // Reset form jika input dikosongkan setelah edit atau saat form dikirim
+            commentInput.addEventListener('input', function() {
+                if (this.value === '' && commentMethod.value === 'PATCH') {
+                    // Kembali ke action store dengan product ID
+                    const productId = commentForm.querySelector('input[name="product_id"]').value;
+                    commentForm.action = `{{ route('comments.store', $firstProductDetail->product->id ?? 0) }}`;
+                    commentMethod.value = 'POST';
+                    commentButtonText.textContent = 'Kirim';
+                }
+            });
+
+            // Logika Hapus Komentar - Menggunakan event delegation
+            document.querySelectorAll('.delete-comment-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    if (confirm('Apakah Anda yakin ingin menghapus komentar ini?')) {
+                        fetch(`/comments/${commentId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Komentar berhasil dihapus.');
+                                // Hapus elemen komentar dari DOM tanpa reload halaman
+                                document.getElementById(`comment-item-${commentId}`).remove();
+                                // Optional: Reset form komentar jika yang dihapus adalah komentar yang sedang diedit
+                                const productId = commentForm.querySelector('input[name="product_id"]').value;
+                                if (commentForm.action === `/comments/${commentId}` && commentMethod.value === 'PATCH') {
+                                    commentInput.value = '';
+                                    commentForm.action = `{{ route('comments.store', $firstProductDetail->product->id ?? 0) }}`;
+                                    commentMethod.value = 'POST';
+                                    commentButtonText.textContent = 'Kirim';
+                                }
+                            } else {
+                                alert('Gagal menghapus komentar: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error deleting comment:', error);
+                            alert('Terjadi kesalahan saat menghapus komentar.');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+    @endpush

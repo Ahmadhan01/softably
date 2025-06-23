@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Pusher\Pusher; // Import class Pusher
 
 class AuthController extends Controller
 {
@@ -48,33 +49,76 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Cek apakah input login itu email atau username
+        // Cek apakah input 'login' itu email atau username
         $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        // Auth::attempt dengan kondisi loginType
         if (Auth::attempt([$loginType => $request->login, 'password' => $request->password], $request->remember)) {
             $request->session()->regenerate();
-            $user = Auth::user();
 
-            // Redirect berdasarkan role
+            $user = Auth::user(); // ambil user yang sudah login
+
+            // === Bagian Penambahan untuk Status Online (Pusher) ===
+            // Inisialisasi Pusher
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                [
+                    'cluster' => env('PUSHER_APP_CLUSTER'),
+                    'useTLS' => true
+                ]
+            );
+
+            // Trigger event 'user-online' ke presence channel 'presence-chat'
+            $pusher->trigger('presence-chat', 'user-online', [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name, // Kirim nama user juga
+                ]
+            ]);
+            // === Akhir Bagian Penambahan ===
+
+            // 🔁 Arahkan berdasarkan role
             return match ($user->role) {
                 'admin' => redirect()->route('admin.dashboard'),
                 'seller' => redirect()->route('seller.dashboard'),
                 'customer' => redirect()->route('customer.produk'),
-                default => abort(403),
+                default => abort(403, 'Role tidak dikenali'),
             };
         }
 
-        // Kalau gagal
+        // Jika login gagal
         return back()->withErrors([
             'login' => 'Username/email atau password salah.',
         ])->withInput();
     }
 
 
-
     public function logout(Request $request)
     {
+        $user = Auth::user(); // Ambil user sebelum logout
+
+        // === Bagian Penambahan untuk Status Offline (Pusher) ===
+        // Inisialisasi Pusher
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            [
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+                'useTLS' => true
+            ]
+        );
+
+        // Trigger event 'user-offline' ke presence channel 'presence-chat'
+        $pusher->trigger('presence-chat', 'user-offline', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name, // Kirim nama user juga
+            ]
+        ]);
+        // === Akhir Bagian Penambahan ===
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

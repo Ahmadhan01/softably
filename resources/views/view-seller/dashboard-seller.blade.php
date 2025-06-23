@@ -1,3 +1,6 @@
+@extends('layouts.sidebar-seller')
+
+@section('isi')
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,71 +28,6 @@
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-gray-800 shadow-lg">
-            <!-- Logo -->
-            <div class="p-2 border-b border-gray-700">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center">
-                       <img src="/img/man.jpg" alt="" class="">
-                    </div>
-                    <span class="text-white font-semibold">Ini Logo Web</span>
-                </div>
-            </div>
-
-            <!-- Menu -->
-            <div class="p-4">
-                <p class="text-gray-400 text-xs uppercase tracking-wider mb-4">MENU</p>
-                <nav class="space-y-2">
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fa-solid fa-store"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fas fa-file-alt text-gray-300"></i>
-                        <span>My Product</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fa-solid fa-message"></i>
-                        <span>Chat</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fa-solid fa-bell"></i>
-                        <span>Notification</span>
-                        <div class="flex items-center w-3 h-3 bg-green-600 rounded-full right-5 justify-center py-3 px-4">
-                            <div class="flex">4</div>
-                        </div>
-                    </a>
-                     <a href="help_center.html"
-                            class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                            <i class="fa-solid fa-circle-question"></i>
-                            <span>Help Center</span>
-                        </a>
-                </nav>
-            </div>
-
-            <!-- User Profile -->
-            <div class="absolute bm-2 w-64 p-4 border-t border-gray-700">
-                <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer">
-                    <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                        <img src="/img/man.jpg" alt="" class="rounded-full 1xl">
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-white text-sm font-medium 1xl">{{ Auth::user()->name }}</p>
-                        <p class="text-gray-400 text-xs">Store settings</p>
-                    </div>
-                </div>
-                <div class="mt-20 space-y-2">
-                    <a href="#" class="flex items-center space-x-3 p-2 text-gray-300 hover:text-white transition-colors">
-                        <i class="fa-solid fa-gear"></i>
-                        <span class="text-sm">Settings</span>
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="flex items-center space-x-2 text-gray-400 hover:text-white">
-                        <span>🚪</span><span>Log Out</span>
-                    </button>
-                </form>
-                </div>
-            </div>
         </div>
 
         <!-- Main Content -->
@@ -257,3 +195,4 @@
     </script>
 </body>
 </html>
+@endsection

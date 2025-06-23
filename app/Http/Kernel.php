@@ -4,6 +4,7 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
+
 class Kernel extends HttpKernel
 {
     /**
@@ -45,13 +46,25 @@ class Kernel extends HttpKernel
      *
      * These middleware may be assigned to groups or used individually.
      */
-    protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    // protected $routeMiddleware = [
+    //      // middleware default
+    // 'auth' => \App\Http\Middleware\Authenticate::class,
 
-        // Custom middleware
-        'role' => \App\Http\Middleware\RoleMiddleware::class,
-    ];
+    
+
+    //     'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+    //     'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+    //     'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+    //     'role' => \App\Http\Middleware\RoleMiddleware::class,
+    // ];
+
+    protected $middlewareAliases = [
+    // middleware bawaan Laravel
+    'auth' => \App\Http\Middleware\Authenticate::class,
+    'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+    'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    'role' => \App\Http\Middleware\RoleMiddleware::class,
+];
+
 }

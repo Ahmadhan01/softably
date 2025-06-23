@@ -32,16 +32,40 @@ class CommentController extends Controller
         return back()->with('success', 'Komentar berhasil ditambahkan!');
     }
 
+    public function update(Request $request, Comment $comment)
+    {
+        // Pastikan hanya pemilik komentar yang bisa mengedit
+        if ($comment->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $comment->content = $request->input('content');
+        $comment->save();
+
+        // Respon JSON untuk AJAX
+        return response()->json(['success' => true, 'message' => 'Komentar berhasil diperbarui!']);
+    }
+
     // Metode untuk menghapus komentar (opsional, tambahkan otorisasi)
     public function destroy(Comment $comment)
     {
         // Pastikan hanya pemilik komentar yang bisa menghapus
         if ($comment->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.'); // Atau return back()->with('error', 'Tidak berhak menghapus komentar ini.');
+            // Mengembalikan JSON error jika tidak berhak
+            return response()->json(['success' => false, 'message' => 'Anda tidak berhak menghapus komentar ini.'], 403);
         }
 
-        $comment->delete();
-
-        return back()->with('success', 'Komentar berhasil dihapus.');
+        try {
+            $comment->delete();
+            // *** PERUBAHAN DI SINI: Kembalikan respons JSON sukses ***
+            return response()->json(['success' => true, 'message' => 'Komentar berhasil dihapus.']);
+        } catch (\Exception $e) {
+            // Tangani error jika terjadi masalah saat menghapus dari DB
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menghapus komentar dari database.'], 500);
+        }
     }
 }

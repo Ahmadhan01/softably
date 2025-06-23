@@ -6,29 +6,26 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\CartController;
-use App\Models\Product;
-
 use App\Http\Controllers\AuthController;
-
+use App\Models\Product;
+use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\NotificationController; // Pastikan ini di-import
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
-// Halaman utama (login)
 Route::get('/', function () {
     return view('welcome');
 });
 
-
-// Dashboard (sudah ada)
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -41,16 +38,114 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [AuthController::class, 'register']);
 
 
-// Profil pengguna (sudah ada) - Pastikan HANYA rute yang memanggil controller yang ada di sini
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/dashboard', fn() => view('view-admin.dashboard-admin'))->name('admin.dashboard');
-    Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
-    // RUTE INI DIHAPUS/DIKOMENTARI KARENA MENGGANGGU RUTE /produk-customer
-    // Route::get('/customer/produks', fn() => view('view-customer.produk-customer'))->name('customer.produk');
+Route::middleware(['auth'])->get('/admin/dashboard', function () {
+    return view('view-admin.dashboard-admin');
 });
 
 
-// Admin routes (sudah ada)
+
+
+
+
+// Seller
+Route::middleware(['auth', 'role:seller'])->group(function () {
+    Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
+
+    Route::get('/chat-seller', [ChatController::class, 'sellerChat'])->name('chat.seller');
+
+    // Route::get('/chat/messages/{conversation}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
+    // Route::post('/chat/send/{conversation}', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
+    // Route::post('/chat/create-or-get-conversation', [ChatController::class, 'createOrGetConversation'])->name('chat.createOrGetConversation');
+});
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chat/messages/{conversation}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
+    Route::post('/chat/send/{conversation}', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
+    Route::post('/chat/create-or-get-conversation', [ChatController::class, 'createOrGetConversation'])->name('chat.createOrGetConversation');
+});
+
+
+
+// Customer
+Route::middleware(['auth', 'role:customer'])->group(function () {
+    Route::get('/customer/produks', [ProductController::class, 'index'])->name('customer.produk');
+
+    Route::get('/view-product/{product}', function (Product $product) {
+        return view('view-customer.viewproduk-customer', compact('product'));
+    })->name('view-product.show');
+
+    //Rute Komen
+    Route::post('/comments/{product}', [CommentController::class, 'store'])->name('comments.store');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update'); 
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    
+    //rute wishlist
+    Route::get('/wishlist-customer', [WishlistController::class, 'index'])->name('wishlist-customer.index');
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store'); // Untuk menambah
+    Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy'); // Untuk menghapus
+    
+    // Rute Cart
+    Route::get('/cart-customer', [CartController::class, 'index'])->name('cart-customer.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/{cart}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::delete('/cart/multiple', [CartController::class, 'destroyMultiple'])->name('cart.destroy.multiple');
+    
+    // UBAH BARIS INI: dari CartController::class, 'processCheckout' ke CartController::class, 'processToCheckout'
+    Route::post('/cart/process-to-checkout', [CartController::class, 'processToCheckout'])->name('cart.processToCheckout');
+
+
+    // Rute Checkout (method GET untuk menampilkan, method POST untuk memproses pembelian)
+    Route::get('/checkout-customer', [CheckoutController::class, 'index'])->name('checkout-customer.index');
+    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process'); // Ini method POST untuk menyelesaikan pembelian
+    Route::post('/prepare-checkout', [CartController::class, 'prepareCheckout'])->name('prepare.checkout');
+
+    // Rute Notifikasi (Hanya satu definisi ini yang benar)
+    Route::get('/notif-customer', [NotificationController::class, 'index'])->name('notif-customer');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead'); // Opsional
+
+    Route::post('/clear-checkout-session', function (Illuminate\Http\Request $request) {
+    $request->session()->forget('selected_cart_items_for_checkout');
+    return response()->json(['message' => 'Checkout session cleared.']);
+    })->name('clear.checkout.session');
+
+    // Rute CHAT BARU
+    Route::get('/chat-customer', [ChatController::class, 'index'])->name('chat-customer');
+
+    //rute bantuan
+    Route::get('/bantuan-customer', function () {
+        $loggedInUser = Auth::user();
+        return view('view-customer/bantuan-customer', compact('loggedInUser'));
+    })->name('bantuan-customer');
+
+    // Rute untuk Halaman Pengaturan Profil (Customer)
+    Route::get('/setting-customer', [ProfileController::class, 'index'])->name('setting-customer');
+    Route::post('/profile/personal', [ProfileController::class, 'updatePersonal'])->name('profile.updatePersonal');
+    Route::post('/profile/picture', [ProfileController::class, 'updateProfilePicture'])->name('profile.updateProfilePicture');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+
+    // Rute My Order
+    Route::get('/order-customer', [OrderController::class, 'index'])->name('order-customer');
+    Route::get('/order-customer/{transaction}', [OrderController::class, 'show'])->name('order-customer.show');
+
+    Route::get('/landingpage-customer', function () {
+        return view('view-customer/landingpage-customer');
+    })->name('landingpage-customer');
+
+
+    Route::get('/seller-profile/{user}', function (User $user) {
+        if ($user->role !== 'seller') {
+            abort(404);
+        }
+        $products = $user->products()->get(); // Memuat produk milik seller
+        return view('view-customer.seller-profile', compact('user', 'products'));
+    })->name('view-seller.show');
+
+});
+
+// Admin routes
 Route::get('/register-admin', function () {
     return view('view-admin/register-admin');
 })->name('register-admin');
@@ -60,77 +155,3 @@ Route::get('/chart-admin', function () {
 Route::get('/faq-admin', function () {
     return view('view-admin/faq-admin');
 })->name('faq-admin');
-
-
-// CUSTOMER ROUTES
-
-// Rute untuk Halaman Daftar Produk Customer
-// Ini adalah rute yang akan memanggil ProductController@index
-Route::get('/produk-customer', [ProductController::class, 'index'])
-    ->name('produk-customer.index');
-
-// Rute untuk Halaman Detail Produk Customer
-Route::get('/view-product/{product}', function (Product $product) {
-    return view('view-customer.viewproduk-customer', compact('product'));
-})->name('view-product.show');
-
-// Rute Komentar
-Route::post('/comments/{product}', [CommentController::class, 'store'])
-    ->middleware('auth')
-    ->name('comments.store');
-
-Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
-    ->middleware('auth')
-    ->name('comments.destroy');
-
-// Rute Wishlist
-Route::middleware('auth')->group(function () {
-    Route::get('/wishlist-customer', [WishlistController::class, 'index'])->name('wishlist-customer.index');
-    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
-});
-
-
-// Rute Cart
-Route::middleware('auth')->group(function () {
-    Route::get('/cart-customer', [CartController::class, 'index'])->name('cart-customer.index');
-    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
-    Route::patch('/cart/{cart}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
-
-    // Rute baru untuk menghapus banyak item
-    // Route::delete('/cart/multiple', [CartController::class, 'destroyMultiple'])->name('cart.destroy.multiple');
-    Route::delete('/cart/multiple', [App\Http\Controllers\CartController::class, 'destroyMultiple'])->name('cart.destroy.multiple');
-});
-
-// Rute-rute customer lainnya
-Route::get('/chat-customer', function () {
-    return view('view-customer/chat-customer');
-})->name('chat-customer');
-
-Route::get('/checkout-customer', function () {
-    return view('view-customer/checkout-customer');
-})->name('checkout-customer');
-
-Route::get('/detailorder-customer', function () {
-    return view('view-customer/detailorder-customer');
-})->name('detailorder-customer');
-
-Route::get('/bantuan-customer', function () {
-    return view('view-customer/bantuan-customer');
-})->name('bantuan-customer');
-
-Route::get('/landingpage-customer', function () {
-    return view('view-customer/landingpage-customer');
-})->name('landingpage-customer');
-
-Route::get('/notif-customer', function () {
-    return view('view-customer/notif-customer');
-})->name('notif-customer');
-
-Route::get('/order-customer', function () {
-    return view('view-customer/order-customer');
-})->name('order-customer');
-
-Route::get('/setting-customer', function () {
-    return view('view-customer/setting-customer');
-})->name('setting-customer');

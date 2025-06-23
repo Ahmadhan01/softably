@@ -1,112 +1,261 @@
 @extends('layouts.sidebar')
 
+@section('title', 'Help Center - Softably')
+
 @section('isi')
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Help Center</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://kit.fontawesome.com/1531486bb6.js" crossorigin="anonymous"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'dark-bg': '#23293a',
-                        'dark-card': '#23293a',
-                        'dark-hover': '#374151',
-                        'sidebar': '#23293a',
-                        'sidebar-active': '#fff',
-                        'sidebar-inactive': '#23293a',
-                        'sidebar-text': '#fff',
-                        'sidebar-hover': '#2d3748',
-                        'main-bg': '#23293a',
-                        'main-card': '#23293a',
-                        'main-border': '#23293a',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-
-<body class="bg-[#23293a] text-white min-h-screen font-sans">
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 b flex flex-col justify-between relative z-10">
-            
+{{-- Class ml-64 (margin-left: 16rem) memberikan ruang untuk sidebar fixed selebar w-64 (width: 16rem) --}}
+<main class="ml-64 min-h-screen flex flex-col bg-[#10172A] text-white font-sans">
+    <div class="p-8 flex-grow">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-white">Help Center</h1>
+            <button id="talkWithSoftablyBtn"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-transform transform hover:scale-105">
+                <i class="fa-solid fa-headset"></i>
+                <span>Talk with Softably</span>
+            </button>
         </div>
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <!-- Header -->
-            <div class="border-l flex justify-between items-center border-b border-gray-700 px-8 py-6">
-                <h1 class="text-2xl font-bold">Help Center</h1>
-                <span class="text-lg font-light">Talk with Softably</span>
-            </div>
-            <div class="flex flex-1 overflow-hidden">
-                <!-- Left: Topics -->
-                <div class="border-l w-80 bg-transparent border-r border-gray-700 p-6 flex flex-col">
-                    <div class="mb-4">
-                        <div class="relative">
-                            <input type="text" placeholder="Search topic"
-                                class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10" />
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </span>
-                        </div>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <div class="w-full md:w-1/3 lg:w-1/4">
+                <div class="bg-[#1E293B] p-4 rounded-lg">
+                    {{-- Bagian Search topic dihapus --}}
+                    {{--
+                    <div class="relative mb-4">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Search topic"
+                            class="w-full bg-[#2D3A4F] border border-gray-600 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <ul class="space-y-2 text-gray-200 text-base">
-                        <li
-                            class="ml-2 hover:bg-gray-700 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
-                            <i class="fa-solid fa-house"></i> Home</li>
-                        <li
-                            class="ml-2 hover:bg-gray-700 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
-                            <i class="fa-solid fa-rocket"></i> Get Started</li>
-                        <li
-                            class="ml-2 hover:bg-gray-700 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
-                            <i class="fa-solid fa-circle-info"></i> What is Softably</li>
-                        <li
-                            class="ml-2 hover:bg-gray-700 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
-                            <i class="fa-solid fa-question"></i> FAQ</li>
-                    </ul>
+                    --}}
+                    <nav class="space-y-1">
+                        <a href="#"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all"
+                            data-target="home-content">
+                            <i class="fa-solid fa-house-chimney w-5 text-center"></i>
+                            <span>Home</span>
+                        </a>
+                        <a href="#"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all"
+                            data-target="get-started-content">
+                            <i class="fa-solid fa-rocket w-5 text-center"></i>
+                            <span>Get Started</span>
+                        </a>
+                        <a href="#"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all"
+                            data-target="what-is-softably-content">
+                            <i class="fa-solid fa-circle-info w-5 text-center"></i>
+                            <span>What is Softably</span>
+                        </a>
+                        <a href="#"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all"
+                            data-target="faq-content">
+                            <i class="fa-solid fa-question-circle w-5 text-center"></i>
+                            <span>FAQ</span>
+                        </a>
+                    </nav>
                 </div>
-                <!-- Right: Chat Area -->
-                <div class="flex-1 flex flex-col bg-[#23293a] p-6 relative">
-                    <div class="flex justify-center mb-4">
-                        <button class="bg-gray-800 text-white px-6 py-2 rounded-lg font-semibold">Hari ini</button>
-                    </div>
-                    <div class="space-y-4 flex-1 overflow-y-auto">
-                        <div class="bg-gray-800 rounded-lg p-4 text-sm">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas suspendisse lorem. Mauris neque
-                            amet purus commodo nulla tellus massa. Amet nisi nibh fermentum cras tincidunt feugiat leo
-                            id. A odio leo gravida lectus ipsum.
+            </div>
+
+            <div class="w-full md:w-2/3 lg:w-3/4">
+                <div class="bg-[#1E293B] p-6 rounded-lg min-h-[500px]">
+
+                    <div id="home-content" class="help-content-panel">
+                        <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Selamat Datang di Pusat
+                            Bantuan Softably!</h2>
+                        <div class="space-y-4 text-gray-300">
+                            <p>Halo! Di sini Anda dapat menemukan jawaban atas pertanyaan umum, panduan langkah demi
+                                langkah, dan informasi mendetail tentang semua fitur yang ditawarkan Softably. Kami
+                                berkomitmen untuk memberikan Anda pengalaman terbaik.</p>
+                            <p>Gunakan menu di sebelah kiri untuk menavigasi topik bantuan. Jika Anda tidak menemukan
+                                apa yang Anda cari, jangan ragu untuk memulai percakapan dengan tim dukungan kami
+                                melalui tombol "Talk with Softably" di atas.</p>
                         </div>
-                        <div class="bg-gray-800 rounded-lg p-4 text-sm">
-                            Lorem ipsum dolor sit amet consectetur. Pulvinar sed egestas suspendisse lorem. Mauris neque
-                            amet purus commodo nulla tellus massa. Amet nisi nibh fermentum cras tincidunt feugiat leo
-                            id. A odio leo gravida lectus ipsum.
+                    </div>
+
+                    <div id="get-started-content" class="help-content-panel" style="display: none;">
+                        <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Memulai dengan Softably</h2>
+                        <div class="space-y-4 text-gray-300">
+                            <p>Langkah 1: Selesaikan pendaftaran akun Anda.</p>
+                            <p>Langkah 2: Jelajahi katalog produk kami.</p>
+                            <p>Langkah 3: Lakukan pesanan pertama Anda dan nikmati kemudahannya.</p>
                         </div>
                     </div>
-                    <!-- Chat Input -->
-                    <form class="flex items-center mt-6" onsubmit="event.preventDefault();">
-                        <input type="text" placeholder="Type your message..."
-                            class="flex-1 bg-white text-gray-900 px-4 py-3 rounded-l-lg focus:outline-none" />
-                        <button type="submit"
-                            class="bg-white px-6 py-6 w-4 h-4 border-l bg-black-900 rounded-r-lg flex items-center justify-center">
-                            <i class="fa-solid fa-paper-plane text-2xl text-[#23293a]"></i>
-                        </button>
-                    </form>
+
+                    <div id="what-is-softably-content" class="help-content-panel" style="display: none;">
+                        <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Apa itu Softably?</h2>
+                        <div class="space-y-4 text-gray-300">
+                            <p>Softably adalah platform revolusioner yang dirancang untuk menyederhanakan proses
+                                akuisisi dan manajemen perangkat lunak untuk bisnis dan individu. Kami menyediakan pasar
+                                terpusat di mana pengguna dapat dengan mudah menemukan, membeli, dan mengelola berbagai
+                                lisensi perangkat lunak dari berbagai vendor.</p>
+                            <p>Misi kami adalah menghilangkan kerumitan dalam pengadaan software, memberikan harga yang
+                                transparan, dan menawarkan dukungan pelanggan yang handal. Dengan Softably, Anda
+                                mendapatkan solusi perangkat lunak yang Anda butuhkan, kapan pun Anda membutuhkannya.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="faq-content" class="help-content-panel" style="display: none;">
+                        <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Frequently Asked Questions
+                            (FAQ)</h2>
+                        <div class="space-y-4 text-gray-300">
+                            <div class="border-b border-gray-700 pb-2 mb-2">
+                                <h3 class="font-semibold text-white">Q: Bagaimana cara melacak pesanan saya?</h3>
+                                <p class="mt-1 text-sm text-gray-400">A: Anda dapat melacak semua pesanan Anda melalui menu "My Orders"
+                                    di sidebar Anda. Status pesanan akan diperbarui secara real-time.</p>
+                            </div>
+                            <div class="border-b border-gray-700 pb-2 mb-2">
+                                <h3 class="font-semibold text-white">Q: Apakah pembayaran aman?</h3>
+                                <p class="mt-1 text-sm text-gray-400">A: Ya, kami menggunakan gateway pembayaran terenkripsi dan
+                                    protokol keamanan standar industri untuk memastikan semua transaksi Anda aman dan
+                                    terlindungi.</p>
+                            </div>
+                            <div class="border-b border-gray-700 pb-2 mb-2">
+                                <h3 class="font-semibold text-white">Q: Bisakah saya mengembalikan produk yang sudah dibeli?</h3>
+                                <p class="mt-1 text-sm text-gray-400">A: Kebijakan pengembalian dana kami bervariasi tergantung pada
+                                    jenis produk. Silakan lihat bagian 'Kebijakan Pengembalian' di Ketentuan Layanan kami,
+                                    atau hubungi dukungan pelanggan untuk bantuan lebih lanjut.</p>
+                            </div>
+                            <div class="border-b border-gray-700 pb-2 mb-2">
+                                <h3 class="font-semibold text-white">Q: Bagaimana cara menghubungi dukungan pelanggan?</h3>
+                                <p class="mt-1 text-sm text-gray-400">A: Anda dapat menghubungi dukungan pelanggan kami melalui
+                                    fitur 'Chat with Softably' yang tersedia di pusat bantuan ini, atau melalui email kami di
+                                    support@softably.com.</p>
+                            </div>
+                            <div class="border-b border-gray-700 pb-2 mb-2">
+                                <h3 class="font-semibold text-white">Q: Apa perbedaan antara Aplikasi, Konten Digital, Kursus Online, dan Aset Digital?</h3>
+                                <p class="mt-1 text-sm text-gray-400">A: <b>Aplikasi</b> adalah perangkat lunak yang dapat diinstal dan dijalankan. <b>Konten Digital</b> adalah media seperti e-book, musik, atau video. <b>Kursus Online</b> adalah materi pembelajaran interaktif. <b>Aset Digital</b> adalah elemen yang digunakan dalam desain atau pengembangan, seperti template, font, atau ikon.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="chat-softably-content" class="help-content-panel" style="display: none;">
+                        <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Chat with Softably Support
+                        </h2>
+                        <div class="space-y-4 text-gray-300 h-64 overflow-y-auto bg-[#2D3A4F] p-4 rounded-lg" id="chat-messages" style="display: flex; flex-direction: column;">
+                            <div class="flex justify-start mb-2">
+                                <div class="bg-gray-700 p-2 rounded-lg max-w-xs">
+                                    Halo! Ada yang bisa kami bantu?
+                                </div>
+                            </div>
+                            <div class="flex justify-end mb-2">
+                                <div class="bg-blue-600 p-2 rounded-lg max-w-xs text-white">
+                                    Saya ingin menanyakan tentang produk.
+                                </div>
+                            </div>
+                            <div class="flex justify-start mb-2">
+                                <div class="bg-gray-700 p-2 rounded-lg max-w-xs">
+                                    Tentu, silakan sampaikan pertanyaan Anda.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative mt-4">
+                            <input type="text" id="chatInput" placeholder="Type your message..."
+                                class="w-full bg-[#2D3A4F] border border-gray-600 rounded-lg py-3 pl-4 pr-12 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="sendMessageBtn"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+                                <i class="fa-solid fa-paper-plane text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-    <!-- Responsive Sidebar Toggle (Mobile) -->
-    <script>
-        // Add your responsive sidebar toggle logic here if needed
-    </script>
-</body>
-</html>
+</main>
+
+<style>
+/* ... (CSS yang sudah ada) ... */
+
+#faq-content h3 {
+    color: white;
+}
+
+#faq-content p {
+    color: #cbd5e1;
+}
+
+.help-topic-link.active {
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 600;
+}
+</style>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const topicLinks = document.querySelectorAll('.help-topic-link');
+    const contentPanels = document.querySelectorAll('.help-content-panel');
+    const talkWithSoftablyBtn = document.getElementById('talkWithSoftablyBtn');
+    const chatInput = document.getElementById('chatInput');
+    const sendMessageBtn = document.getElementById('sendMessageBtn');
+    const chatMessages = document.getElementById('chat-messages');
+
+    function activateTab(targetId) {
+        contentPanels.forEach(panel => {
+            panel.style.display = 'none';
+        });
+        topicLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+
+        const targetPanel = document.getElementById(targetId);
+        if (targetPanel) {
+            targetPanel.style.display = 'block';
+        }
+
+        const activeLink = document.querySelector(`.help-topic-link[data-target="${targetId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    }
+
+    activateTab('home-content'); // Set Home as default active tab
+
+    topicLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            activateTab(targetId);
+        });
+    });
+
+    talkWithSoftablyBtn.addEventListener('click', function() {
+        activateTab('chat-softably-content');
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    });
+
+    function sendMessage() {
+        const messageText = chatInput.value.trim();
+        if (messageText !== '') {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('flex', 'justify-end', 'mb-2');
+            messageDiv.innerHTML = `
+                    <div class="bg-blue-600 p-2 rounded-lg max-w-xs text-white">
+                        ${messageText}
+                    </div>
+                `;
+            chatMessages.appendChild(messageDiv);
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+    if (sendMessageBtn) {
+        sendMessageBtn.addEventListener('click', sendMessage);
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
+});
+</script>
+@endpush
