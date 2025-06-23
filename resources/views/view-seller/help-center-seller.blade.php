@@ -44,7 +44,7 @@
                 <div class="p-4">
                     <p class="text-gray-400 text-xs uppercase tracking-wider mb-4">MENU</p>
                     <nav class="space-y-2">
-                        <a href="/dashboard-seller"
+                        <a href="/Dashboard-seller"
                             class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                             <i class="fa-solid fa-store"></i>
                             <span>Dashboard</span>

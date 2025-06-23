@@ -49,7 +49,7 @@
                                 <div class="flex">4</div>
                             </div>
                         </a>
-                        <a href="/HelpCenter-seller"
+                        <a href="/Help-Center-seller"
                             class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                             <i class="fa-solid fa-circle-question"></i>
                             <span>Help Center</span>
@@ -62,7 +62,7 @@
                 <div
                     class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer">
                     <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                        <img src="img/man.jpg" alt="" class="rounded-full">
+                        <img src="img/icon-soft.png" alt="" class="rounded-full">
                     </div>
                     <div class="flex-1">
                         <p class="text-white text-sm font-medium">Fuad Store</p>

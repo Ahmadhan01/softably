@@ -23,78 +23,75 @@
 </head>
 <body class="bg-gray-900 text-white">
     <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 shadow-lg">
-            <!-- Logo -->
-            <div class="p-2 border-b border-gray-700">
-                <div class="flex items-center space-x-3">
+        <div class="w-64 bg-[#23293a] flex flex-col justify-between border-r border-[#23293a] relative z-10">
+            <div>
+                <div class="p-6 border-b border-gray-700 flex items-center space-x-3">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center">
-                       <img src="/img/man.jpg" alt="" class="">
+                        <img src="img/icon-soft.png" alt="" class="rounded-full">
                     </div>
                     <span class="text-white font-semibold">Ini Logo Web</span>
                 </div>
-            </div>
-
-            <!-- Menu -->
-            <div class="p-4">
-                <p class="text-gray-400 text-xs uppercase tracking-wider mb-4">MENU</p>
-                <nav class="space-y-2">
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fa-solid fa-store"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fas fa-file-alt text-gray-300"></i>
-                        <span>My Product</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fa-solid fa-message"></i>
-                        <span>Chat</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fa-solid fa-bell"></i>
-                        <span>Notification</span>
-                        <div class="flex items-center w-3 h-3 bg-green-600 rounded-full right-5 justify-center py-3 px-4">
-                            <div class="flex">4</div>
-                        </div>
-                    </a>
-                     <a href="help_center.html"
+                <div class="p-4">
+                    <p class="text-gray-400 text-xs uppercase tracking-wider mb-4">MENU</p>
+                    <nav class="space-y-2">
+                        <a href="/Dashboard-seller" id="dashboard-link"
+                            class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                            <i class="fa-solid fa-store"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="/My-product-seller" id="my-product-link"
+                            class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                            <i class="fas fa-file-alt"></i>
+                            <span>My Product</span>
+                        </a>
+                        <a href="/Chat-seller" id="chat-link"
+                            class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                            <i class="fa-solid fa-message"></i>
+                            <span>Chat</span>
+                        </a>
+                        <a href="/Notification-seller" id="notification-link"
+                            class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                            <i class="fa-solid fa-bell"></i>
+                            <span>Notification</span>
+                            <div
+                                class="flex items-center w-3 h-3 bg-green-600 rounded-full right-5 justify-center py-3 px-4 ml-2">
+                                <div class="flex">4</div>
+                            </div>
+                        </a>
+                        <a href="/Help-Center-seller" id="help-center-link"
                             class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                             <i class="fa-solid fa-circle-question"></i>
                             <span>Help Center</span>
                         </a>
-                </nav>
+                    </nav>
+                </div>
             </div>
-
-            <!-- User Profile -->
-            <div class="absolute bm-2 w-64 p-4 border-t border-gray-700">
-                <div class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer">
+            <div class="w-full p-4 border-t border-gray-700">
+                <div
+                    class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer">
                     <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                        <img src="/img/man.jpg" alt="" class="rounded-full 1xl">
+                        <img src="img/icon-soft.png" alt="" class="rounded-full">
                     </div>
                     <div class="flex-1">
-                        <p class="text-white text-sm font-medium 1xl">{{ Auth::user()->name }}</p>
+                        <p class="text-white text-sm font-medium">Fuad Store</p>
                         <p class="text-gray-400 text-xs">Store settings</p>
                     </div>
                 </div>
-                <div class="mt-20 space-y-2">
-                    <a href="#" class="flex items-center space-x-3 p-2 text-gray-300 hover:text-white transition-colors">
+                <div class="mt-8 space-y-2">
+                    <a href="/Settings-seller" id="settings-link"
+                        class="flex items-center space-x-3 p-2 text-gray-300 hover:text-white transition-colors">
                         <i class="fa-solid fa-gear"></i>
                         <span class="text-sm">Settings</span>
                     </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="flex items-center space-x-2 text-gray-400 hover:text-white">
-                        <span>🚪</span><span>Log Out</span>
-                    </button>
-                </form>
+                    <a href="/Log-out-seller" id="logout-link"
+                        class="flex items-center space-x-3 p-2 text-gray-300 hover:text-white transition-colors">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="text-sm">Log Out</span>
+                    </a>
                 </div>
             </div>
         </div>
-
-        <!-- Main Content -->
         <div class="flex-1 overflow-auto border-lg">
-            <!-- Header -->
             <div class=" p-2.5 border-gray-700">
                 <div class="flex justify-between items-center">
                     <div>
@@ -107,7 +104,7 @@
                     </button>
                 </div>
             </div>
-        
+
             <div class="grid grid-cols-3 gap-4 mt-4 p-4 y-1">
                 <div class="bg-[#1e293b] p-4 rounded">
                     <div class="text-gray-400">Product Sold
@@ -135,7 +132,7 @@
                     </div>
                     <div class="text-2xl font-semibold">$234.2K</div>
                     <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-6">+4.1%
-                        <i class="fa-solid fa-arrow-trend-up m-2"></i> 
+                        <i class="fa-solid fa-arrow-trend-up m-2"></i>
                     </div>
                 </div>
             </div>
@@ -147,7 +144,7 @@
                         <h2 class="text-lg text-gray-400 font-semibold">Total revenue</h2>
                         <div class="text-3xl font-bold mt-1">$1220.5K</div>
                         <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-5">+8.1%
-                          <i class="fa-solid fa-arrow-trend-up m-2"></i>  
+                            <i class="fa-solid fa-arrow-trend-up m-2"></i>
                         </div>
                         <canvas id="revenueChart"></canvas>
                     </div>
@@ -158,7 +155,7 @@
                         <h2 class="text-sm text-gray-400 mb-1">Product Sold</h2>
                         <div class="text-xl font-bold">$234.2K</div>
                         <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-5">+8.1%
-                            <i class="fa-solid fa-arrow-trend-up m-2"></i> 
+                            <i class="fa-solid fa-arrow-trend-up m-2"></i>
                         </div>
                         <canvas id="profitChart" class="w-32 h-32"></canvas>
                         <div class="mt-3 text-gray-500">
@@ -169,7 +166,7 @@
                         <h2 class="text-sm text-gray-400 mb-1">Monthly Transaction</h2>
                         <div class="text-xl font-bold">283</div>
                         <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-5">-3.2 %
-                          <i class="fa-solid fa-arrow-trend-down m-1"></i>   
+                            <i class="fa-solid fa-arrow-trend-down m-1"></i>
                         </div>
                         <canvas id="usersChart"></canvas>
 
@@ -253,6 +250,24 @@
                     legend: { labels: { color: 'white' } }
                 }
             }
+        });
+
+        // JavaScript to handle active sidebar link
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            const sidebarLinks = document.querySelectorAll('nav a');
+
+            sidebarLinks.forEach(link => {
+                // Remove existing active classes first to ensure only one is active
+                link.classList.remove('bg-gray-700', 'text-white', 'font-semibold');
+                link.classList.add('text-gray-300'); // Ensure default color is gray-300
+
+                // Check if the link's href matches the current path
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('bg-gray-700', 'text-white', 'font-semibold');
+                    link.classList.remove('text-gray-300'); // Remove default color if active
+                }
+            });
         });
     </script>
 </body>

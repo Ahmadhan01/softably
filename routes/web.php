@@ -104,9 +104,9 @@ Route::get('/table_user-admin', function () {
 
 // Route buat View-Seller
 
-Route::get('/dashboard-seller', function () {
-    return view('/view-seller/dashboard-seller');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/Dashboard-seller', function () {
+    return view('/view-seller/Dashboard-seller');
+})->middleware(['auth', 'verified'])->name('Dashboard');
 
 Route::get('/My-product-seller', function () {
     return view('/view-seller/My-product-seller');
@@ -117,8 +117,8 @@ Route::get('/Chat-seller', function () {
 })->middleware(['auth', 'verified'])->name('Chat-seller');
 
 Route::get('/Notification-seller', function () {
-    return view('/view-seller/Notifikasi-seller');
-})->middleware(['auth', 'verified'])->name('Notifikasi-seller');
+    return view('/view-seller/Notification-seller');
+})->middleware(['auth', 'verified'])->name('Notification-seller');
 
 Route::get('/Help-Center-seller', function () {
     return view('/view-seller/Help-Center-seller');
