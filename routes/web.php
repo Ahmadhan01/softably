@@ -15,9 +15,9 @@ Route::get('/', function () {
 });
 
 // Dashboard (sudah ada)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Profil pengguna (sudah ada)
 Route::middleware('auth')->group(function () {
@@ -106,7 +106,7 @@ Route::get('/table_user-admin', function () {
 
 Route::get('/Dashboard-seller', function () {
     return view('/view-seller/Dashboard-seller');
-})->middleware(['auth', 'verified'])->name('Dashboard');
+})->middleware(['auth', 'verified'])->name('Dashboard-Seller');
 
 Route::get('/My-product-seller', function () {
     return view('/view-seller/My-product-seller');
