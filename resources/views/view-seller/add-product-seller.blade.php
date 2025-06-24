@@ -396,7 +396,7 @@
             
             // In a real application, you would send `newProduct` to your backend here.
             // After successful addition, redirect to My Products page.
-            window.location.href = '/My-product-seller.html';
+            window.location.href = '/My-product-seller';
         });
     });
 </script>
