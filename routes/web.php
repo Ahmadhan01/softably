@@ -113,7 +113,7 @@ Route::get('/My-product-seller', function () {
 })->middleware(['auth', 'verified'])->name('My-product');
 
 Route::get('/Chat-seller', function () {
-    return view('/view-seller/Chat-seller');
+    return view('view-seller.Chat-seller');
 })->middleware(['auth', 'verified'])->name('Chat-seller');
 
 Route::get('/Notification-seller', function () {
