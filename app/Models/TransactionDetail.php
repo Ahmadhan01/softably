@@ -19,6 +19,8 @@ class TransactionDetail extends Model
         'product_image_path', // <== PASTIKAN INI ADA DI FILLABLE
         'price',
         'quantity',
+        'price_per_unit',
+        'subtotal',
     ];
 
     public function transaction(): BelongsTo

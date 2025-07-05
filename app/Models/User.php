@@ -14,10 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class User extends Authenticatable
 {
 
-    use HasFactory, Notifiable, HasApiTokens; // Mengaktifkan HasApiTokens jika Anda memakainya
-
-    // use HasFactory, Notifiable;
-
+    use HasFactory, Notifiable, HasApiTokens;
 
     protected $fillable = [
         'name',
@@ -25,12 +22,12 @@ class User extends Authenticatable
         'username',
         'role',
         'phone_number',
-        'profile_picture', // Pastikan ini ada dan diizinkan untuk diisi
+        'profile_picture',
         'password',
         'date_of_birth',
         'country',
-        
-
+        'store_description',
+        'softpay_balance',
     ];
 
     protected $hidden = [
@@ -38,14 +35,13 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
+        'softpay_balance' => 'decimal:2',
     ];
 
     public function isOnline()
-
     {
         return $this->last_seen && $this->last_seen->gt(now()->subMinutes(5));
     }
@@ -119,22 +115,18 @@ class User extends Authenticatable
     public function getProfilePictureUrlAttribute(): string
     {
         if ($this->profile_picture) {
-            // 1. Cek apakah ini URL eksternal
+            // 1. Cek apakah ini URL eksternal (misalnya dari social login)
             if (filter_var($this->profile_picture, FILTER_VALIDATE_URL)) {
                 return $this->profile_picture;
             }
-            // 2. Cek apakah file ada di storage/app/public
-            if (Storage::disk('public')->exists($this->profile_picture)) {
-                // Tambahkan timestamp untuk mencegah caching pada browser saat gambar diupdate
-                return Storage::url($this->profile_picture) . '?' . now()->timestamp;
-            }
-            // 3. Asumsikan ini adalah path relatif ke folder public
-            // Tambahkan timestamp juga untuk ini
+
+            // Asumsikan ini adalah path relatif ke direktori public (misal: 'profile/namafile.jpg')
+            // Tambahkan timestamp untuk mencegah caching pada browser saat gambar diupdate
             return asset($this->profile_picture) . '?' . now()->timestamp;
         }
 
         // Fallback jika tidak ada foto profil atau file tidak ditemukan
-        return asset('img/default-profile.png'); // Pastikan Anda memiliki gambar ini
+        return asset('img/default-profile.jpg'); // Pastikan Anda memiliki gambar ini
     }
 
     public function purchasedProducts(): HasManyThrough
@@ -146,5 +138,17 @@ class User extends Authenticatable
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'user_id');
+    }
+
+    public function salesTransactions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\Transaction::class,
+            \App\Models\Product::class,
+            'user_id',
+            'product_id',
+            'id',
+            'id'
+        );
     }
 }

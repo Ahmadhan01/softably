@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany; // Tambahkan ini
 use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
@@ -15,56 +16,84 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'image_path', // Ini adalah nama kolom di database Anda
+        'image_path',
         'category',
-        'download_link', // <== TAMBAHKAN INI
-        'content_description', // <== TAMBAHKAN INI
+        'product_link',
+        'currency',
+        'download_link',
+        'content_description',
         'status',
-        // 'sales_count',
+        'user_id', // Pastikan user_id ada di fillable jika diatur langsung
     ];
+    
 
-    public function seller(): BelongsTo
+    // Relasi ke User (seller yang punya produk ini)
+    public function user(): BelongsTo // Ganti seller() menjadi user() agar konsisten dengan User::products()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Accessor untuk URL gambar produk
-    public function getImageUrlAttribute() // Accessor akan membuat properti 'image_url' tersedia
+    public function getImageUrlAttribute()
     {
-        // Panggil kolom yang benar, yaitu $this->image_path
         if ($this->image_path) {
-            // Pertama, coba asumsikan itu adalah URL eksternal atau URL Storage
-            if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
-                return $this->image_path; // Jika sudah URL lengkap, langsung kembalikan
-            }
-            // Jika bukan URL lengkap, cek apakah itu adalah path yang tersimpan di storage/app/public
-            // Misalnya: 'product_images/xyz.jpg' (setelah php artisan storage:link)
-            if (Storage::disk('public')->exists($this->image_path)) {
-                return Storage::url($this->image_path);
-            }
-            // Jika tidak di storage/app/public, asumsikan itu adalah path relatif ke folder public
-            // Misalnya: 'img/novel.png' atau 'assets/gambar.jpg'
+        // 1. Cek apakah ini URL eksternal (misalnya dari social login atau placeholder)
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return $this->image_path;
+        }
+
+        // 2. Coba bangun URL menggunakan 'storage/' prefix, sesuai dengan cara di viewproduk-customer.blade.php
+        // Ini mengasumsikan file ada di public/storage/ atau public/
+        $potentialAssetPath = 'storage/' . $this->image_path;
+        if (file_exists(public_path($potentialAssetPath))) {
+            return asset($potentialAssetPath);
+        }
+
+        // 3. Jika tidak ditemukan dengan prefix 'storage/', coba tanpa prefix (misal: img/novel.png)
+        if (file_exists(public_path($this->image_path))) {
             return asset($this->image_path);
         }
-        // Fallback ke gambar default jika image_path kosong atau tidak ada file ditemukan
-        return asset('img/default-product.jpg'); // Pastikan Anda memiliki gambar default ini
+        
+        // 4. Fallback ke Storage::url() jika gambar diunggah ke storage/app/public
+        if (Storage::disk('public')->exists($this->image_path)) {
+            return Storage::url($this->image_path);
+        }
     }
 
-    // Relasi ke Comments
-    public function comments()
+    // 5. Fallback jika tidak ada image_path atau file tidak ditemukan di semua lokasi yang dicoba
+    return asset('img/default-product.jpg');
+    }
+
+    // Relasi ke komentar
+    // public function comments(): HasMany
+    // {
+    //     return $this->hasMany(Comment::class)->whereNull('parent_id'); // Hanya komentar utama
+    // }
+
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
 
-    // Relasi ke Wishlist
-    public function wishlists()
+    // Relasi ke wishlist
+    public function wishlists(): HasMany
     {
         return $this->hasMany(Wishlist::class);
     }
 
-    // Relasi ke Cart
-    public function carts()
+    // Relasi ke cart
+    public function carts(): HasMany
     {
         return $this->hasMany(Cart::class);
+    }
+
+    // Relasi ke detail transaksi (untuk menghitung produk terjual)
+    public function orderItems(): HasMany // Menggunakan orderItems karena produk ada di TransactionDetail
+    {
+        return $this->hasMany(TransactionDetail::class); // Asumsi nama model TransactionDetail
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

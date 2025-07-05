@@ -8,16 +8,21 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\TransactionController;
+
+
 
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NotificationController; // Pastikan ini di-import
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\SellerNotificationController;
+use App\Http\Controllers\SoftPayController;
 
 
 
@@ -29,6 +34,8 @@ use App\Http\Middleware\TrackPageView;
 use App\Http\Middleware\LogVisitTest;
 use App\Http\Controllers\LinkController;
 use App\Models\Link;
+
+use App\Http\Controllers\SellerProductController;   
 
 
 Route::get('/', function () {
@@ -63,6 +70,28 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
 
     Route::get('/chat-seller', [ChatController::class, 'sellerChat'])->name('chat.seller');
 
+    Route::get('/bantuan-seller', function () {
+        $loggedInUser = Auth::user();
+        return view('view-seller/bantuan-seller', compact('loggedInUser'));
+    })->name('bantuan-seller');
+
+    // Rute untuk daftar produk seller
+    Route::get('/seller/products', [SellerProductController::class, 'index'])->name('seller.products.index');
+    // Rute untuk menampilkan form tambah produk
+    Route::get('/seller/products/create', [SellerProductController::class, 'create'])->name('seller.products.create');
+    // Rute untuk menyimpan produk baru (method POST)   
+    Route::post('/seller/products', [SellerProductController::class, 'store'])->name('seller.products.store');
+
+    Route::get('/seller/products/{product}/details', [SellerProductController::class, 'show'])->name('seller.products.details');
+
+    Route::get('/seller/products/{product}/edit', [SellerProductController::class, 'edit'])->name('seller.products.edit');
+    // Rute untuk memperbarui produk (method PUT/PATCH)
+    Route::put('/seller/products/{product}', [SellerProductController::class, 'update'])->name('seller.products.update');
+
+    Route::get('/notif-seller', [SellerNotificationController::class, 'index'])->name('notif-seller');
+    Route::post('/notif-seller/mark-all-as-read', [SellerNotificationController::class, 'markAllAsRead'])->name('notif-seller.markAllAsRead');
+    Route::post('/notif-seller/{notification}/mark-as-read', [SellerNotificationController::class, 'markAsRead'])->name('notif-seller.markAsRead');
+
     // Route::get('/chat/messages/{conversation}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
     // Route::post('/chat/send/{conversation}', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
     // Route::post('/chat/create-or-get-conversation', [ChatController::class, 'createOrGetConversation'])->name('chat.createOrGetConversation');
@@ -76,19 +105,27 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply'); // Rute untuk membalas komentar
+    Route::post('/comments/{product}', [CommentController::class, 'store'])->name('comments.store');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update'); 
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
 
 // Customer
 Route::middleware(['auth', 'role:customer'])->group(function () {
     // Route::get('/customer/produks', [ProductController::class, 'index'])->name('customer.produk');
 
     Route::get('/view-product/{product}', function (Product $product) {
+        // UBAH INI: Eager load 'user' (bukan 'seller')
+        $product->load([
+            'user', // <-- PENTING: Gunakan 'user' sesuai nama relasi di Product.php
+            'comments' => function ($query) {
+                $query->whereNull('parent_id') // Tetap filter top-level di sini
+                      ->with(['user', 'replies.user']);
+            }
+        ]);
         return view('view-customer.viewproduk-customer', compact('product'));
-    })->name('view-product.show');
-
-    //Rute Komen
-    Route::post('/comments/{product}', [CommentController::class, 'store'])->name('comments.store');
-    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update'); 
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    })->name('view-product.show');      
     
     //rute wishlist
     Route::get('/wishlist-customer', [WishlistController::class, 'index'])->name('wishlist-customer.index');
@@ -110,6 +147,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/checkout-customer', [CheckoutController::class, 'index'])->name('checkout-customer.index');
     Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process'); // Ini method POST untuk menyelesaikan pembelian
     Route::post('/prepare-checkout', [CartController::class, 'prepareCheckout'])->name('prepare.checkout');
+    Route::post('/checkout/softpay', [CheckoutController::class, 'processSoftPayPayment'])->name('checkout.softpay'); // <--- TAMBAHKAN INI
 
     // Rute Notifikasi (Hanya satu definisi ini yang benar)
     Route::get('/notif-customer', [NotificationController::class, 'index'])->name('notif-customer');
@@ -144,7 +182,6 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
         return view('view-customer/landingpage-customer');
     })->name('landingpage-customer');
 
-
     Route::get('/seller-profile/{user}', function (User $user) {
         if ($user->role !== 'seller') {
             abort(404);
@@ -152,6 +189,18 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
         $products = $user->products()->get(); // Memuat produk milik seller
         return view('view-customer.seller-profile', compact('user', 'products'));
     })->name('view-seller.show');
+
+    //Rute softpay
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/softpay', [SoftPayController::class, 'index'])->name('softpay-customer');
+    Route::get('/softpay/topup', function() { return view('view-customer.softpay.topup'); })->name('softpay.topup'); // Contoh halaman terpisah
+    Route::get('/softpay/withdraw', function() { return view('view-customer.softpay.withdraw'); })->name('softpay.withdraw');
+    Route::get('/softpay/pay', function() { return view('view-customer.softpay.pay'); })->name('softpay.pay');
+    Route::get('/softpay/transfer', function() { return view('view-customer.softpay.transfer'); })->name('softpay.transfer');
+    Route::get('/softpay/history', function() { return view('view-customer.softpay.history'); })->name('softpay.history');
+    Route::get('/softpay/promo', function() { return view('view-customer.softpay.promo'); })->name('softpay.promo');
+    Route::get('/softpay/help', function() { return view('view-customer.softpay.help'); })->name('softpay.help');
+});
 
 });
 
@@ -249,3 +298,39 @@ Route::middleware('auth')->group(function () {
 });
 
 
+// *** Rute API untuk Info Seller ***
+Route::get('/api/seller-info/{user}', function (User $user) {
+    if ($user->role !== 'seller') {
+        return response()->json(['success' => false, 'message' => 'User bukan seller.'], 404);
+    }
+
+    // HAPUS LOGIKA PENGHITUNGAN TRANSAKSI
+    // $successTransactions = 0;
+    // $failedTransactions = 0;
+    // $user->load('products.transactions');
+    // foreach ($user->products as $product) {
+    //     if ($product->transactions) {
+    //         foreach ($product->transactions as $transaction) {
+    //             if (in_array($transaction->status, ['completed', 'success'])) {
+    //                 $successTransactions++;
+    //             } elseif (in_array($transaction->status, ['failed', 'cancelled'])) {
+    //                 $failedTransactions++;
+    //             }
+    //         }
+    //     }
+    // }
+
+    return response()->json([
+        'success' => true,
+        'user' => [ // Kunci ini tetap 'user' agar sesuai dengan pemanggilan di JS
+            'id' => $user->id,
+            'name' => $user->name,
+            'profile_picture_url' => $user->profile_picture_url,
+            'is_online' => $user->isOnline(),
+            'description' => $user->store_description,
+        ],
+        // HAPUS data transaksi dari respons
+        // 'success_transactions' => $successTransactions,
+        // 'failed_transactions' => $failedTransactions,
+    ]);
+})->name('api.seller.info');

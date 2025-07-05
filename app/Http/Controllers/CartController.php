@@ -17,9 +17,9 @@ class CartController extends Controller
         if (!$user) {
             Log::info('CartController@index - User not authenticated, redirecting to login.');
             return redirect()->route('login');
-        }
+        }   
 
-        $query = $user->carts()->with('product');
+        $query = $user->carts()->with('product.user');
 
         if ($request->filled('search')) {
             $search = $request->input('search');

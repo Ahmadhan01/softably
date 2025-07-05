@@ -20,6 +20,7 @@ class Transaction extends Model
         'total_amount',
         'payment_method',
         'status', // <== PASTIKAN INI ADA DI FILLABLE
+        // 'quantity',
     ];
 
     public function user(): BelongsTo
@@ -37,4 +38,10 @@ class Transaction extends Model
     {
         return ucfirst($this->status); // Mengubah 'completed' menjadi 'Completed'
     }
+
+    // Relasi ke Product
+    // public function product()
+    // {
+    //     return $this->belongsTo(Product::class);
+    // }
 }

@@ -31,13 +31,13 @@
                 src="{{ $detail->product_image ?? asset('img/default-product.jpg') }}" {{-- Gunakan product_image dari detail transaksi --}}
                 alt="{{ $detail->product_name }}"
                 class="w-full h-full object-cover rounded-lg"
-              />
+              />    
             </div>
 
             <div class="flex-1 space-y-1">
               <p class="text-sm text-gray-400">
-                {{-- Nama penjual dinamis --}}
-                {{ $detail->product->seller->name ?? 'Toko Tidak Dikenal' }}
+                {{-- Nama penjual dinamis. Menggunakan $detail->product->user karena di Product model relasinya 'user' --}}
+                {{ $detail->product->user->name ?? 'Toko Tidak Dikenal' }}
               </p>
               <h2 class="text-lg font-bold">{{ $detail->product_name }}</h2> {{-- Nama produk dinamis --}}
               <p class="text-sm text-gray-400">
@@ -47,8 +47,8 @@
 
             <div class="flex flex-col items-end gap-2">
               {{-- Tombol "View Store" dinamis --}}
-              @if($detail->product->seller)
-              <a href="{{ route('view-seller.show', $detail->product->seller->id) }}" {{-- Mengarahkan ke profil seller --}}
+              @if($detail->product->user) {{-- Menggunakan $detail->product->user --}}
+              <a href="{{ route('view-seller.show', $detail->product->user->id) }}" {{-- Mengarahkan ke profil seller --}}
                  class="border border-gray-500 text-white text-sm px-3 py-1 rounded hover:bg-gray-700">
                 View Store
               </a>
@@ -66,9 +66,13 @@
           <div
             class="bg-[#334155] text-sm text-gray-200 p-3 rounded-lg flex items-center justify-between"
           >
-            {{-- Mengambil link download atau deskripsi kedua dari produk --}}
             <span>
-                @if($detail->product->download_link)
+                {{-- PERBAIKAN DI SINI: Prioritaskan product_link, lalu download_link, lalu content_description --}}
+                @if($detail->product->product_link)
+                    <a href="{{ $detail->product->product_link }}" target="_blank" class="text-blue-400 hover:underline">
+                        Akses Produk: {{ Str::limit($detail->product->product_link, 100) }}
+                    </a>
+                @elseif($detail->product->download_link)
                     <a href="{{ $detail->product->download_link }}" target="_blank" class="text-blue-400 hover:underline">
                         Unduh Konten: {{ $detail->product->name }}
                     </a>
@@ -114,25 +118,25 @@
             // tetapi bisa tetap digunakan untuk mengisi nilai default di form input jika diperlukan.
             $existingComment = null;
             if ($firstProductDetail) {
-                $existingComment = Auth::user()->comments()->where('product_id', $firstProductDetail->product->id)->first();
+                // Perbaikan: Pastikan $firstProductDetail->product tidak null sebelum mengakses comments
+                if ($firstProductDetail->product) {
+                    $existingComment = Auth::user()->comments()->where('product_id', $firstProductDetail->product->id)->first();
+                }
             }
         @endphp
 
-        @if($firstProductDetail) {{-- Pastikan ada produk untuk dikomentari --}}
+        @if($firstProductDetail && $firstProductDetail->product) {{-- Pastikan ada produk dan relasinya --}}
 
         {{-- --- BAGIAN UNTUK MENAMPILKAN DAFTAR KOMENTAR --- --}}
         <h2 class="text-xl font-semibold mt-8 mb-4 text-white">Komentar Produk</h2>
         <div class="space-y-4">
-            @forelse($firstProductDetail->product->comments->sortByDesc('created_at') as $comment)
+            {{-- UBAH INI: Pastikan komentar top-level dimuat, bukan semua komentar --}}
+            @forelse($firstProductDetail->product->comments->whereNull('parent_id')->sortByDesc('created_at') as $comment)
                 <div class="bg-[#1e293b] p-4 rounded-lg shadow-md flex items-start space-x-4" id="comment-item-{{ $comment->id }}">
                     <div class="w-10 h-10 rounded-full overflow-hidden">
-                                {{-- Gunakan Auth::user() untuk gambar profil --}}
-                                @php
-                                $imagePath = Auth::user()->profile_picture
-                                ? url('storage/profile/' . Auth::user()->profile_picture)
-                                : asset('img/man.jpg');
-                                @endphp
-                                <img src="{{ url('profile/' . Auth::user()->profile_picture) . '?t=' . time() }}">
+                                {{-- Gunakan $comment->user->profile_picture_url --}}
+                                <img src="{{ $comment->user->profile_picture_url ?? asset('img/default-profile.png') }}" alt="User Profile"
+                                    class="w-full h-full object-cover">
                             </div>
                     <div class="flex-1">
                         <div class="flex items-center justify-between">
@@ -151,6 +155,42 @@
                                 </button>
                             </div>
                         @endif
+                        {{-- Balasan Komentar --}}
+                        @foreach($comment->replies->sortBy('created_at') as $reply)
+                        <div class="flex space-x-4 ml-14 mt-4"> {{-- Indent untuk balasan --}}
+                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                                <img src="{{ $reply->user->profile_picture_url ?? asset('img/default-profile.png') }}" alt="User Profile"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-semibold text-white text-sm">{{ $reply->user->name ?? 'User Tidak Dikenal' }}</p>
+                                    @auth
+                                    <div class="text-xs text-gray-500 space-x-2">
+                                        @if (Auth::id() === $reply->user_id)
+                                        <button class="text-white/70 hover:text-white edit-comment-btn"
+                                            data-comment-id="{{ $reply->id }}"
+                                            data-comment-content="{{ $reply->content }}">
+                                            <i class="fas fa-pen text-xs"></i> Edit
+                                        </button>
+                                        @endif
+                                        @if (Auth::id() === $reply->user_id || Auth::id() === $firstProductDetail->product->user_id)
+                                        <button class="text-red-500 hover:text-red-400 delete-comment-btn"
+                                            data-comment-id="{{ $reply->id }}">
+                                            <i class="fa-solid fa-trash"></i> Hapus
+                                        </button>
+                                        @endif
+                                    </div>
+                                    @endauth
+                                </div>
+                                <p class="text-xs text-gray-300 mt-1" id="comment-content-display-{{ $reply->id }}">
+                                    {{ $reply->content }}</p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ $reply->created_at->diffForHumans() }}
+                                </p>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
             @empty
@@ -162,9 +202,6 @@
 
         {{-- Bagian Input Komentar Pengguna --}}
         <h2 class="text-xl font-semibold mt-8 mb-4 text-white">Berikan Komentar Anda</h2>
-        {{-- HAPUS BLOK DIV INI YANG MUNCUL DI GAMBAR DENGAN KOMENTAR SAYA SENDIRI --}}
-        {{-- <div class="flex justify-end mt-6"> ... </div> --}}
-        {{-- Kode di atas sudah dihapus. --}}
 
         {{-- Form untuk mengirim/mengedit komentar --}}
         <form id="comment-form" action="{{ route('comments.store', $firstProductDetail->product->id) }}" method="POST" class="flex items-center gap-2">
@@ -178,7 +215,7 @@
                 id="comment-input"
                 placeholder="Berikan Komentar Anda..."
                 class="flex-1 p-3 rounded-md bg-[#1F2A40] text-white border border-gray-600 focus:outline-none"
-                value="" {{-- DIUBAH UNTUK SELALU KOSONG SECARA DEFAULT --}}
+                value=""
                 required
             />
             <button type="submit" class="bg-green-500 px-4 py-2 rounded-md hover:bg-green-400">

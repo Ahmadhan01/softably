@@ -40,6 +40,7 @@
 
     .sidebar-link.active {
         background-color: #2D3A4F;
+        /* Ganti dengan warna background aktif yang sesuai, contoh: #3b82f6 atau #1f2a3c */
         color: white;
         transform: scale(1.02);
         font-weight: 600;
@@ -119,24 +120,31 @@
                 </div>
                 <nav class="p-4 space-y-2 text-sm">
 
-                    <a href="{{ route('seller.dashboard') }}" class="sidebar-link" data-path="/produk-customer">    
-                        <i class="fa-solid fa-box"></i><span>Dashboard</span>
+                    {{-- Dashboard --}}
+                    <a href="{{ route('seller.dashboard') }}" class="sidebar-link" data-path="/seller/dashboard">
+                        <i class="fa-solid fa-house-chimney"></i><span>Dashboard</span>
                     </a>
-                    <a href="{{ route('cart-customer.index') }}" class="sidebar-link" data-path="/cart-customer">
-                        <i class="fa-solid fa-cart-shopping"></i><span>Cart</span>
+
+                    {{-- My Product (Asumsi ada rute untuk produk seller, jika belum ada perlu ditambahkan di web.php) --}}
+                    <a href="{{ route('seller.products.index') }}" class="sidebar-link" data-path="/seller/products">
+                        <i class="fa-solid fa-box"></i><span>My Product</span>
                     </a>
-                    <a href="{{ route('order-customer') }}" class="sidebar-link" data-path="/order-customer">
-                        <i class="fa-solid fa-list-ul"></i><span>My Orders</span>
-                    </a>
-                    <a href="{{ route('notif-customer') }}" class="sidebar-link" data-path="/notif-customer">
-                        <i class="fa-solid fa-bell"></i><span>Notification</span>
-                        <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">4</span>
-                    </a>
-                    <a href="{{ route('chat.seller') }}" class="sidebar-link" data-path="/chat-customer">
+
+                    {{-- Chat --}}
+                    <a href="{{ route('chat.seller') }}" class="sidebar-link" data-path="/chat-seller">
                         <i class="fa-solid fa-comments"></i><span>Chat</span>
                         <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">10</span>
+                        {{-- Ganti dengan jumlah notifikasi dinamis --}}
                     </a>
-                    <a href="{{ route('bantuan-customer') }}" class="sidebar-link" data-path="/bantuan-customer">
+
+                    {{-- Notifikasi untuk Seller --}}
+                    <a href="{{ route('notif-seller') }}" class="sidebar-link" data-path="/notif-seller">
+                        <i class="fa-solid fa-bell"></i><span>Notification</span>
+                        {{-- Anda bisa menambahkan badge notifikasi dinamis di sini --}}
+                    </a>
+
+                    {{-- Help Center --}}
+                    <a href="{{ route('bantuan-seller') }}" class="sidebar-link" data-path="/bantuan-seller">
                         <i class="fa-solid fa-circle-question"></i><span>Help Center</span>
                     </a>
                 </nav>
@@ -144,9 +152,14 @@
             <div class="p-4 space-y-2">
                 <div class="p-4 py-5 border-t border-gray-700">
                     <a href="{{ route('setting-customer') }}" class="user-profile-link" data-path="/setting-customer">
+                        {{-- Asumsi seller juga menggunakan rute setting-customer --}}
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-full overflow-hidden">
                                 {{-- Gunakan $loggedInUser untuk gambar profil --}}
+                                {{-- Pastikan $loggedInUser didefinisikan di controller yang memuat layout ini atau di setiap controller yang menggunakan sidebar --}}
+                                @php
+                                $loggedInUser = Auth::user();
+                                @endphp
                                 <img src="{{ $loggedInUser->profile_picture_url ?? asset('img/man.jpg') }}"
                                     alt="Profile" class="w-full h-full object-cover">
                             </div>
@@ -159,6 +172,7 @@
                     </a>
                 </div>
                 <a href="{{ route('setting-customer') }}" class="sidebar-footer-link" data-path="/setting-customer">
+                    {{-- Asumsi seller juga menggunakan rute setting-customer --}}
                     <i class="fa-solid fa-gear"></i><span>Settings</span>
                 </a>
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
@@ -184,28 +198,29 @@
         sidebarLinks.forEach(link => {
             const linkPath = link.dataset.path;
 
-            let isActive = false;
-            if (currentPath === linkPath) {
-                isActive = true;
-            } else if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
-                isActive = true;
-            } else if (linkPath === '/' && currentPath ===
-                '/') {
-                isActive = true;
-            }
+            // Logika untuk menandai sidebar link sebagai 'active'
+            // Hapus 'active' dari semua link terlebih dahulu untuk menghindari duplikasi
+            link.classList.remove('active');
 
-            if (isActive) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
-
-            if (link.dataset.path === '/logout') {
-                link.classList.remove('active');
+            // Periksa apakah path saat ini cocok dengan data-path link
+            if (linkPath && currentPath.startsWith(linkPath)) {
+                // Kecualikan /logout agar tidak pernah aktif
+                if (linkPath !== '/logout') {
+                    link.classList.add('active');
+                }
             }
         });
+
+        // Khusus untuk 'Notification' dan 'Help Center',
+        // Jika Anda memiliki sub-halaman di dalamnya yang tidak mengubah URL utama
+        // (misal dengan JavaScript seperti tab), maka logika di atas sudah cukup.
+        // Jika ada kasus khusus di mana path tidak langsung cocok
+        // tetapi Anda ingin sidebar tetap aktif, Anda bisa menambahkan logika tambahan di sini.
+        // Contoh: jika Anda ingin /notif-seller/detail/123 tetap mengaktifkan /notif-seller
+        // maka currentPath.startsWith(linkPath) sudah menanganinya.
     });
     </script>
+    @stack('scripts') {{-- Pastikan ini ada untuk menyertakan script dari child view --}}
 </body>
 
 </html>
