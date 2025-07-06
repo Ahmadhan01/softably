@@ -2,10 +2,39 @@
 
 @section('isi')
 
+    <style>
+        /* CSS untuk Animasi Notifikasi */
+        .notification-item {
+            /* Gaya dasar notifikasi Anda */
+            background-color: #1e293b;
+            border: 1px solid #475569; /* border-gray-700 */
+            border-radius: 0.5rem; /* rounded-lg */
+            padding: 1rem; /* p-4 */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem; /* space-y-4 */
+
+            /* Properti untuk animasi */
+            opacity: 0; /* Mulai dengan tidak terlihat */
+            transform: translateY(40px); /* Mulai sedikit di bawah */
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out; /* Durasi dan jenis transisi */
+        }
+
+        .notification-item.show {
+            opacity: 1  ; /* Tampilkan */
+            transform: translateY(0); /* Geser ke posisi normal */
+        }
+
+        .notification-item.read {
+            opacity: 0.6; /* 60% opacity untuk notifikasi yang sudah dibaca */
+        }
+    </style>
+
     <div class="flex min-h-screen">
       <main class="flex-1 p-6 space-y-6 ml-64">
         <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold">Notification</h1>
+          <h1 class="text-2xl font-semibold">Notification</h1>
           <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
             @csrf
             <button type="submit" class="text-sm text-gray-300 hover:text-white">
@@ -14,13 +43,11 @@
           </form>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-4" id="notifications-container"> {{-- Tambahkan ID ini --}}
           @forelse ($notifications as $notification)
           <div
-            class="bg-[#1e293b] border border-gray-700 rounded-lg p-4 flex justify-between items-start
-            {{ $notification->is_read ? 'opacity-60' : '' }}" {{-- Opacity jika sudah dibaca --}}
-            id="notification-{{ $notification->id }}"
-          >
+              class="notification-item {{ $notification->is_read ? 'read' : '' }}" {{-- Gunakan class 'read' --}}
+              id="notification-{{ $notification->id }}">
             <div class="flex items-start space-x-4">
               {{-- Gambar Notifikasi (Opsional, bisa disesuaikan berdasarkan type) --}}
               <div class="w-20 h-20 bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center">
@@ -73,6 +100,18 @@
             const markAsReadButtons = document.querySelectorAll('.mark-as-read-btn');
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+            // --- Logika Animasi Notifikasi ---
+            const notificationsContainer = document.getElementById('notifications-container');
+            if (notificationsContainer) {
+                const notificationItems = notificationsContainer.querySelectorAll('.notification-item');
+                notificationItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('show'); // Tambahkan kelas 'show' setelah penundaan
+                    }, index * 100); // Penundaan 100ms untuk setiap item (bisa disesuaikan)
+                });
+            }
+
+            // --- Logika Mark As Read (tidak berubah) ---
             markAsReadButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const notificationId = this.dataset.notificationId;
@@ -101,7 +140,12 @@
                                 }
                             }
                             console.log(data.message);
-                            // Opsional: Perbarui counter notifikasi di sidebar
+                            // Opsional: Perbarui counter notifikasi di sidebar (ini butuh event atau re-render sidebar)
+                            // Jika Anda menggunakan Livewire atau Inertia.js, ini lebih mudah.
+                            // Untuk vanilla JS, Anda mungkin perlu melakukan fetch ulang atau update DOM secara manual
+                            // pada elemen badge notifikasi di sidebar.
+                            // Atau, cara paling sederhana adalah dengan location.reload() setelah sukses,
+                            // tapi ini akan memuat ulang seluruh halaman.
                         } else {
                             console.error(data.message);
                         }

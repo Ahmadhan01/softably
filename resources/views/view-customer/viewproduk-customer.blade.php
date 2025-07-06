@@ -1,9 +1,6 @@
 @extends('layouts.sidebar')
 
 @section('isi')
-{{-- HAPUS TAG <!DOCTYPE html>, <html>, <head>, dan <body> DARI SINI --}}
-{{-- Tag-tag tersebut sudah ada di layouts/sidebar.blade.php --}}
-
 {{-- CSS Anda (jika ada yang spesifik untuk halaman ini) bisa diletakkan di sini,
          tetapi sebaiknya di file CSS terpisah atau di bagian <head> dari sidebar.blade.php --}}
 <style>
@@ -27,26 +24,6 @@
 }
 
 .main-product-image-container img.main-product-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 0.5rem;
-}
-
-/* Styling for thumbnail images (already 1:1 by w-16 h-16 classes) */
-.thumbnail-image-container {
-    width: 4rem;
-    height: 4rem;
-    position: relative;
-    overflow: hidden;
-    border: 2px solid white;
-    border-radius: 0.5rem;
-}
-
-.thumbnail-image-container img.thumbnail-image {
     position: absolute;
     top: 0;
     left: 0;
@@ -83,6 +60,54 @@
 .toast.show {
     transform: translateX(0);
 }
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: #1C2438;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease-in-out;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+}
 </style>
 
 <main class="flex-1 px-6 py-8 ml-64 bg-[#10172A] min-h-screen">
@@ -94,30 +119,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="space-y-4">
                     <div class="main-product-image-container bg-white">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name ?? 'Product Image' }}"
-                            class="main-product-image" />
+                        <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}"
+                        class="absolute inset-0 w-full h-full object-cover rounded-lg mb-4">
                         <div
                             class="absolute top-3 right-3 w-8 h-8 bg-orange-400 text-white rounded-full flex items-center justify-center shadow-lg ring-2 ring-white">
                             <i class="fa-solid fa-bookmark text-sm"></i>
                         </div>
                     </div>
-                    <div class="flex gap-2 justify-center">
-                        <div class="thumbnail-image-container bg-white">
-                            <img src="{{ $product->image_url }}" alt="Thumbnail 1" class="thumbnail-image" />
-                        </div>
-                        <div class="thumbnail-image-container bg-white">
-                            <img src="{{ $product->image_url }}" alt="Thumbnail 2" class="thumbnail-image" />
-                        </div>
-                        <div class="thumbnail-image-container bg-white">
-                            <img src="{{ $product->image_url }}" alt="Thumbnail 3" class="thumbnail-image" />
-                        </div>
-                        <div class="thumbnail-image-container bg-white">
-                            <img src="{{ $product->image_url }}" alt="Thumbnail 4" class="thumbnail-image" />
-                        </div>
-                        <div class="thumbnail-image-container bg-white">
-                            <img src="{{ $product->image_url }}" alt="Thumbnail 5" class="thumbnail-image" />
-                        </div>
-                    </div>
+                    {{-- Removed thumbnail images --}}
                 </div>
 
                 <div class="flex flex-col justify-between">
@@ -126,13 +135,17 @@
                             <div class="flex items-center gap-2">
                                 {{-- Foto Profil Seller --}}
                                 <div class="w-8 h-8 rounded-full overflow-hidden">
-                                        <img src="{{ $product->seller->profile_picture_url ?? asset('img/default-profile.png') }}"
+                                        {{-- UBAH INI: Dari $product->seller menjadi $product->user --}}
+                                        <img src="{{ $product->user->profile_picture_url ?? asset('img/default-profile.png') }}"
                                             alt="Seller Avatar" class="w-full h-full object-cover rounded-full" />
                                     </div>
                                 {{-- Nama Toko/Seller --}}
-                                <span class="font-semibold">{{ $product->seller->name ?? 'Toko Tidak Dikenal' }}</span>
+                                {{-- UBAH INI: Dari $product->seller menjadi $product->user --}}
+                                <span class="font-semibold">{{ $product->user->name ?? 'Toko Tidak Dikenal' }}</span>
                             </div>
-                            <button class="bg-gray-700 px-3 py-1 text-sm rounded-md hover:bg-gray-600">
+                            {{-- KEMBALIKAN TOMBOL "View Store" INI --}}
+                            <button id="viewStoreBtn" class="bg-gray-700 px-3 py-1 text-sm rounded-md hover:bg-gray-600"
+                                    data-seller-id="{{ $product->user->id ?? '' }}"> {{-- UBAH INI: data-seller-id ke $product->user->id --}}
                                 View Store
                             </button>
                         </div>
@@ -152,7 +165,7 @@
 
                     <div class="mt-6 flex items-center justify-end">
                         <div class="flex gap-3">
-                            {{-- Tombol Add to Wishlist --}}
+                            {{-- Tombol Add to Wishlist ... (tidak ada perubahan) --}}
                             @auth
                             <button id="addToWishlistBtn" data-product-id="{{ $product->id }}"
                                 class="px-4 py-2 text-white rounded-md transition-colors duration-200
@@ -194,20 +207,18 @@
                     @csrf
                     <input type="hidden" name="_method" id="comment-method" value="POST"> {{-- Untuk PATCH --}}
                     <input type="hidden" name="product_id" value="{{ $product->id }}"> {{-- Pastikan product_id ada --}}
+                    <input type="hidden" name="parent_id" id="comment-parent-id" value=""> {{-- Untuk balasan --}}
 
                     {{-- Foto Profil User Customer di Komentar --}}
                     <div class="w-10 h-10 rounded-full overflow-hidden">
-                                {{-- Gunakan Auth::user() untuk gambar profil --}}
                                 @php
-                                $imagePath = Auth::user()->profile_picture
-                                ? url('storage/profile/' . Auth::user()->profile_picture)
-                                : asset('img/man.jpg');
+                                $imagePath = Auth::user()->profile_picture_url;
                                 @endphp
-                                <img src="{{ url('profile/' . Auth::user()->profile_picture) . '?t=' . time() }}">
+                                <img src="{{ Auth::user()->profile_picture_url }}" alt="User Profile" class="w-full h-full object-cover">
                             </div>
                     <input type="text" name="content" id="comment-input" placeholder="Write a comment..."
                         class="flex-1 p-3 rounded-md bg-[#1F2A40] text-white border border-gray-600 focus:outline-none @error('content') border-red-500 @enderror"
-                        value="" {{-- Tidak perlu old() atau $existingComment di sini, akan diisi via JS untuk edit --}}
+                        value=""
                         required />
                     <button type="submit" class="bg-green-500 px-4 py-2 rounded-md hover:bg-green-400">
                         <i class="fa-solid fa-paper-plane"></i> <span id="comment-button-text">Kirim</span>
@@ -224,35 +235,35 @@
                 {{-- Tampilkan Daftar Komentar --}}
                 <div class="space-y-4">
                     @forelse ($product->comments->sortByDesc('created_at') as $comment)
-                    {{-- Gunakan comments dari product yang sudah dimuat --}}
                     <div class="flex gap-3 bg-[#1F2A40] p-3 rounded-md" id="comment-item-{{ $comment->id }}">
                         {{-- Foto Profil Komentator --}}
                         <div class="w-10 h-10 rounded-full overflow-hidden">
-                                {{-- Gunakan Auth::user() untuk gambar profil --}}
-                                @php
-                                $imagePath = Auth::user()->profile_picture
-                                ? url('storage/profile/' . Auth::user()->profile_picture)
-                                : asset('img/man.jpg');
-                                @endphp
-                                <img src="{{ url('profile/' . Auth::user()->profile_picture) . '?t=' . time() }}">
+                                <img src="{{ $comment->user->profile_picture_url }}" alt="User Profile"class="w-full h-full object-cover">
                             </div>
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
                                 <p class="font-semibold">{{ $comment->user->name ?? 'User Tidak Dikenal' }}</p>
                                 @auth
-                                @if (Auth::id() === $comment->user_id)
                                 <div class="text-xs text-gray-500 space-x-2">
+                                    @if (Auth::id() === $comment->user_id)
                                     <button class="text-white/70 hover:text-white edit-comment-btn"
                                         data-comment-id="{{ $comment->id }}"
                                         data-comment-content="{{ $comment->content }}">
                                         <i class="fas fa-pen text-xs"></i> Edit
                                     </button>
+                                    @endif
+                                    @if (Auth::id() === $comment->user_id || Auth::id() === $product->user_id)
                                     <button class="text-red-500 hover:text-red-400 delete-comment-btn"
                                         data-comment-id="{{ $comment->id }}">
                                         <i class="fa-solid fa-trash"></i> Hapus
                                     </button>
+                                    @endif
+                                    <button class="text-blue-400 hover:text-blue-300 reply-comment-btn"
+                                        data-comment-id="{{ $comment->id }}"
+                                        data-comment-user="{{ $comment->user->name ?? 'User' }}">
+                                        <i class="fa-solid fa-reply"></i> Reply
+                                    </button>
                                 </div>
-                                @endif
                                 @endauth
                             </div>
                             <p class="text-sm text-gray-300 mt-1" id="comment-content-display-{{ $comment->id }}">
@@ -260,6 +271,43 @@
                             <p class="text-xs text-gray-500 mt-1">
                                 {{ $comment->created_at->diffForHumans() }}
                             </p>
+
+                            {{-- Balasan Komentar --}}
+                            @foreach($comment->replies->sortBy('created_at') as $reply)
+                            <div class="flex gap-3 bg-[#2A354D] p-3 rounded-md mt-3 ml-8" id="comment-item-{{ $reply->id }}"> {{-- Indent for replies --}}
+                                <div class="w-8 h-8 rounded-full overflow-hidden">
+                                    <img src="{{ $reply->user->profile_picture_url ?? asset('img/default-profile.png') }}" alt="User Profile"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <p class="font-semibold text-white text-sm">{{ $reply->user->name ?? 'User Tidak Dikenal' }}</p>
+                                        @auth
+                                        <div class="text-xs text-gray-500 space-x-2">
+                                            @if (Auth::id() === $reply->user_id)
+                                            <button class="text-white/70 hover:text-white edit-comment-btn"
+                                                data-comment-id="{{ $reply->id }}"
+                                                data-comment-content="{{ $reply->content }}">
+                                                <i class="fas fa-pen text-xs"></i> Edit
+                                            </button>
+                                            @endif
+                                            @if (Auth::id() === $reply->user_id || Auth::id() === $product->user_id)
+                                            <button class="text-red-500 hover:text-red-400 delete-comment-btn"
+                                                data-comment-id="{{ $reply->id }}">
+                                                <i class="fa-solid fa-trash"></i> Hapus
+                                            </button>
+                                            @endif
+                                        </div>
+                                        @endauth
+                                    </div>
+                                    <p class="text-xs text-gray-300 mt-1" id="comment-content-display-{{ $reply->id }}">
+                                        {{ $reply->content }}</p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {{ $reply->created_at->diffForHumans() }}
+                                    </p>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                     </div>
                     @empty
@@ -270,6 +318,40 @@
         </div>
     </div>
 </main>
+
+{{-- KEMBALIKAN MODAL POP-UP PROFIL TOKO INI --}}
+<div id="storeProfileModal" class="modal">
+    <div class="modal-content text-white">
+        <button class="close-button" id="closeModalBtn">&times;</button>
+        <div class="flex flex-col items-center gap-4">
+            <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                <img id="sellerProfilePicture" src="{{ asset('img/default-profile.jpg') }}" alt="Seller Profile"
+                    class="w-full h-full object-cover">
+            </div>
+            <h3 id="sellerName" class="text-xl font-bold">Nama Toko</h3>
+            <p id="sellerStatus" class="text-green-500 text-sm">Online</p>
+            <p id="sellerDescription" class="text-gray-400 text-center text-sm">Deskripsi toko...</p>
+
+            <div class="grid grid-cols-2 gap-4 w-full mt-4">
+                <div class="bg-[#2A354D] rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full overflow-hidden bg-white/20 mb-2 flex items-center justify-center">
+                        <i class="fa-solid fa-check-circle text-green-400 text-2xl"></i>
+                    </div>
+                    <span class="text-lg font-semibold" id="successTransactions">0</span>
+                    <span class="text-xs text-gray-400">Success Transactions</span>
+                </div>
+                <div class="bg-[#2A354D] rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full overflow-hidden bg-white/20 mb-2 flex items-center justify-center">
+                        <i class="fa-solid fa-times-circle text-red-400 text-2xl"></i>
+                    </div>
+                    <span class="text-lg font-semibold" id="failedTransactions">0</span>
+                    <span class="text-xs text-gray-400">Failed Transactions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @push('scripts')
 <script>
@@ -446,101 +528,113 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // --- Logika Komentar: Edit dan Hapus ---
+    // --- Logika Komentar: Edit, Hapus, dan Balas ---
     const commentInput = document.getElementById('comment-input');
     const commentForm = document.getElementById('comment-form');
     const commentMethod = document.getElementById('comment-method');
     const commentButtonText = document.getElementById('comment-button-text');
+    const commentParentId = document.getElementById('comment-parent-id');
 
     // Konsolidasikan event listener untuk pengiriman form (store dan update)
-    // Ini menangani submit form baik saat POST (tambah baru) maupun PATCH (update)
-    commentForm.addEventListener('submit', function(event) { //
-        event.preventDefault(); // <-- Ini kunci untuk mencegah pengalihan
+    commentForm.addEventListener('submit', function(event) {
+        event.preventDefault();
 
-        const url = commentForm.action; //
-        const method = commentMethod.value; //
-        const content = commentInput.value; //
-        const productId = commentForm.querySelector('input[name="product_id"]').value; //
+        // Tentukan URL berdasarkan apakah ini edit, balasan, atau komentar baru
+        let url;
+        if (commentMethod.value === 'PATCH') {
+            url = commentForm.action;
+        } else if (commentParentId.value) {
+            url = `{{ route('comments.reply', ':commentId') }}`.replace(':commentId', commentParentId.value);
+        } else {
+            url = `{{ route('comments.store', $product->id) }}`;
+        }
+
+        const method = commentMethod.value;
+        const content = commentInput.value;
+        const productId = commentForm.querySelector('input[name="product_id"]').value;
+        const parentId = commentParentId.value;
+
+        const bodyData = {
+            content: content,
+            product_id: productId,
+        };
+
+        if (parentId) {
+            bodyData.parent_id = parentId;
+        }
 
         fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                content: content,
-                product_id: productId
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(bodyData)
             })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Gagal menyimpan komentar.');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                showToast(data.message, 'success');
-
-                if (method === 'PATCH') {
-                    // Update tampilan komentar yang sudah ada di DOM
-                    const commentIdToUpdate = url.split('/').pop(); // Ambil ID dari URL
-                    const commentContentDisplay = document.getElementById(`comment-content-display-${commentIdToUpdate}`);
-                    if (commentContentDisplay) {
-                        commentContentDisplay.textContent = content; // Perbarui teks komentar di DOM
-                    }
-                } else {
-                    // Jika ini penambahan komentar baru
-                    // Untuk saat ini, yang paling mudah adalah memuat ulang halaman
-                    // karena mengupdate DOM untuk komentar baru lebih kompleks tanpa data lengkap dari server.
-                    window.location.reload(); //
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || 'Gagal menyimpan komentar.');
+                    });
                 }
-
-                // Reset form setelah sukses
-                commentInput.value = '';
-                commentForm.action = `{{ route('comments.store', $product->id) }}`;
-                commentMethod.value = 'POST';
-                commentButtonText.textContent = 'Kirim';
-            } else {
-                showToast(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error submitting comment:', error);
-            showToast('Terjadi kesalahan saat menyimpan komentar: ' + error.message, 'error');
-        });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    location.reload();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting comment:', error);
+                showToast('Terjadi kesalahan saat menyimpan komentar: ' + error.message, 'error');
+            });
     });
 
-    // Logika Edit Komentar - Menggunakan event delegation untuk tombol edit
-    // Ini hanya mengisi form untuk diedit, tidak mengirim form
+    // Logika Edit Komentar
     document.querySelectorAll('.edit-comment-btn').forEach(button => {
         button.addEventListener('click', function() {
             const commentId = this.dataset.commentId;
             const commentContent = this.dataset.commentContent;
 
-            commentInput.value =
-            commentContent; // Isi input dengan konten komentar yang ingin diedit
-            commentForm.action = `/comments/${commentId}`; // Ganti action ke rute update
-            commentMethod.value = 'PATCH'; // Ganti method ke PATCH
-            commentButtonText.textContent = 'Update'; // Ubah teks tombol
+            commentInput.value = commentContent;
+            commentForm.action = `/comments/${commentId}`;
+            commentMethod.value = 'PATCH';
+            commentButtonText.textContent = 'Update';
+            commentParentId.value = '';
             commentInput.focus();
         });
     });
 
-    // Reset form jika input dikosongkan setelah edit atau saat form dikirim
+    // Logika Reply Komentar
+    document.querySelectorAll('.reply-comment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            const commentUser = this.dataset.commentUser;
+
+            commentParentId.value = commentId;
+            commentInput.value = `@${commentUser} `;
+            commentForm.action = `{{ route('comments.reply', ':commentId') }}`.replace(':commentId', commentId);
+            commentMethod.value = 'POST';
+            commentButtonText.textContent = 'Balas';
+            commentInput.focus();
+        });
+    });
+
+    // Reset form jika input dikosongkan setelah edit/reply atau saat form dikirim
     commentInput.addEventListener('input', function() {
-        if (this.value === '' && commentMethod.value === 'PATCH') {
-            commentForm.action = `{{ route('comments.store', $product->id) }}`; // Kembali ke rute store
+        if (this.value === '' && (commentMethod.value === 'PATCH' || commentParentId.value !== '')) {
+            commentForm.action = `{{ route('comments.store', $product->id) }}`;
             commentMethod.value = 'POST';
             commentButtonText.textContent = 'Kirim';
+            commentParentId.value = '';
         }
     });
 
-    // Logika Hapus Komentar - Menggunakan event delegation
+    // Logika Hapus Komentar
     document.querySelectorAll('.delete-comment-btn').forEach(button => {
         button.addEventListener('click', function() {
             const commentId = this.dataset.commentId;
@@ -556,16 +650,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(data => {
                         if (data.success) {
                             showToast('Komentar berhasil dihapus.', 'success');
-                            // Hapus elemen komentar dari DOM tanpa reload halaman
                             document.getElementById(`comment-item-${commentId}`).remove();
-                            // Optional: Reset form komentar jika yang dihapus adalah komentar yang sedang diedit
-                            if (commentForm.action === `/comments/${commentId}` &&
-                                commentMethod.value === 'PATCH') {
+                            if (commentForm.action.includes(`/comments/${commentId}`) &&
+                                (commentMethod.value === 'PATCH' || commentParentId.value === commentId)) {
                                 commentInput.value = '';
-                                commentForm.action =
-                                    `{{ route('comments.store', $product->id) }}`;
+                                commentForm.action = `{{ route('comments.store', $product->id) }}`;
                                 commentMethod.value = 'POST';
-                                commentButtonText.textContent = 'Kirim';
+                                commentParentId.value = '';
                             }
                         } else {
                             showToast('Gagal menghapus komentar: ' + data.message, 'error');
@@ -578,6 +669,77 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+
+    // --- Logika Modal Pop-up Profil Toko ---
+    const viewStoreBtn = document.getElementById('viewStoreBtn');
+    const storeProfileModal = document.getElementById('storeProfileModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const sellerProfilePicture = document.getElementById('sellerProfilePicture');
+    const sellerName = document.getElementById('sellerName');
+    const sellerStatus = document.getElementById('sellerStatus');
+    const sellerDescription = document.getElementById('sellerDescription');
+    // HAPUS INI: Tidak perlu lagi elemen-elemen ini
+    // const successTransactions = document.getElementById('successTransactions');
+    // const failedTransactions = document.getElementById('failedTransactions');
+
+    if (viewStoreBtn) {
+        viewStoreBtn.addEventListener('click', function() {
+            const sellerId = this.dataset.sellerId;
+            if (sellerId) {
+                // Fetch seller data
+                fetch(`/api/seller-info/${sellerId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => { // Pastikan parsing error
+                                throw new Error(errorData.message || 'Gagal memuat data seller.');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success && data.user) { // Data sekarang ada di 'user'
+                            sellerProfilePicture.src = data.user.profile_picture_url || '{{ asset("img/default-profile.jpg") }}';
+                            sellerName.textContent = data.user.name;
+                            sellerStatus.textContent = data.user.is_online ? 'Online' : 'Offline';
+                            sellerStatus.className = '';
+                            sellerStatus.classList.add('text-sm', data.user.is_online ? 'text-green-500' : 'text-red-500');
+                            sellerDescription.textContent = data.user.description || 'Belum ada deskripsi toko.';
+
+                            // HAPUS INI: Tidak perlu memperbarui elemen transaksi
+                            // successTransactions.textContent = data.success_transactions;
+                            // failedTransactions.textContent = data.failed_transactions;
+
+                            storeProfileModal.classList.add('show');
+                        } else {
+                            showToast(data.message || 'Gagal memuat data seller.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching seller info:', error);
+                        showToast('Terjadi kesalahan saat memuat informasi toko: ' + error.message, 'error');
+                    });
+            } else {
+                showToast('Informasi seller tidak tersedia.', 'error');
+            }
+        });
+    }
+
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function() {
+            storeProfileModal.classList.remove('show');
+        });
+    }
+
+    // Tutup modal jika klik di luar konten modal
+    if (storeProfileModal) {
+        storeProfileModal.addEventListener('click', function(e) {
+            if (e.target === storeProfileModal) {
+                storeProfileModal.classList.remove('show');
+            }
+        });
+    }
 });
 </script>
 @endpush

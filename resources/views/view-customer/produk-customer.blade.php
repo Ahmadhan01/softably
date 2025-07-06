@@ -77,7 +77,6 @@
     }
 
     .product-card.list-view .bookmark-icon {
-        /* .product-card.list-view .cart-icon { Removed .cart-icon from here too */
         position: static;
         margin-left: auto;
         align-self: center;
@@ -113,36 +112,6 @@
         right: 0.75rem;
     }
 
-    /* Posisi tombol keranjang baru: relatif terhadap product-image-container */
-    /* .product-image-container .cart-icon { /* This entire rule can be removed as well */
-    /* position: absolute;
-        bottom: 0.5rem;
-        left: 0.5rem;
-        z-index: 11;
-        background-color: transparent;
-        border: none;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 2rem;
-        height: 2rem;
-    } */
-
-    /* .product-image-container .cart-icon i { */
-    /* Target icon inside button */
-    /* font-size: 1.25rem;
-        color: white;
-        transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
-    } */
-
-    /* .product-image-container .cart-icon:hover i { */
-    /* Efek hover pada ikon */
-    /* transform: scale(1.15);
-        color: #F97316;
-    } */
-
-
     /* Efek hover scale pada kartu produk */
     .product-card:hover {
         transform: scale(1.05);
@@ -151,14 +120,60 @@
     }
 
     /* Pastikan header pencarian berada di atas kartu produk yang di-hover */
+    /* Z-index 100 untuk search bar */
     .sticky-header-search {
         z-index: 100;
         /* Nilai yang lebih tinggi dari product-card:hover (z-index: 50) */
+    }
+
+    /* Styling untuk select standar (yang sekarang digunakan untuk semua filter) */
+    .filter-select {
+        background-color: #1E293B;
+        border: 1px solid #334155;
+        color: white;
+        font-size: 0.875rem;
+        /* text-sm */
+        padding: 0.25rem 0.5rem;
+        /* px-2 py-1 */
+        border-radius: 0.25rem;
+        /* rounded */
+        /* Menyamakan lebar dengan `Urutkan berdasarkan` */
+        width: 180px;
+        /* Sesuaikan nilai ini jika perlu */
+        appearance: none;
+        /* Menyembunyikan panah default di beberapa browser */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 1em;
+        padding-right: 2rem;
+        /* Ruang untuk panah custom */
+    }
+
+    /* CSS baru untuk lapisan latar belakang putih */
+    .sticky-background-layer {
+        position: fixed;
+        /* Atau 'absolute' jika parentnya diposisikan */
+        top: -25px;
+        /* Mulai dari atas viewport */
+        left: 100;
+        /* Mulai dari kiri viewport */
+        width: 100vw;
+        /* Lebar penuh viewport */
+        height: 100px;
+        /* Tinggi yang Anda inginkan */
+        background-color: #10172A;
+        z-index: 80;
     }
     </style>
 </head>
 
 <main class="flex-1 p-6 space-y-6 ml-64 bg-[#10172A] text-white font-sans">
+    {{-- Lapisan latar belakang putih yang sticky --}}
+    <!-- <div class="sticky-background-layer"></div> -->
+
     <div
         class="sticky top-[25px] z-50 bg-[#1e293b] p-2 flex justify-between items-center shadow-md rounded-lg sticky-header-search">
         <form action="{{ route('customer.produk') }}" method="GET" class="relative max-w-md w-full">
@@ -169,6 +184,7 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </form>
+
 
         <div class="flex-1"></div>
 
@@ -181,6 +197,7 @@
             </a>
         </div>
     </div>
+    <div class="sticky-background-layer"></div>
 
     <div class="flex justify-between items-center">
         <h2 class="text-5xl font-bold text-white">Temukan produk<br>yang kamu sukai</h2>
@@ -214,104 +231,52 @@
         <input type="hidden" name="search" value="{{ request('search') }}">
         <div class="flex justify-between items-center mt-6 flex-wrap gap-4">
             <div class="flex gap-4 sm:gap-6 flex-wrap">
-                <details class="group relative">
-                    <summary
-                        class="flex items-center gap-2 border-b border-gray-300 pb-1 text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900 dark:border-gray-600 dark:text-gray-200 dark:hover:border-gray-700 dark:hover:text-white [&::-webkit-details-marker]:hidden">
-                        <span class="text-sm"> Harga </span>
-                        <span class="transition-transform group-open:-rotate-180">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                        </span>
-                    </summary>
 
-                    <div
-                        class="z-50 w-64 divide-y divide-gray-300 rounded border border-gray-300 bg-white shadow-sm group-open:absolute group-open:start-0 group-open:top-8 dark:divide-gray-600 dark:border-gray-600 dark:bg-gray-900">
-                        <div class="flex items-center justify-between px-3 py-2">
-                            <span class="text-sm text-gray-700 dark:text-gray-200"> Terapkan filter di bawah </span>
-                            <button type="button"
-                                class="text-sm text-gray-700 underline transition-colors hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
-                                onclick="document.getElementById('MinPrice').value=''; document.getElementById('MaxPrice').value=''; document.getElementById('filter-sort-form').submit();">
-                                Reset
-                            </button>
-                        </div>
+                {{-- FILTER HARGA SIMPEL (menggunakan class filter-select) --}}
+                <div class="flex items-center gap-2">
+                    <label for="price-filter" class="text-sm text-white">Harga:</label>
+                    <select id="price-filter" name="price_range"
+                        onchange="document.getElementById('filter-sort-form').submit();" class="filter-select">
+                        <option value="all" {{ request('price_range') == 'all' ? 'selected' : '' }}>Semua Harga</option>
+                        <option value="0-50000" {{ request('price_range') == '0-50000' ? 'selected' : '' }}>Di Bawah Rp
+                            50.000</option>
+                        <option value="50000-100000" {{ request('price_range') == '50000-100000' ? 'selected' : '' }}>Rp
+                            50.000 - Rp 100.000</option>
+                        <option value="100000-500000" {{ request('price_range') == '100000-500000' ? 'selected' : '' }}>
+                            Rp 100.000 - Rp 500.000</option>
+                        <option value="500000-max" {{ request('price_range') == '500000-max' ? 'selected' : '' }}>Di
+                            Atas Rp 500.000</option>
+                    </select>
+                </div>
+                {{-- END FILTER HARGA SIMPEL --}}
 
-                        <div class="flex items-center gap-3 p-3">
-                            <label for="MinPrice">
-                                <span class="text-sm text-gray-700 dark:text-gray-200"> Min </span>
-                                <input type="number" id="MinPrice" name="min_price" value="{{ request('min_price') }}"
-                                    class="mt-0.5 w-full rounded border-gray-300 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
-                            </label>
-
-                            <label for="MaxPrice">
-                                <span class="text-sm text-gray-700 dark:text-gray-200"> Max </span>
-                                <input type="number" id="MaxPrice" name="max_price" value="{{ request('max_price') }}"
-                                    class="mt-0.5 w-full rounded border-gray-300 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
-                            </label>
-                        </div>
-                        <div class="p-3">
-                            <button type="submit"
-                                class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Terapkan
-                                Filter</button>
-                        </div>
-                    </div>
-                </details>
-
-                {{-- FILTER KATEGORI BARU --}}
-                <details class="group relative">
-                    <summary
-                        class="flex items-center gap-2 border-b border-gray-300 pb-1 text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900 dark:border-gray-600 dark:text-gray-200 dark:hover:border-gray-700 dark:hover:text-white [&::-webkit-details-marker]:hidden">
-                        <span class="text-sm"> Kategori </span>
-                        <span class="transition-transform group-open:-rotate-180">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                        </span>
-                    </summary>
-
-                    <div
-                        class="z-50 w-64 divide-y divide-gray-300 rounded border border-gray-300 bg-white shadow-sm group-open:absolute group-open:start-0 group-open:top-8 dark:divide-gray-600 dark:border-gray-600 dark:bg-gray-900">
-                        <div class="flex items-center justify-between px-3 py-2">
-                            <span class="text-sm text-gray-700 dark:text-gray-200"> Pilih Kategori </span>
-                            <button type="button"
-                                class="text-sm text-gray-700 underline transition-colors hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
-                                onclick="document.getElementById('category-select').value='all'; document.getElementById('filter-sort-form').submit();">
-                                Reset
-                            </button>
-                        </div>
-
-                        <div class="p-3">
-                            <select id="category-select" name="category"
-                                onchange="document.getElementById('filter-sort-form').submit();"
-                                class="mt-0.5 w-full rounded border-gray-300 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white">
-                                <option value="all"
-                                    {{ request('category') == 'all' || !request('category') ? 'selected' : '' }}>Semua
-                                    Kategori</option>
-                                @if(isset($categories))
-                                @foreach ($categories as $category)
-                                @if($category != 'all')
-                                <option value="{{ $category }}"
-                                    {{ request('category') == $category ? 'selected' : '' }}>
-                                    {{ ucwords(str_replace('_', ' ', $category)) }}
-                                </option>
-                                @endif
-                                @endforeach
-                                @endif
-
-                            </select>
-                        </div>
-                    </div>
-                </details>
-                {{-- END FILTER KATEGORI BARU --}}
+                {{-- FILTER KATEGORI SIMPEL (menggunakan class filter-select) --}}
+                <div class="flex items-center gap-2">
+                    <label for="category-filter" class="text-sm text-white">Kategori:</label>
+                    <select id="category-filter" name="category"
+                        onchange="document.getElementById('filter-sort-form').submit();" class="filter-select">
+                        <option value="all"
+                            {{ request('category') == 'all' || !request('category') ? 'selected' : '' }}>Semua Kategori
+                        </option>
+                        @if(isset($categories))
+                        @foreach ($categories as $category)
+                        @if($category != 'all')
+                        <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>
+                            {{ ucwords(str_replace('_', ' ', $category)) }}
+                        </option>
+                        @endif
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+                {{-- END FILTER KATEGORI SIMPEL --}}
 
             </div>
 
             <div class="flex items-center gap-2">
-                <label for="sort" class="text-sm mb-1 text-white">Urutkan berdasarkan:</label>
+                <label for="sort" class="text-sm text-white">Urutkan berdasarkan:</label>
                 <select id="sort" name="sort_by" onchange="document.getElementById('filter-sort-form').submit();"
-                    class="bg-[#1E293B] border border-[#334155] text-white text-sm px-2 py-1 rounded">
+                    class="filter-select"> {{-- Tambahkan class filter-select di sini juga --}}
                     <option value="best_seller" {{ request('sort_by') == 'best_seller' ? 'selected' : '' }}>Terlaris
                     </option>
                     <option value="newest"
@@ -331,16 +296,6 @@
                         hasil.</div>
                 </div>
 
-                <div class="flex gap-2">
-                    <button type="button" id="grid-view-btn"
-                        class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-white">
-                        <i class="fa-solid fa-border-all"></i>
-                    </button>
-                    <button type="button" id="list-view-btn"
-                        class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-white">
-                        <i class="fa-solid fa-grip"></i>
-                    </button>
-                </div>
             </div>
         </div>
     </form>
@@ -360,15 +315,8 @@
             {{-- Link detail produk sekarang hanya membungkus gambar dan teks info --}}
             <a href="{{ route('view-product.show', $product->id) }}" class="product-info-link block">
                 <div class="product-image-container">
-                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="product-image" />
-
-                    {{-- TOMBOL KERANJANG DIHAPUS DARI SINI --}}
-                    {{--
-                    <button type="button" class="cart-icon absolute" data-product-id="{{ $product->id }}"
-                    data-action="add-to-cart">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    </button>
-                    --}}
+                    <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}"
+                        class="absolute inset-0 w-full h-full object-cover rounded-lg mb-4">
                 </div>
 
                 <p class="text-orange-400 font-bold mb-1">Rp.{{ number_format($product->price, 0, ',', '.') }},00</p>

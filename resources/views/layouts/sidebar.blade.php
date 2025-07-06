@@ -9,126 +9,126 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* CSS untuk Sidebar */
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.25rem;
-            color: #9ca3af;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.2s ease-in-out;
-            transform: scale(1);
-            text-decoration: none;
-        }
+    /* CSS untuk Sidebar */
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        color: #9ca3af;
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.2s ease-in-out;
+        transform: scale(1);
+        text-decoration: none;
+    }
 
-        .sidebar-link i.fa-solid {
-            color: #9ca3af;
-            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
-        }
+    .sidebar-link i.fa-solid {
+        color: #9ca3af;
+        transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
 
-        .sidebar-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            transform: scale(1.02);
-        }
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: scale(1.02);
+    }
 
-        .sidebar-link.active {
-            background-color: #2D3A4F;
-            color: white;
-            transform: scale(1.02);
-            font-weight: 600;
-        }
+    .sidebar-link.active {
+        background-color: #2D3A4F;
+        color: white;
+        transform: scale(1.02);
+        font-weight: 600;
+    }
 
-        .sidebar-link.active i.fa-solid {
-            color: white;
-            transform: scale(1.05);
-        }
+    .sidebar-link.active i.fa-solid {
+        color: white;
+        transform: scale(1.05);
+    }
 
 
-        .sidebar-footer-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.25rem;
-            color: #9ca3af;
-            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
-            transform: scale(1);
-            text-decoration: none;
-        }
+    .sidebar-footer-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        color: #9ca3af;
+        transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+        transform: scale(1);
+        text-decoration: none;
+    }
 
-        .sidebar-footer-link i.fa-solid {
-            color: #9ca3af;
-            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
-        }
+    .sidebar-footer-link i.fa-solid {
+        color: #9ca3af;
+        transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
 
-        .sidebar-footer-link:hover {
-            color: white;
-            transform: scale(1.02);
-        }
+    .sidebar-footer-link:hover {
+        color: white;
+        transform: scale(1.02);
+    }
 
-        .sidebar-footer-link:hover i.fa-solid {
-            color: white;
-            transform: scale(1.05);
-        }
+    .sidebar-footer-link:hover i.fa-solid {
+        color: white;
+        transform: scale(1.05);
+    }
 
-        .user-profile-link {
-            color: white;
-            text-decoration: none;
-            transition: transform 0.2s ease-in-out;
-        }
+    .user-profile-link {
+        color: white;
+        text-decoration: none;
+        transition: transform 0.2s ease-in-out;
+    }
 
-        .user-profile-link:hover {
-            transform: scale(1.02);
-        }
+    .user-profile-link:hover {
+        transform: scale(1.02);
+    }
 
-        .user-profile-link:hover .font-medium {
-            color: white;
-        }
+    .user-profile-link:hover .font-medium {
+        color: white;
+    }
 
-        .user-profile-link:hover .text-gray-400 {
-            color: #d1d5db;
-        }
+    .user-profile-link:hover .text-gray-400 {
+        color: #d1d5db;
+    }
 
-        .softably-logo {
-            width: 50%;
-            height: auto;
-        }
+    .softably-logo {
+        width: 50%;
+        height: auto;
+    }
 
-        body {
-            background-color: #0f172a;
-            color: white;
-            font-family: sans-serif;
-        }
+    body {
+        background-color: #0f172a;
+        color: white;
+        font-family: sans-serif;
+    }
 
-        /* --- STYLE UNTUK TOAST NOTIFICATIONS (DIPINDAHKAN KE SINI) --- */
-        .toast-container {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            align-items: flex-end;
-        }
+    /* --- STYLE UNTUK TOAST NOTIFICATIONS (DIPINDAHKAN KE SINI) --- */
+    .toast-container {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
 
-        .toast {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            color: white;
-            transform: translateX(100%);
-            transition: transform 0.3s ease-out;
-        }
+    .toast {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.375rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        color: white;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-out;
+    }
 
-        .toast.show {
-            transform: translateX(0);
-        }
+    .toast.show {
+        transform: translateX(0);
+    }
     </style>
 </head>
 
@@ -152,11 +152,17 @@
                     </a>
                     <a href="{{ route('notif-customer') }}" class="sidebar-link" data-path="/notif-customer">
                         <i class="fa-solid fa-bell"></i><span>Notification</span>
-                        <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">4</span>
+                        {{-- Tampilkan badge hanya jika ada notifikasi belum dibaca --}}
+                        @if ($unreadNotificationsCount > 0)
+                            <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">{{ $unreadNotificationsCount }}</span>
+                        @endif
                     </a>
                     <a href="{{ route('chat-customer') }}" class="sidebar-link" data-path="/chat-customer">
                         <i class="fa-solid fa-comments"></i><span>Chat</span>
                         <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">10</span>
+                    </a>
+                    <a href="{{ route('softpay-customer') }}" class="sidebar-link" data-path="/softpay">
+                        <i class="fa-solid fa-wallet"></i><span>SoftPay</span>
                     </a>
                     <a href="{{ route('bantuan-customer') }}" class="sidebar-link" data-path="/bantuan-customer">
                         <i class="fa-solid fa-circle-question"></i><span>Help Center</span>
@@ -174,7 +180,7 @@
                                 ? url('storage/profile/' . Auth::user()->profile_picture)
                                 : asset('img/man.jpg');
                                 @endphp
-                                <img src="{{ url('profile/' . Auth::user()->profile_picture) . '?t=' . time() }}">
+                                <img src="{{ Auth::user()->profile_picture_url }}" alt="User Profile" class="w-full h-full object-cover">
                             </div>
                             <div>
                                 {{-- Gunakan Auth::user() untuk nama pengguna --}}
@@ -206,37 +212,37 @@
     @stack('scripts')
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            const sidebarLinks = document.querySelectorAll(
-                '.sidebar-link, .user-profile-link, .sidebar-footer-link');
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const sidebarLinks = document.querySelectorAll(
+            '.sidebar-link, .user-profile-link, .sidebar-footer-link');
 
-            sidebarLinks.forEach(link => {
-                const linkPath = link.dataset.path;
+        sidebarLinks.forEach(link => {
+            const linkPath = link.dataset.path;
 
-                let isActive = false;
-                // Periksa kecocokan persis atau awalan
-                if (currentPath === linkPath) {
-                    isActive = true;
-                } else if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
-                    isActive = true;
-                } else if (linkPath === '/' && currentPath ===
-                    '/') { // Khusus untuk root path
-                    isActive = true;
-                }
+            let isActive = false;
+            // Periksa kecocokan persis atau awalan
+            if (currentPath === linkPath) {
+                isActive = true;
+            } else if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
+                isActive = true;
+            } else if (linkPath === '/' && currentPath ===
+                '/') { // Khusus untuk root path
+                isActive = true;
+            }
 
-                if (isActive) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
+            if (isActive) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
 
-                // Logout link tidak perlu active state
-                if (link.dataset.path === '/logout') {
-                    link.classList.remove('active');
-                }
-            });
+            // Logout link tidak perlu active state
+            if (link.dataset.path === '/logout') {
+                link.classList.remove('active');
+            }
         });
+    });
     </script>
 </body>
 

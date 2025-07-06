@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; // Import Rule
-use Illuminate\Support\Facades\Storage; // Import Storage
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 
 class ProfileController extends Controller
@@ -31,12 +31,12 @@ class ProfileController extends Controller
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users')->ignore($user->id), // Pastikan email unik kecuali email user sendiri
+                Rule::unique('users')->ignore($user->id),
             ],
-            'phone_number' => 'nullable|string|max:20', // Sesuaikan validasi nomor telepon jika perlu
+            'phone_number' => 'nullable|string|max:20',
             'date_of_birth' => 'nullable|date',
-            'profile_picture'   => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-            // 'country' => 'nullable|string|max:255', // Negara mungkin tidak perlu di-update jika disabled di frontend
+            // 'profile_picture' validasi di sini redundant karena sudah ditangani di updateProfilePicture
+            // 'profile_picture'   => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
         ]);
 
         // Update data user
@@ -44,9 +44,7 @@ class ProfileController extends Controller
         $user->email = $request->email;
         $user->phone_number = $request->phone_number;
         $user->date_of_birth = $request->date_of_birth;
-        // $user->country = $request->country; // Jika ingin bisa diupdate, hapus disabled di blade
 
-        dd($user);
         $user->save();
 
         // Redirect dengan pesan sukses
@@ -64,26 +62,30 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_picture')) {
             $imageName = time() . '.' . $request->file('profile_picture')->getClientOriginalExtension();
+            $destinationPath = 'profile/' . $imageName; // Path relatif yang akan disimpan di DB
 
-            $destination = public_path('profile');
-            if (!file_exists($destination)) {
-                mkdir($destination, 0755, true);
+            // Hapus gambar profil lama jika ada
+            if ($user->profile_picture) {
+                // Periksa apakah gambar lama ada di direktori public dan hapus
+                if (file_exists(public_path($user->profile_picture))) {
+                    unlink(public_path($user->profile_picture));
+                }
+                if ($user->profile_picture && file_exists(public_path('profile/' . $user->profile_picture))) {
+                    unlink(public_path('profile/' . $user->profile_picture));
+                }
             }
 
-            if ($user->profile_picture && file_exists($destination . '/' . $user->profile_picture)) {
-                unlink($destination . '/' . $user->profile_picture);
-            }
+            // Pindahkan file baru ke direktori public/profile
+            $request->file('profile_picture')->move(public_path('profile'), $imageName);
 
-            $request->file('profile_picture')->move($destination, $imageName);
-            $user->profile_picture = $imageName;
-            
+            // Perbarui atribut profile_picture user dengan path relatif
+            $user->profile_picture = $destinationPath;
+            $user->save();
+
+            return back()->with('success', 'Profil berhasil diperbarui.');
         }
-        dd($user);
-        $user->save();
- 
-        return back()->with('success', 'Profil berhasil diperbarui.');
 
-        // return redirect()->route('setting-customer')->with('error', 'Gagal mengunggah foto profil.');
+        return back()->with('error', 'Gagal mengunggah foto profil.');
     }
 
     // Anda juga bisa menambahkan method untuk update password, dll.
@@ -101,7 +103,6 @@ class ProfileController extends Controller
         }
 
         $user->password = Hash::make($request->password);
-        dd($user);
         $user->save();
 
         return redirect()->route('setting-customer')->with('success', 'Kata sandi berhasil diperbarui!');

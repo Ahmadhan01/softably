@@ -22,8 +22,8 @@ class WishlistController extends Controller
             return redirect()->route('login');
         }
 
-        dd($user);
-        $query = $user->wishlists()->with('product', 'product.seller');
+        // dd($user);
+        $query = $user->wishlists()->with('product', 'product.user');
 
         // --- Implementasi Pencarian (Search) ---
         $searchQuery = $request->input('search', '');
