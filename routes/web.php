@@ -238,14 +238,16 @@ Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForA
 // Ambil isi chat antara admin dan 1 customer tertentu
 Route::get('/admin/chat/customer/{id}', [ChatController::class, 'viewChatWithCustomer'])->middleware('auth');
 
-Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin']);
-Route::get('/admin/chat/messages/{id}', [ChatController::class, 'fetchMessagesWithCustomer']);
-Route::post('/admin/chat/send/{id}', [ChatController::class, 'sendMessageToCustomer']);
-
-
 Route::middleware('auth')->group(function () {
-    Route::get('/chat/admin/messages', [ChatController::class, 'fetchMessagesWithAdmin']);
-    Route::post('/chat/admin/send', [ChatController::class, 'sendMessageToAdmin']);
+    // Ambil daftar customer yang pernah kirim chat
+    Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin'])->name('admin.chat.customers');
+    // Ambil isi chat antara admin dan 1 customer tertentu
+    Route::get('/admin/chat/messages/{id}', [ChatController::class, 'fetchMessagesWithCustomer'])->name('admin.chat.messages');
+    // Kirim pesan dari admin ke customer
+    Route::post('/admin/chat/send/{id}', [ChatController::class, 'sendMessageToCustomer'])->name('admin.chat.send');
+    // Ambil isi chat antara customer dan admin
+    Route::get('/chat/admin/messages', [ChatController::class, 'fetchMessagesWithAdmin'])->name('customer.chat.messages');
+    // Kirim pesan dari customer ke admin
+    Route::post('/chat/admin/send', [ChatController::class, 'sendMessageToAdmin'])->name('customer.chat.send');
 });
-
 

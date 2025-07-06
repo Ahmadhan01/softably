@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Conversation;
-use App\Models\Message;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Events\NewChatMessage;
-use App\Events\MessageSent;
+    use App\Models\Conversation; // Jika Anda menggunakan Conversation model
+    use App\Models\Message;
+    use App\Models\User;
+    use Illuminate\Http\Request;
+    use Illuminate\Support\Facades\Auth;
+    use App\Events\NewChatMessage; // Jika Anda menggunakan event ini untuk chat lain
+    use App\Events\MessageSent; // Event yang baru kita perbarui
 
-
-class ChatController extends Controller
-{
-    public function sellerChat()
+    class ChatController extends Controller
+    {
+      
+        public function sellerChat()
     {
         $user = auth()->user();
 
@@ -137,13 +137,15 @@ class ChatController extends Controller
         return response()->json(['conversation_id' => $conversation->id]);
     }
 
-    // customer to admin
 
-     public function fetchMessagesWithAdmin()
+        // Customer to Admin Chat
+        public function fetchMessagesWithAdmin()
     {
         $admin = User::where('role', 'admin')->first();
-        if (!$admin) return response()->json(['error' => 'Admin not found'], 404);
-
+        if (!$admin) {
+            \Log::error('Admin user not found for chat.');
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
         $messages = Message::where(function ($q) use ($admin) {
             $q->where('sender_id', auth()->id())
               ->where('receiver_id', $admin->id);
@@ -151,62 +153,106 @@ class ChatController extends Controller
             $q->where('sender_id', $admin->id)
               ->where('receiver_id', auth()->id());
         })->orderBy('created_at', 'asc')->get();
-
         return response()->json($messages);
     }
 
-    public function sendMessageToAdmin(Request $request)
-{
-    $admin = User::where('role', 'admin')->first();
-    if (!$admin) return response()->json(['error' => 'Admin not found'], 404);
+        public function sendMessageToAdmin(Request $request)
+    {
+        $admin = User::where('role', 'admin')->first();
+        if (!$admin) {
+            \Log::error('Admin user not found for sending message.');
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
+        $request->validate(['message' => 'required|string|max:1000']);
+        try {
+            $message = Message::create([
+                'sender_id' => auth()->id(),
+                'receiver_id' => $admin->id,
+                'content' => $request->message,
+            ]);
+            // PENTING: Panggil event MessageSent dengan receiver_id dan sender_id yang benar
+            // receiver_id adalah admin->id, sender_id adalah auth()->id() (customer)
+            broadcast(new MessageSent($message, $admin->id, auth()->id()))->toOthers();
+            return response()->json($message);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send message to admin: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to send message.'], 500);
+        }
+    }
 
-    $request->validate(['message' => 'required|string']);
+        // Admin to Customer Chat
+        public function getCustomerListForAdmin()
+        {
+            $adminId = auth()->id();
+            $customerIds = Message::where('receiver_id', $adminId)
+                                   ->orWhere('sender_id', $adminId)
+                                   ->whereHas('sender', function($query) {
+                                       $query->where('role', 'customer');
+                                   })
+                                   ->orWhereHas('receiver', function($query) {
+                                       $query->where('role', 'customer');
+                                   })
+                                   ->pluck('sender_id')
+                                   ->merge(Message::where('receiver_id', $adminId)
+                                                   ->orWhere('sender_id', $adminId)
+                                                   ->pluck('receiver_id'))
+                                   ->unique()
+                                   ->filter(function($id) use ($adminId) {
+                                       return $id != $adminId;
+                                   });
 
-    $message = Message::create([
-        'sender_id' => auth()->id(),
-        'receiver_id' => $admin->id,
-        'content' => $request->message,
-    ]);
+            $customers = User::whereIn('id', $customerIds)
+                             ->where('role', 'customer')
+                             ->select('id', 'name')
+                             ->get();
 
-    broadcast(new MessageSent($message))->toOthers();
-    event(new \App\Events\MessageSent($message));
+            return response()->json($customers);
+        }
 
-    return response()->json($message);
-}
+        public function fetchMessagesWithCustomer($id)
+        {
+            $adminId = auth()->id();
+            $customerId = $id;
 
+            $customer = User::where('id', $customerId)->where('role', 'customer')->first();
+            if (!$customer) {
+                return response()->json(['error' => 'Customer not found'], 404);
+            }
 
-    public function getCustomerListForAdmin()
-{
-    $customers = User::where('role', 'customer')->select('id', 'name')->get();
-    return response()->json($customers);
-}
+            $messages = Message::where(function ($q) use ($adminId, $customerId) {
+                $q->where('sender_id', $adminId)
+                  ->where('receiver_id', $customerId);
+            })->orWhere(function ($q) use ($adminId, $customerId) {
+                $q->where('sender_id', $customerId)
+                  ->where('receiver_id', $adminId);
+            })->orderBy('created_at', 'asc')->get();
 
-public function fetchMessagesWithCustomer($id)
-{
-    $messages = Message::where(function ($q) use ($id) {
-        $q->where('sender_id', auth()->id())
-          ->where('receiver_id', $id);
-    })->orWhere(function ($q) use ($id) {
-        $q->where('sender_id', $id)
-          ->where('receiver_id', auth()->id());
-    })->orderBy('created_at', 'asc')->get();
+            return response()->json($messages);
+        }
 
-    return response()->json($messages);
-}
-
-public function sendMessageToCustomer(Request $request, $id)
-{
-    $request->validate(['message' => 'required|string']);
-
-    $message = Message::create([
-        'sender_id' => auth()->id(),     // admin
-        'receiver_id' => $id,            // customer yang dipilih
-        'content' => $request->message,
-    ]);
-
-    return response()->json($message);
-}
-
-
-
-}
+        public function sendMessageToCustomer(Request $request, $id)
+    {
+        $customerId = $id;
+        $adminId = auth()->id(); // Admin yang sedang login
+        $customer = User::where('id', $customerId)->where('role', 'customer')->first();
+        if (!$customer) {
+            return response()->json(['error' => 'Customer not found'], 404);
+        }
+        $request->validate(['message' => 'required|string|max:1000']);
+        try {
+            $message = Message::create([
+                'sender_id' => $adminId,
+                'receiver_id' => $customerId,
+                'content' => $request->message,
+            ]);
+            // PENTING: Panggil event MessageSent dengan receiver_id dan sender_id yang benar
+            // receiver_id adalah customerId, sender_id adalah adminId
+            broadcast(new MessageSent($message, $customerId, $adminId))->toOthers();
+            return response()->json($message);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send message to customer: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to send message.'], 500);
+        }
+    }
+    }
+    
