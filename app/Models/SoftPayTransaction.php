@@ -18,7 +18,9 @@ class SoftPayTransaction extends Model
         'amount',
         'description',
         'status',
-        'reference_id',
+        // Ganti 'reference_id' dengan 'transaction_id' jika Anda melakukan perubahan migrasi
+        'transaction_id',
+        'reference_id', // Pertahankan jika reference_id punya tujuan lain
     ];
 
     /**
@@ -27,5 +29,11 @@ class SoftPayTransaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Tambahkan relasi ke Transaction utama
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class);
     }
 }

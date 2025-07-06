@@ -1,4 +1,4 @@
-@extends('layouts.sidebar')
+@extends('layouts.sidebar-seller') {{-- Pastikan path ini benar sesuai lokasi sidebar-seller.blade.php --}}
 
 @section('isi')
 <style>
@@ -36,7 +36,7 @@
         text-decoration: none;
         color: #cbd5e1;
         font-size: 0.875rem;
-        min-width: 90px; /* Lebar minimum agar ikon dan teks tidak terlalu sempit */
+        min-width: 90px;
         text-align: center;
     }
 
@@ -80,63 +80,35 @@
 
 <main class="flex-1 px-6 py-8 ml-64 bg-[#10172A] min-h-screen">
     <div class="max-w-4xl mx-auto space-y-8">
-        <h1 class="text-3xl font-semibold text-white">SoftPay</h1>
+        <h1 class="text-3xl font-semibold text-white">SoftPay Penjual</h1>
 
         <div class="softpay-balance-card">
             <h2>Saldo SoftPay Anda</h2>
-            <p>Rp {{ number_format($softpayBalance ?? 0, 0, ',', '.') }},00</p>
+            {{-- Variabel $sellerSoftpayBalance akan disediakan oleh SellerSoftpayController --}}
+            <p>Rp {{ number_format($sellerSoftpayBalance ?? 0, 0, ',', '.') }},00</p>
             <div class="mt-6 flex justify-center gap-4">
-                <a href="{{ route('softpay.topup') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                    Isi Saldo
+                {{-- Tombol Aksi Cepat untuk Penjual --}}
+                <a href="{{ route('seller.softpay.withdraw') }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                    Tarik Dana
                 </a>
-                <a href="{{ route('softpay.withdraw') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                    Tarik Saldo
+                <a href="{{ route('seller.softpay.history') }}" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                    Riwayat Pemasukan
                 </a>
             </div>
         </div>
 
-        {{-- Bagian "Aksi Cepat" telah dihapus dari sini --}}
-        {{-- <div class="bg-[#1e293b] p-6 rounded-xl shadow-md">
-            <h3 class="text-xl font-semibold mb-4 text-white">Aksi Cepat</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                <a href="{{ route('softpay.pay') }}" class="quick-action-button">
-                    <i class="fa-solid fa-qrcode"></i>
-                    <span>Bayar</span>
-                </a>
-                <a href="{{ route('softpay.transfer') }}" class="quick-action-button">
-                    <i class="fa-solid fa-exchange-alt"></i>
-                    <span>Transfer</span>
-                </a>
-                <a href="{{ route('softpay.history') }}" class="quick-action-button">
-                    <i class="fa-solid fa-history"></i>
-                    <span>Riwayat</span>
-                </a>
-                <a href="{{ route('softpay.promo') }}" class="quick-action-button">
-                    <i class="fa-solid fa-tags"></i>
-                    <span>Promo</span>
-                </a>
-                <a href="{{ route('softpay.help') }}" class="quick-action-button">
-                    <i class="fa-solid fa-question-circle"></i>
-                    <span>Bantuan</span>
-                </a>
-            </div>
-        </div> --}}
-
         <div class="bg-[#1e293b] p-6 rounded-xl shadow-md">
-            <h3 class="text-xl font-semibold mb-4 text-white">Riwayat Transaksi Terbaru</h3>
+            <h3 class="text-xl font-semibold mb-4 text-white">Riwayat Pemasukan Terbaru</h3>
             <div class="space-y-3">
-                @forelse ($recentTransactions as $transaction)
+                {{-- Variabel $recentSellerTransactions akan disediakan oleh SellerSoftpayController --}}
+                @forelse ($recentSellerTransactions as $transaction)
                     <div class="transaction-item">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-[#2D3A4F] rounded-full flex items-center justify-center text-xl">
-                                @if ($transaction['type'] == 'Pembelian')
-                                    <i class="fa-solid fa-shopping-cart text-blue-400"></i>
-                                @elseif ($transaction['type'] == 'Isi Saldo')
-                                    <i class="fa-solid fa-wallet text-green-400"></i>
-                                @elseif ($transaction['type'] == 'Tarik Saldo')
+                                @if ($transaction['type'] == 'Pemasukan Penjualan')
+                                    <i class="fa-solid fa-hand-holding-dollar text-green-400"></i>
+                                @elseif ($transaction['type'] == 'Penarikan Dana')
                                     <i class="fa-solid fa-money-bill-transfer text-red-400"></i>
-                                @elseif ($transaction['type'] == 'Transfer')
-                                    <i class="fa-solid fa-paper-plane text-purple-400"></i>
                                 @else
                                     <i class="fa-solid fa-info-circle text-gray-400"></i>
                                 @endif
@@ -151,12 +123,12 @@
                         </span>
                     </div>
                 @empty
-                    <p class="text-center text-gray-400">Belum ada transaksi SoftPay.</p>
+                    <p class="text-center text-gray-400">Belum ada riwayat pemasukan SoftPay.</p>
                 @endforelse
             </div>
-            @if(count($recentTransactions) > 0)
+            @if(count($recentSellerTransactions) > 0)
                 <div class="text-center mt-6">
-                    <a href="{{ route('softpay.history') }}" class="text-blue-400 hover:underline">Lihat Semua Riwayat</a>
+                    <a href="{{ route('seller.softpay.history') }}" class="text-blue-400 hover:underline">Lihat Semua Riwayat Pemasukan</a>
                 </div>
             @endif
         </div>

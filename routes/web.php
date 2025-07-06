@@ -23,6 +23,7 @@ use App\Http\Controllers\NotificationController; // Pastikan ini di-import
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\SellerNotificationController;
 use App\Http\Controllers\SoftPayController;
+use App\Http\Controllers\HomeController;
 
 
 
@@ -35,12 +36,15 @@ use App\Http\Middleware\LogVisitTest;
 use App\Http\Controllers\LinkController;
 use App\Models\Link;
 
-use App\Http\Controllers\SellerProductController;   
+use App\Http\Controllers\SellerProductController;
+use App\Http\Controllers\SellerSoftpayController;
 
 
 Route::get('/', function () {
     return view('landing-page');
 });
+
+Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -92,9 +96,10 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
     Route::post('/notif-seller/mark-all-as-read', [SellerNotificationController::class, 'markAllAsRead'])->name('notif-seller.markAllAsRead');
     Route::post('/notif-seller/{notification}/mark-as-read', [SellerNotificationController::class, 'markAsRead'])->name('notif-seller.markAsRead');
 
-    // Route::get('/chat/messages/{conversation}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
-    // Route::post('/chat/send/{conversation}', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
-    // Route::post('/chat/create-or-get-conversation', [ChatController::class, 'createOrGetConversation'])->name('chat.createOrGetConversation');
+    Route::get('/seller/softpay', [SellerSoftpayController::class, 'index'])->name('seller.softpay.dashboard');
+    Route::get('/seller/softpay/history', [SellerSoftpayController::class, 'history'])->name('seller.softpay.history');
+    Route::get('/seller/softpay/withdraw', [SellerSoftpayController::class, 'showWithdrawForm'])->name('seller.softpay.withdraw');
+    Route::post('/seller/softpay/withdraw', [SellerSoftpayController::class, 'processWithdraw'])->name('seller.softpay.processWithdraw');
 });
 
 

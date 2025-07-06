@@ -143,6 +143,11 @@
                         {{-- Anda bisa menambahkan badge notifikasi dinamis di sini --}}
                     </a>
 
+                    <a href="{{ route('seller.softpay.dashboard') }}" class="sidebar-link" data-path="/softpay-seller">
+                        <i class="fas fa-wallet"></i><span>SoftPay</span>    
+                        {{-- Anda bisa menambahkan badge notifikasi dinamis di sini --}}
+                    </a>
+
                     {{-- Help Center --}}
                     <a href="{{ route('bantuan-seller') }}" class="sidebar-link" data-path="/bantuan-seller">
                         <i class="fa-solid fa-circle-question"></i><span>Help Center</span>
