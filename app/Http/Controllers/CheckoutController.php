@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use App\Models\SoftPayTransaction;
+use App\Models\User;    
 
 class CheckoutController extends Controller
 {
@@ -195,6 +196,7 @@ class CheckoutController extends Controller
             ]);
 
             $successModalData = [
+                'invoice_id' => $transaction->id,
                 'invoice_number' => $invoiceNumber,
                 'email' => $user->email,
                 'subtotal' => number_format($subtotal, 0, ',', '.'),
@@ -204,10 +206,11 @@ class CheckoutController extends Controller
                 'payment_method' => $paymentMethod,
                 'products' => $cartItemsToProcess->map(function($item) {
                     return [
+                        'id' => $item->product->id,
                         'name' => $item->product->name,
                         'quantity' => $item->quantity,
                         'price' => number_format($item->product->price, 0, ',', '.'),
-                        'image' => $item->product->image_path,
+                        'image_url' => $item->product->image_url,
                     ];
                 })->toArray(),
             ];
@@ -226,7 +229,6 @@ class CheckoutController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Ambil item dari keranjang dan hitung total
         $selectedCartItemIds = $request->session()->get('selected_cart_items_for_checkout', []);
         $cartItemsToProcess = Cart::where('user_id', $user->id)
                                     ->whereIn('id', $selectedCartItemIds)
@@ -243,53 +245,52 @@ class CheckoutController extends Controller
         $convenienceFee = 0; // SoftPay fee is 0
         $totalAmount = $subtotal + $convenienceFee;
 
-        // 2. Validasi Saldo SoftPay
         if ($user->softpay_balance < $totalAmount) {
             return redirect()->back()->with('error', 'Saldo SoftPay tidak mencukupi untuk pembayaran ini.');
         }
 
-        // 3. Lakukan Transaksi Database (Atomicity)
         try {
             DB::beginTransaction();
 
-            // a. Kurangi Saldo SoftPay
-            $user->softpay_balance -= $totalAmount;
-            $user->save();
-            Log::debug('SoftPay balance reduced:', ['user_id' => $user->id, 'new_balance' => $user->softpay_balance]);
-
-            // b. Catat Transaksi SoftPay (Pengeluaran)
-            $softpayTx = SoftPayTransaction::create([
-                'user_id' => $user->id,
-                'type' => 'purchase',
-                'amount' => -$totalAmount,
-                'description' => 'Pembayaran produk dari keranjang (Invoice: ' . 'GENERATED_INV_HERE' . ')', // Akan diupdate
-                'status' => 'completed',
-            ]);
-            Log::debug('SoftPay transaction created:', ['softpay_tx_id' => $softpayTx->id]);
-
-            // c. Buat Transaksi Utama (Order)
+            // Generate invoice number early
             $invoiceNumber = 'INV-' . strtoupper(Str::random(8)) . '-' . time();
+            Log::debug('Generated Invoice Number: ' . $invoiceNumber);
+
+            // Buat Transaksi Utama (Order) terlebih dahulu untuk mendapatkan ID transaksi
             $transaction = Transaction::create([
                 'user_id' => $user->id,
-                'invoice_number' => $invoiceNumber,
+                'invoice_number' => $invoiceNumber, // Gunakan invoiceNumber yang sudah dibuat
                 'subtotal' => $subtotal,
                 'discount' => 0,
-                'convenience_fee' => $convenienceFee, // Pastikan ini 0
+                'convenience_fee' => $convenienceFee,
                 'total_amount' => $totalAmount,
                 'payment_method' => 'SoftPay',
                 'status' => 'completed',
             ]);
             Log::debug('Main transaction created:', ['transaction_id' => $transaction->id, 'invoice' => $invoiceNumber]);
 
-            // Update reference_id dan description di SoftPayTransaction
-            $softpayTx->reference_id = $transaction->id;
-            $softpayTx->description = 'Pembayaran produk (Invoice: ' . $invoiceNumber . ')';
-            $softpayTx->save();
-            Log::debug('SoftPay transaction updated with reference:', ['softpay_tx_id' => $softpayTx->id, 'reference_id' => $transaction->id]);
+            // Kurangi Saldo SoftPay customer
+            $user->softpay_balance -= $totalAmount;
+            $user->save();
+            Log::debug('SoftPay balance reduced:', ['user_id' => $user->id, 'new_balance' => $user->softpay_balance]);
+
+            // Catat Transaksi SoftPay (Pengeluaran) customer
+            SoftPayTransaction::create([
+                'user_id' => $user->id,
+                'type' => 'Pembelian Produk',
+                'amount' => -$totalAmount,
+                'description' => 'Pembayaran produk (Invoice: ' . $invoiceNumber . ')',
+                'status' => 'completed',
+                'transaction_id' => $transaction->id,
+            ]);
+            Log::debug('SoftPay transaction (customer) created:', ['transaction_id' => $transaction->id]);
 
 
-            // d. Buat Detail Transaksi dan Hapus Item dari Keranjang
+            // Buat Detail Transaksi, Tambah Saldo Seller, Catat Transaksi Seller, dan Hapus Item dari Keranjang
             foreach ($cartItemsToProcess as $item) {
+                // Hitung subtotal item untuk penggunaan di sini
+                $itemSubtotalCalculated = $item->quantity * $item->product->price;
+
                 $transactionDetail = TransactionDetail::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $item->product->id,
@@ -298,8 +299,36 @@ class CheckoutController extends Controller
                     'price' => $item->product->price,
                     'quantity' => $item->quantity,
                     'price_per_unit' => $item->product->price,
-                    'subtotal' => $item->quantity * $item->product->price,
+                    'subtotal' => $itemSubtotalCalculated, // Gunakan yang dihitung
                 ]);
+                $product = Product::find($item->product->id); // Ambil objek produk lengkap lagi
+                if ($product) {
+                    $product->increment('sales_count', $item->quantity);
+                    Log::debug("Product sales_count incremented for product_id: {$product->id}, quantity: {$item->quantity}");
+
+                    // --- DEBUG LOG UNTUK SUBTOTA L---
+                    // Hapus baris ini setelah perbaikan. Ini untuk memastikan nilai ada.
+                    Log::debug("DEBUG: item->quantity: {$item->quantity}, item->product->price: {$item->product->price}, itemSubtotalCalculated: {$itemSubtotalCalculated}");
+
+                    $seller = $product->user; // Dapatkan user (seller) pemilik produk
+                    if ($seller && $seller->isSeller()) {
+                        $seller->softpay_balance += $itemSubtotalCalculated; // <-- UBAH KE SINI
+                        $seller->save();
+                        Log::debug("Seller SoftPay balance updated: user_id={$seller->id}, new_balance={$seller->softpay_balance}");
+
+                        SoftPayTransaction::create([
+                            'user_id' => $seller->id,
+                            'type' => 'Pemasukan Penjualan',
+                            'amount' => $itemSubtotalCalculated, // <-- UBAH KE SINI
+                            'description' => "Pemasukan dari penjualan produk '{$item->product->name}' (Invoice: {$invoiceNumber})",
+                            'status' => 'completed',
+                            'transaction_id' => $transaction->id,
+                        ]);
+                        Log::debug("SoftPay transaction for seller created: user_id={$seller->id}, amount={$itemSubtotalCalculated}");
+                    } else {
+                        Log::warning("SoftPay Issue: Seller not found or not a seller for product ID {$product->id}. Product user_id: {($product->user_id ?? 'N/A')}.");
+                    }
+                }
 
                 SellerNotificationController::createTransactionNotification($transactionDetail);
             }
@@ -310,7 +339,7 @@ class CheckoutController extends Controller
                 ->delete();
             Log::debug('Cart items deleted after SoftPay purchase:', ['deleted_ids' => $selectedCartItemIds]);
 
-            // e. Kirim Notifikasi Keberhasilan kepada pembeli
+            // Kirim Notifikasi Keberhasilan kepada pembeli
             $productNames = $cartItemsToProcess->map(function($item) {
                 return $item->product->name;
             })->implode(', ');
@@ -329,8 +358,8 @@ class CheckoutController extends Controller
             DB::commit();
             Log::debug('SoftPay transaction committed successfully.');
 
-            // Siapkan data untuk modal sukses
             $successModalData = [
+                'invoice_id' => $transaction->id,
                 'invoice_number' => $invoiceNumber,
                 'email' => $user->email,
                 'subtotal' => number_format($subtotal, 0, ',', '.'),
@@ -340,10 +369,12 @@ class CheckoutController extends Controller
                 'payment_method' => 'SoftPay',
                 'products' => $cartItemsToProcess->map(function($item) {
                     return [
-                        'name' => $item->product->name,
-                        'quantity' => $item->quantity,
-                        'price' => number_format($item->product->price, 0, ',', '.'),
-                        'image' => $item->product->image_path,
+                    'id' => $item->product->id,
+                    'name' => $item->product->name,
+                    'quantity' => $item->quantity,
+                    'price' => number_format($item->product->price, 0, ',', '.'),
+                    'image_url' => $item->product->image_url,
+                    
                     ];
                 })->toArray(),
             ];
@@ -352,7 +383,7 @@ class CheckoutController extends Controller
             Log::debug('Session selected_cart_items_for_checkout cleared after SoftPay purchase.');
 
 
-            return redirect()->route('order-customer')->with('success', 'Pembayaran SoftPay berhasil dan pesanan Anda telah dibuat!')
+            return redirect()->route('checkout-customer.index')->with('success', 'Pembayaran SoftPay berhasil dan pesanan Anda telah dibuat!')
                              ->with('success_modal_data', $successModalData);
 
         } catch (\Exception $e) {

@@ -128,7 +128,7 @@
                     .then(data => {
                         if (data.success) {
                             if (notificationElement) {
-                                notificationElement.classList.add('opacity-60');
+                                notificationElement.classList.add('read');
                                 this.remove(); // Hapus tombol "Check"
                                 // Opsional: Tambahkan tulisan "Read"
                                 const parentDiv = this.closest('.flex.items-center');

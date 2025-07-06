@@ -13,21 +13,18 @@
                     @csrf
 
                     {{-- KIRIM ID ITEM KERANJANG YANG DIPILIH DARI CART SEBAGAI HIDDEN INPUTS --}}
-                    {{-- UBAH $cartItems MENJADI $checkoutItems DI SINI --}}
                     @foreach($checkoutItems as $item)
                         <input type="hidden" name="selected_cart_items[]" value="{{ $item->id }}">
                     @endforeach
 
                     {{-- Kontainer utama untuk mengatur tata letak produk dan detail pembayaran --}}
-                    {{-- Menggunakan grid dengan 2 kolom untuk layar medium ke atas --}}
                     <div class="grid md:grid-cols-2 gap-6 mt-4">
 
                         {{-- KOLOM KIRI: PRODUK & BUYER INFO --}}
                         <div>
                             {{-- BAGIAN PRODUK (Disesuaikan ukurannya) --}}
-                            <div class="bg-[#1e293b] rounded-lg p-6 shadow-md mb-6 {{-- max-w-md --}}"> {{-- Hapus mb-6 jika ingin rapat --}}
+                            <div class="bg-[#1e293b] rounded-lg p-6 shadow-md mb-6">
                                 <h2 class="text-xl font-semibold mb-4">Product</h2>
-                                {{-- UBAH $cartItems MENJADI $checkoutItems DI SINI --}}
                                 @forelse ($checkoutItems as $item)
                                 <div class="flex items-start justify-between mb-4">
                                     <div class="flex">
@@ -149,18 +146,6 @@
                                             </div>
                                             <i class="fa-solid fa-bank text-2xl text-blue-400"></i>
                                         </label>
-
-                                        {{-- Other Payment Methods (dihapus dari loop atau dikomentari jika ada) --}}
-                                        {{-- @foreach ($paymentMethods as $method)
-                                            <label for="payment_method_{{ Str::slug($method) }}" class="flex items-center p-4 rounded-lg border border-gray-600 cursor-pointer hover:bg-[#2D3A4F]">
-                                                <input type="radio" id="payment_method_{{ Str::slug($method) }}" name="payment_method" value="{{ $method }}" class="form-radio h-5 w-5 text-blue-600">
-                                                <div class="ml-4 flex-1">
-                                                    <span class="font-semibold text-lg">{{ $method }}</span>
-                                                    <p class="text-sm text-gray-400">Pembayaran melalui {{ strtolower($method) }}.</p>
-                                                </div>
-                                                <i class="fa-solid fa-credit-card text-2xl text-blue-400"></i>
-                                            </label>
-                                        @endforeach --}}
                                     </div>
                                     @error('payment_method')
                                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
@@ -222,21 +207,22 @@
                 <button onclick="closeModalAndRedirect()" class="w-full py-2 bg-white text-[#1e293b] font-bold rounded-lg">
                     Close
                 </button>
-                <button class="w-full py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg"
-                    onclick="downloadReceipt()">
-                    Download
+                <button id="viewProductBtn" class="w-full py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg">
+                    View Order Detail
                 </button>
             </div>
         </div>
     </div>
 
-    @push('scripts') {{-- Pastikan ini di dalam @section('isi') dan akan di-push ke @stack('scripts') di sidebar.blade.php --}}
+    @push('scripts')
     <script>
+        // Mengubah nama variabel untuk lebih jelas dan menyimpan ID transaksi
+        let purchasedTransactionId = null;
+
         // Fungsi untuk menutup modal dan redirect ke halaman My Orders
         function closeModalAndRedirect() {
             document.getElementById("successModal").classList.add("hidden");
-            // Hapus sesi selected_cart_items_for_checkout di sini agar halaman bersih setelah modal ditutup
-            fetch('{{ route('clear.checkout.session') }}', { // Menggunakan route() helper
+            fetch('{{ route('clear.checkout.session') }}', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -246,35 +232,44 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data.message);
-                window.location.href = "{{ route('order-customer') }}"; // Arahkan ke My Orders
+                window.location.href = "{{ route('order-customer') }}";
             })
             .catch(error => {
                 console.error('Error clearing session:', error);
-                window.location.href = "{{ route('order-customer') }}"; // Tetap arahkan meskipun ada error
+                window.location.href = "{{ route('order-customer') }}";
             });
         }
 
-        // Fungsi placeholder untuk download receipt
-        function downloadReceipt() {
-            alert('Fungsi download receipt belum diimplementasikan.');
+        // Fungsi untuk mengarahkan ke detail order berdasarkan ID transaksi
+        function redirectToOrderDetail() {
+            if (purchasedTransactionId) {
+                // Ubah 'order-customer.detail' menjadi 'order-customer.show'
+                window.location.href = `{{ route('order-customer.show', ['transaction' => 'TRANSACTION_ID_PLACEHOLDER']) }}`.replace('TRANSACTION_ID_PLACEHOLDER', purchasedTransactionId);
+            } else {
+                alert('Tidak ada ID transaksi yang ditemukan untuk ditampilkan.');
+            }
         }
 
-        // PENTING: Tampilkan modal jika ada pesan sukses dari redirect (melalui data session)
         document.addEventListener('DOMContentLoaded', function() {
             @if(session('success_modal_data'))
                 const modalData = @json(session('success_modal_data'));
 
-                // Isi detail transaksi ke dalam modal
+                // Simpan ID transaksi yang dibeli dari data modal
+                purchasedTransactionId = modalData.invoice_id; // Mengambil 'invoice_id' dari data sesi
+
                 document.getElementById('modalEmailReceipt').textContent = `We sent the receipt to ${modalData.email}`;
 
                 const productListDiv = document.getElementById('modalProductList');
                 productListDiv.innerHTML = ''; // Kosongkan daftar produk sebelumnya
-                modalData.products.forEach(product => {
+
+                // Karena kita membatasi checkout ke 1 produk, ambil produk pertama dari array
+                const product = modalData.products[0];
+                if (product) {
                     const productHtml = `
                         <div class="flex items-center w-full">
                             <div class="flex items-center space-x-4">
                                 <div class="w-16 h-16 bg-white rounded-md overflow-hidden flex items-center justify-center">
-                                    <img src="${product.image || 'https://via.placeholder.com/64x64'}" alt="${product.name}" class="object-cover w-full h-full">
+                                    <img src="${product.image_url || 'https://via.placeholder.com/64x64'}" alt="${product.name}" class="object-cover w-full h-full">
                                 </div>
                                 <div>
                                     <p class="font-semibold text-sm">${product.name}</p>
@@ -285,18 +280,25 @@
                         </div>
                     `;
                     productListDiv.insertAdjacentHTML('beforeend', productHtml);
-                });
+                } else {
+                    // Handle case where no product data is found in modalData (should not happen with single product checkout)
+                    productListDiv.innerHTML = '<p class="text-gray-400">Tidak ada detail produk.</p>';
+                    purchasedTransactionId = null; // Reset jika tidak ada ID transaksi
+                }
+
 
                 document.getElementById('modalPaymentMethod').textContent = modalData.payment_method;
                 document.getElementById('modalDiscount').textContent = `Rp. ${modalData.discount}`;
                 document.getElementById('modalConvenienceFee').textContent = `Rp. ${modalData.convenience_fee}`;
                 document.getElementById('modalTotalAmount').textContent = `Rp. ${modalData.total_amount}`;
 
-                // Tampilkan modal
                 document.getElementById('successModal').classList.remove('hidden');
 
-                // Opsional: Hapus sesi success_modal_data setelah ditampilkan agar tidak muncul lagi saat refresh
-                {{ session()->forget('success_modal_data') }};
+                // Tambahkan event listener untuk tombol "View Order Detail"
+                document.getElementById('viewProductBtn').addEventListener('click', redirectToOrderDetail);
+
+                {{-- Hapus sesi success_modal_data setelah ditampilkan agar tidak muncul lagi saat refresh --}}
+                // {{-- session()->forget('success_modal_data'); --}}
             @endif
 
             // --- LOGIKA PEMBAYARAN & UPDATE BIAYA ---
@@ -307,8 +309,8 @@
             const subtotal = parseFloat({{ $subtotal ?? 0 }});
             const discount = parseFloat({{ $discount ?? 0 }});
             const softpayBalance = parseFloat({{ $softpayBalance ?? 0 }});
-            const qrisFee = parseFloat({{ $qrisFee ?? 5000 }}); // Ambil dari Controller
-            const bankTransferFee = parseFloat({{ $bankTransferFee ?? 10000 }}); // Ambil dari Controller
+            const qrisFee = parseFloat({{ $qrisFee ?? 5000 }});
+            const bankTransferFee = parseFloat({{ $bankTransferFee ?? 10000 }});
 
             const convenienceFeeDisplay = document.getElementById('convenienceFeeDisplay');
             const totalAmountDisplay = document.getElementById('totalAmountDisplay');
@@ -317,7 +319,6 @@
                 return `Rp. ${amount.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
             }
 
-            // Fungsi untuk memperbarui total dan status tombol "Bayar Sekarang"
             function updatePaymentDetailsAndButton() {
                 const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
                 let currentConvenienceFee = 0;
@@ -325,13 +326,13 @@
 
                 if (selectedMethod === 'QRIS') {
                     currentConvenienceFee = qrisFee;
-                    checkoutForm.action = "{{ route('checkout.process') }}"; // Asumsi QRIS diproses oleh checkout.process
+                    checkoutForm.action = "{{ route('checkout.process') }}";
                 } else if (selectedMethod === 'Bank Transfer') {
                     currentConvenienceFee = bankTransferFee;
-                    checkoutForm.action = "{{ route('checkout.process') }}"; // Asumsi Bank Transfer diproses oleh checkout.process
+                    checkoutForm.action = "{{ route('checkout.process') }}";
                 } else if (selectedMethod === 'SoftPay') {
-                    currentConvenienceFee = 0; // SoftPay fee is 0
-                    checkoutForm.action = "{{ route('checkout.softpay') }}"; // Arahkan ke rute SoftPay
+                    currentConvenienceFee = 0;
+                    checkoutForm.action = "{{ route('checkout.softpay') }}";
                 }
 
                 currentTotalAmount += currentConvenienceFee;
@@ -339,7 +340,6 @@
                 convenienceFeeDisplay.textContent = formatRupiah(currentConvenienceFee);
                 totalAmountDisplay.textContent = formatRupiah(currentTotalAmount);
 
-                // Logika disable tombol untuk SoftPay jika saldo tidak cukup
                 if (selectedMethod === 'SoftPay' && softpayBalance < currentTotalAmount) {
                     buyNowBtn.disabled = true;
                     buyNowBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -349,14 +349,11 @@
                 }
             }
 
-            // Panggil fungsi saat halaman dimuat untuk inisialisasi status tombol dan biaya
             updatePaymentDetailsAndButton();
 
-            // Tambahkan event listener untuk setiap radio button pembayaran
             paymentRadios.forEach(radio => {
                 radio.addEventListener('change', updatePaymentDetailsAndButton);
             });
-            // --- AKHIR LOGIKA PEMBAYARAN & UPDATE BIAYA ---
         });
     </script>
     @endpush
