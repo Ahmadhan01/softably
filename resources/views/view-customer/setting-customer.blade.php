@@ -9,25 +9,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Setting Customer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    {{-- Chart.js tidak relevan untuk halaman setting ini, bisa dihapus jika tidak digunakan --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    {{-- Tambahkan properti CSS untuk memastikan input date tidak disembunyikan --}}
     <style>
-        /* Gaya dasar untuk input date */
         input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1); /* Membalik warna ikon picker agar terlihat di tema gelap */
+            filter: invert(1);
             cursor: pointer;
         }
         input[type="date"] {
-            /* Pastikan background sesuai tema */
             background-color: #0f172a;
             color: white;
         }
     </style>
 </head>
 
-<body class="bg-[#0f172a] text-white font-sans">
+<body class="bg-[#0f172a] text-white">
     <div class="flex min-h-screen">
         <main class="flex-1 p-6 space-y-6 ml-64">
             <div class="text-white space-y-6">
@@ -53,17 +48,32 @@
                 <div class="flex space-x-10">
                     <div class="w-1/6 text-sm space-y-6">
                         <div class="space-y-4">
-                            <div class="text-gray-300">Apps settings</div>
+                            {{-- Tautan "Apps settings" --}}
+                            <a href="#app-description" id="apps-settings-link"
+                                class="text-blue-400 font-semibold cursor-pointer">Apps settings</a>
+                                <div>
+                                </div>
+                            {{-- Tautan "Account" sekarang di bawah "Apps settings" --}}
                             <a href="#account" id="account-link"
-                                class="text-blue-400 font-semibold cursor-pointer">Account</a>
-                            <a href="#language" id="language-link" class="text-gray-300 cursor-pointer">Language &
-                                Region</a>
+                                class="text-gray-300 cursor-pointer">Account</a>
                         </div>
                     </div>
 
                     <div class="w-5/6">
-                        {{-- Form untuk Personal Info --}}
-                        <div id="personal-info-section" class="bg-[#1e293b] p-6 rounded-md space-y-6">
+                        {{-- Bagian untuk Deskripsi Aplikasi --}}
+                        <div id="app-description-section" class="bg-[#1e293b] p-6 rounded-md space-y-6">
+                            <h2 class="text-lg font-bold">About Softably</h2>
+                            <p class="text-sm text-gray-400">
+                                Softably adalah platform inovatif yang dirancang untuk membantu Anda mengelola pesanan, melacak notifikasi, berinteraksi melalui chat, dan banyak lagi. Kami berkomitmen untuk menyediakan pengalaman pengguna yang lancar dan efisien.
+                            </p>
+                            <p class="text-sm text-gray-400">
+                                Versi Aplikasi: 1.0.0 <br>
+                                Hak Cipta &copy; 2023 Softably. Semua hak dilindungi undang-undang.
+                            </p>
+                        </div>
+
+                        {{-- Form untuk Personal Info (Account) --}}
+                        <div id="personal-info-section" class="bg-[#1e293b] p-6 rounded-md space-y-6 hidden mt-6">
                             <div class="flex justify-between items-center">
                                 <div>
                                     <h2 class="text-lg font-bold">Personal Info</h2>
@@ -72,7 +82,6 @@
                                     </p>
                                 </div>
                                 <div class="space-x-2">
-                                    {{-- Tombol Cancel akan me-reset form atau kembali --}}
                                     <a href="{{ route('setting-customer') }}"
                                         class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">
                                         Cancel
@@ -89,10 +98,9 @@
                                 method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-700"> {{-- Tambahkan kembali rounded-full overflow-hidden bg-gray-700 --}}
-                                        {{-- Menampilkan gambar profil user atau gambar default --}}
+                                    <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-700">
                                         <img src="{{ $user->profile_picture_url }}" alt="Profile"
-                                            class="w-full h-full object-cover" /> {{-- Hapus rounded dari img, sudah di div --}}
+                                            class="w-full h-full object-cover" />
                                     </div>
                                     <div class="space-y-1">
                                         <label for="profile_picture_input"
@@ -133,7 +141,6 @@
 
                                 <div>
                                     <label for="date_of_birth" class="block text-gray-400 mb-1">Date of birth</label>
-                                    {{-- Perubahan penting ada di sini --}}
                                     <input type="date" id="date_of_birth" name="date_of_birth"
                                         value="{{ old('date_of_birth', $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->format('Y-m-d') : '') }}"
                                         class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded text-white" />
@@ -148,13 +155,6 @@
                                 </div>
                             </form>
                         </div>
-
-                        {{-- Bagian untuk Language & Region (contoh, sembunyikan dulu) --}}
-                        <div id="language-region-section" class="bg-[#1e293b] p-6 rounded-md space-y-6 hidden mt-6">
-                            <h2 class="text-lg font-bold">Language & Region</h2>
-                            <p class="text-sm text-gray-400">Settings for language and regional preferences.</p>
-                            {{-- Tambahkan form atau konten untuk pengaturan bahasa di sini --}}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -164,34 +164,47 @@
     {{-- Script untuk mengaktifkan tab --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const appsSettingsLink = document.getElementById('apps-settings-link');
             const accountLink = document.getElementById('account-link');
-            const languageLink = document.getElementById('language-link');
+            const appDescriptionSection = document.getElementById('app-description-section'); // Bagian baru
             const personalInfoSection = document.getElementById('personal-info-section');
-            const languageRegionSection = document.getElementById('language-region-section');
 
-            function showSection(sectionToShow, sectionToHide, activeLink, inactiveLink) {
+            function showSection(sectionToShow, activeLink, inactiveLink1, inactiveLink2) {
+                // Sembunyikan semua bagian konten
+                appDescriptionSection.classList.add('hidden');
+                personalInfoSection.classList.add('hidden');
+
+                // Tampilkan bagian yang dipilih
                 sectionToShow.classList.remove('hidden');
-                sectionToHide.classList.add('hidden');
+
+                // Reset semua tautan
+                appsSettingsLink.classList.remove('text-blue-400', 'font-semibold');
+                appsSettingsLink.classList.add('text-gray-300');
+                accountLink.classList.remove('text-blue-400', 'font-semibold');
+                accountLink.classList.add('text-gray-300');
+
+                // Aktifkan tautan yang dipilih
                 activeLink.classList.add('text-blue-400', 'font-semibold');
                 activeLink.classList.remove('text-gray-300');
-                inactiveLink.classList.add('text-gray-300');
-                inactiveLink.classList.remove('text-blue-400', 'font-semibold');
             }
+
+            appsSettingsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection(appDescriptionSection, appsSettingsLink, accountLink);
+            });
 
             accountLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                showSection(personalInfoSection, languageRegionSection, accountLink, languageLink);
+                showSection(personalInfoSection, accountLink, appsSettingsLink);
             });
 
-            languageLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                showSection(languageRegionSection, personalInfoSection, languageLink, accountLink);
-            });
-
-            @if($errors -> any())
-            showSection(personalInfoSection, languageRegionSection, accountLink, languageLink);
+            // Logika untuk menampilkan bagian yang benar saat halaman dimuat atau ada error
+            @if($errors->any())
+                // Jika ada error (misalnya dari form Personal Info), tetap tampilkan Personal Info dan aktifkan tautan Account
+                showSection(personalInfoSection, accountLink, appsSettingsLink);
             @else
-            showSection(personalInfoSection, languageRegionSection, accountLink, languageLink);
+                // Default saat halaman dimuat, tampilkan Deskripsi Aplikasi dan aktifkan tautan Apps settings
+                showSection(appDescriptionSection, appsSettingsLink, accountLink);
             @endif
         });
     </script>

@@ -30,7 +30,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminSettingController;
-use App\Http\Middleware\UpdateLastSeen;
+use App\Http\Middleware\UpdateLastSeen; 
 use App\Http\Middleware\TrackPageView;
 use App\Http\Middleware\LogVisitTest;
 use App\Http\Controllers\LinkController;
@@ -38,6 +38,7 @@ use App\Models\Link;
 
 use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerSoftpayController;
+use App\Http\Controllers\SellerDashboardController;
 
 
 Route::get('/', function () {
@@ -70,9 +71,11 @@ Route::middleware(['auth'])->get('/admin/dashboard', function () {
 
 // Seller
 Route::middleware(['auth', 'role:seller'])->group(function () {
-    Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
+    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+    // Route::get('/seller/dashboard', [SellerDashboardController::class, 'index'])->name('seller.dashboard');
 
-    Route::get('/chat-seller', [ChatController::class, 'sellerChat'])->name('chat.seller');
+    // Route::get('/chat-seller', [ChatController::class, 'sellerChat'])->name('chat.seller');
+    Route::get('/chat', [ChatController::class, 'sellerChat'])->name('chat');
 
     Route::get('/bantuan-seller', function () {
         $loggedInUser = Auth::user();
@@ -91,6 +94,7 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
     Route::get('/seller/products/{product}/edit', [SellerProductController::class, 'edit'])->name('seller.products.edit');
     // Rute untuk memperbarui produk (method PUT/PATCH)
     Route::put('/seller/products/{product}', [SellerProductController::class, 'update'])->name('seller.products.update');
+    Route::delete('/products/{product}', [SellerProductController::class, 'destroy'])->name('products.destroy');
 
     Route::get('/notif-seller', [SellerNotificationController::class, 'index'])->name('notif-seller');
     Route::post('/notif-seller/mark-all-as-read', [SellerNotificationController::class, 'markAllAsRead'])->name('notif-seller.markAllAsRead');
@@ -100,6 +104,11 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
     Route::get('/seller/softpay/history', [SellerSoftpayController::class, 'history'])->name('seller.softpay.history');
     Route::get('/seller/softpay/withdraw', [SellerSoftpayController::class, 'showWithdrawForm'])->name('seller.softpay.withdraw');
     Route::post('/seller/softpay/withdraw', [SellerSoftpayController::class, 'processWithdraw'])->name('seller.softpay.processWithdraw');
+
+    Route::get('/settings', [SellerProfileController::class, 'index'])->name('seller.settings');
+    Route::post('/settings/personal', [SellerProfileController::class, 'updatePersonal'])->name('seller.settings.updatePersonal');
+    Route::post('/settings/picture', [SellerProfileController::class, 'updateProfilePicture'])->name('seller.settings.updateProfilePicture');
+    Route::post('/settings/password', [SellerProfileController::class, 'updatePassword'])->name('seller.settings.updatePassword');
 });
 
 
@@ -107,6 +116,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat/messages/{conversation}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
     Route::post('/chat/send/{conversation}', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
     Route::post('/chat/create-or-get-conversation', [ChatController::class, 'createOrGetConversation'])->name('chat.createOrGetConversation');
+
+    Route::get('/api/chat/unread-count', [ChatController::class, 'getUnreadMessagesCount'])->name('api.chat.unreadCount');
+    Route::post('/api/chat/mark-as-read/{conversation}', [ChatController::class, 'markConversationAsRead'])->name('api.chat.markAsRead');
+
+    // TAMBAHKAN RUTE INI UNTUK STATUS ONLINE USER
+    // Anda perlu mengimplementasikan metode `isOnline()` di model `User` Anda
+    Route::get('/api/user-status/{user}', function (User $user) {
+        // Asumsi Anda memiliki metode `isOnline()` di model User
+        // atau Anda bisa memeriksa kolom `last_seen` jika ada
+        return response()->json(['is_online' => $user->isOnline()]);
+    })->name('api.user.status');
 });
 
 
@@ -222,7 +242,7 @@ Route::get('/faq-admin', function () {
 
 Route::middleware(['auth', UpdateLastSeen::class, TrackPageView::class])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
+    // Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
     Route::get('/customer/produks', [ProductController::class, 'index'])->name('customer.produk');
 });
 

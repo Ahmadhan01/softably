@@ -1,111 +1,112 @@
 @extends('layouts.sidebar-seller')
 
 @section('isi')
-<div class="flex min-h-screen">
-    <main class="flex w-full h-screen bg-[#0f172a] text-white ml-64">
-        <div class="w-full md:w-1/4 xl:w-2/6 border-r border-gray-700 p-4 flex flex-col">
-            <h1 class="text-2xl font-semibold mb-4">Chat Customer</h1>
+{{-- Hapus div flex min-h-screen karena sudah ditangani oleh sidebar-seller.blade.php --}}
+{{-- Main tag sekarang akan diatur oleh layout parent (sidebar-seller) --}}
+{{-- Class 'ml-64' di main dihapus, karena sudah diatur oleh flex-1 di parent --}}
+<div class="flex w-full h-[calc(100vh-2.5rem)] bg-[#0f172a] text-white"> {{-- Gunakan h-[calc(100vh-padding)] --}}
+    <div class="w-full md:w-1/4 xl:w-2/6 border-r border-gray-700 p-4 flex flex-col">
+        <h1 class="text-2xl font-semibold mb-4">Chat Customer</h1>
 
-            <div class="relative mb-4">
-                <input type="text" placeholder="Search people" class="w-full bg-[#1e293b] text-white py-2 px-4 rounded focus:outline-none" id="chat-search-input" />
-                <span class="absolute right-4 top-2 text-sm text-gray-400">All</span>
-            </div>
+        <div class="relative mb-4">
+            <input type="text" placeholder="Search people" class="w-full bg-[#1e293b] text-white py-2 px-4 rounded focus:outline-none" id="chat-search-input" />
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">All</span> {{-- Posisikan "All" lebih baik --}}
+        </div>
 
-            <ul class="space-y-3 overflow-y-auto flex-1 pr-2" id="conversation-list">
-                {{-- Pisahkan percakapan yang belum dibaca dan sudah dibaca untuk pengurutan --}}
+        <ul class="space-y-3 overflow-y-auto flex-1 pr-2" id="conversation-list">
+            {{-- Pisahkan percakapan yang belum dibaca dan sudah dibaca untuk pengurutan --}}
+            @php
+                $unreadConversations = $conversations->filter(function($conversation) {
+                    $latestMessage = $conversation->messages->last();
+                    return $latestMessage && $latestMessage->sender_id !== Auth::id() && is_null($latestMessage->read_at);
+                })->sortByDesc(function($conversation) {
+                    return $conversation->messages->last() ? $conversation->messages->last()->created_at : null;
+                });
+
+                $readConversations = $conversations->filter(function($conversation) {
+                    $latestMessage = $conversation->messages->last();
+                    return !$latestMessage || $latestMessage->sender_id === Auth::id() || !is_null($latestMessage->read_at);
+                })->sortByDesc(function($conversation) {
+                    return $conversation->messages->last() ? $conversation->messages->last()->created_at : null;
+                });
+
+                $sortedConversations = $unreadConversations->merge($readConversations);
+            @endphp
+
+            {{-- Tampilkan percakapan yang belum dibaca terlebih dahulu --}}
+            @foreach ($sortedConversations as $conversation)
                 @php
-                    $unreadConversations = $conversations->filter(function($conversation) {
-                        $latestMessage = $conversation->messages->last();
-                        return $latestMessage && $latestMessage->sender_id !== Auth::id() && is_null($latestMessage->read_at);
-                    })->sortByDesc(function($conversation) {
-                        return $conversation->messages->last() ? $conversation->messages->last()->created_at : null;
-                    });
-
-                    $readConversations = $conversations->filter(function($conversation) {
-                        $latestMessage = $conversation->messages->last();
-                        return !$latestMessage || $latestMessage->sender_id === Auth::id() || !is_null($latestMessage->read_at);
-                    })->sortByDesc(function($conversation) {
-                        return $conversation->messages->last() ? $conversation->messages->last()->created_at : null;
-                    });
-
-                    $sortedConversations = $unreadConversations->merge($readConversations);
+                    $otherUser = ($conversation->user1_id === Auth::id()) ? $conversation->user2 : $conversation->user1;
+                    $latestMessage = $conversation->messages->last();
+                    $isActive = isset($activeConversation) && $activeConversation->id === $conversation->id;
+                    $isUnread = $latestMessage && $latestMessage->sender_id !== Auth::id() && is_null($latestMessage->read_at);
                 @endphp
-
-                {{-- Tampilkan percakapan yang belum dibaca terlebih dahulu --}}
-                @foreach ($sortedConversations as $conversation)
-                    @php
-                        $otherUser = ($conversation->user1_id === Auth::id()) ? $conversation->user2 : $conversation->user1;
-                        $latestMessage = $conversation->messages->last();
-                        $isActive = isset($activeConversation) && $activeConversation->id === $conversation->id;
-                        $isUnread = $latestMessage && $latestMessage->sender_id !== Auth::id() && is_null($latestMessage->read_at);
-                    @endphp
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded chat-item {{ $isActive ? 'active' : '' }}"
-                        data-conversation-id="{{ $conversation->id }}"
-                        data-other-user-id="{{ $otherUser->id }}"
-                        data-other-user-name="{{ $otherUser->name ?? $otherUser->username }}"
-                        style="opacity: {{ $isUnread ? '1' : '0.8' }};"> {{-- Opacity berdasarkan status baca --}}
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
-                            <img src="{{ $otherUser->profile_picture_url }}" class="w-10 h-10 rounded-full object-cover" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-white truncate">{{ $otherUser->name ?? $otherUser->username }}</p>
-                            <p class="text-sm {{ $isUnread ? 'text-blue-400 font-bold' : 'text-gray-400' }} truncate message-content">
-                                {{ $latestMessage ? Str::limit($latestMessage->content, 30) : 'Mulai percakapan baru...' }}
-                            </p>
-                        </div>
-                        <span class="text-xs text-gray-400 message-time">
-                            {{ $latestMessage ? $latestMessage->created_at->format('H:i') : '' }}
-                        </span>
-                    </li>
-                @endforeach
-                @foreach ($availableUsersToChat as $userToChat)
-                    @php
-                        // Cek apakah sudah ada percakapan dengan user ini
-                        $existingConversation = $conversations->first(function($conv) use ($userToChat) {
-                            return ($conv->user1_id === Auth::id() && $conv->user2_id === $userToChat->id) ||
-                                   ($conv->user1_id === $userToChat->id && $conv->user2_id === Auth::id());
-                        });
-                    @endphp
-                    @if (!$existingConversation)
-                        <li class="new-chat-item p-2 rounded hover:bg-[#1e293b] cursor-pointer"
-                            data-other-user-id="{{ $userToChat->id }}"
-                            data-other-user-name="{{ $userToChat->name ?? $userToChat->username }}">
-                            <div class="flex gap-3 items-center">
-                                <img src="{{ $userToChat->profile_picture_url }}" class="w-10 h-10 rounded-full object-cover" />
-                                <div class="flex-1 min-w-0">
-                                    <p class="font-semibold text-white truncate">{{ $userToChat->name ?? $userToChat->username }}</p>
-                                    <p class="text-sm text-gray-500">Klik untuk chat...</p>
-                                </div>
+                <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded chat-item {{ $isActive ? 'active' : '' }}"
+                    data-conversation-id="{{ $conversation->id }}"
+                    data-other-user-id="{{ $otherUser->id }}"
+                    data-other-user-name="{{ $otherUser->name ?? $otherUser->username }}"
+                    style="opacity: {{ $isUnread ? '1' : '0.8' }};"> {{-- Opacity berdasarkan status baca --}}
+                    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
+                        <img src="{{ $otherUser->profile_picture_url }}" class="w-10 h-10 rounded-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-white truncate">{{ $otherUser->name ?? $otherUser->username }}</p>
+                        <p class="text-sm {{ $isUnread ? 'text-blue-400 font-bold' : 'text-gray-400' }} truncate message-content">
+                            {{ $latestMessage ? Str::limit($latestMessage->content, 30) : 'Mulai percakapan baru...' }}
+                        </p>
+                    </div>
+                    <span class="text-xs text-gray-400 message-time">
+                        {{ $latestMessage ? $latestMessage->created_at->format('H:i') : '' }}
+                    </span>
+                </li>
+            @endforeach
+            @foreach ($availableUsersToChat as $userToChat)
+                @php
+                    // Cek apakah sudah ada percakapan dengan user ini
+                    $existingConversation = $conversations->first(function($conv) use ($userToChat) {
+                        return ($conv->user1_id === Auth::id() && $conv->user2_id === $userToChat->id) ||
+                               ($conv->user1_id === $userToChat->id && $conv->user2_id === Auth::id());
+                    });
+                @endphp
+                @if (!$existingConversation)
+                    <li class="new-chat-item p-2 rounded hover:bg-[#1e293b] cursor-pointer"
+                        data-other-user-id="{{ $userToChat->id }}"
+                        data-other-user-name="{{ $userToChat->name ?? $userToChat->username }}">
+                        <div class="flex gap-3 items-center">
+                            <img src="{{ $userToChat->profile_picture_url }}" class="w-10 h-10 rounded-full object-cover" />
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-white truncate">{{ $userToChat->name ?? $userToChat->username }}</p>
+                                <p class="text-sm text-gray-500">Klik untuk chat...</p>
                             </div>
-                        </li>
-                    @endif
-                @endforeach
-            </ul>
-        </div>
+                        </div>
+                    </li>
+                @endif
+            @endforeach
+        </ul>
+    </div>
 
-        <div class="flex-1 p-4 flex flex-col bg-[#0f172a]" id="chat-right-panel">
-            <div class="flex-1 flex items-center justify-center text-gray-400 text-lg" id="chat-placeholder">
-                Pilih percakapan untuk memulai chat.
-            </div>
-            <div class="hidden flex-col flex-1 h-full" id="chat-content">
-                <div class="flex justify-between items-center border-b border-gray-700 pb-4" id="chat-header">
-                    <div>
-                        <p class="font-bold text-lg" id="active-chat-name">User</p>
-                        <!-- <p class="text-sm text-gray-400" id="active-user-status">Offline</p> {{-- Status online/offline --}} -->
-                    </div>
+    <div class="flex-1 p-4 flex flex-col bg-[#0f172a]" id="chat-right-panel">
+        <div class="flex-1 flex items-center justify-center text-gray-400 text-lg" id="chat-placeholder">
+            Pilih percakapan untuk memulai chat.
+        </div>
+        <div class="hidden flex-col flex-1 h-full" id="chat-content">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-4" id="chat-header"> {{-- Tambahkan mb-4 --}}
+                <div>
+                    <p class="font-bold text-lg" id="active-chat-name">User</p>
+                    <p class="text-sm text-gray-400" id="active-user-status">Offline</p> {{-- Status online/offline --}}
                 </div>
-                <div class="flex flex-col space-y-2 overflow-y-auto flex-1 pr-2 pt-3 pb-3" id="chat-messages-container"></div>
-                <div class="mt-auto pt-4 border-t border-gray-700"> {{-- Pastikan input pesan selalu di bawah --}}
-                    <div class="flex gap-2">
-                        <input type="text" placeholder="Ketik pesan..." class="flex-1 px-4 py-2 bg-[#1e293b] text-white rounded focus:outline-none" id="message-input" />
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded" id="send-message-btn">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </button>
-                    </div>
+            </div>
+            <div class="flex flex-col space-y-2 overflow-y-auto flex-1 pr-2 pb-3" id="chat-messages-container"></div> {{-- Hapus pt-3, biarkan padding dari parent --}}
+            <div class="mt-auto pt-4 border-t border-gray-700"> {{-- Pastikan input pesan selalu di bawah --}}
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Ketik pesan..." class="flex-1 px-4 py-2 bg-[#1e293b] text-white rounded focus:outline-none" id="message-input" />
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded" id="send-message-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -129,8 +130,11 @@
                 statusElement.classList.toggle('text-green-400', isOnline);
                 statusElement.classList.toggle('text-gray-400', !isOnline);
             }
+            // Update status di panel chat kanan jika pengguna sedang aktif
             if (activeOtherUserId === userId) {
                 document.getElementById('active-user-status').textContent = isOnline ? 'Online' : 'Offline';
+                document.getElementById('active-user-status').classList.toggle('text-green-400', isOnline);
+                document.getElementById('active-user-status').classList.toggle('text-gray-400', !isOnline);
             }
         }
 
@@ -144,11 +148,11 @@
             // Dapatkan status online pengguna lain
             axios.get(`/chat/status/${otherUserId}`)
                 .then(res => {
-                    document.getElementById('active-user-status').textContent = res.data.is_online ? 'Online' : 'Offline';
+                    updateOnlineStatus(otherUserId, res.data.is_online); // Gunakan fungsi updateOnlineStatus
                 })
                 .catch(error => {
                     console.error("Error fetching user status:", error);
-                    document.getElementById('active-user-status').textContent = 'Offline'; // Default jika gagal
+                    updateOnlineStatus(otherUserId, false); // Default jika gagal
                 });
 
             loadMessages(conversationId);

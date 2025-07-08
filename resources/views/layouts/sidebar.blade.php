@@ -2,12 +2,18 @@
 <html lang="en">
 
 <head>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}"> {{-- PASTIKAN META CSRF TOKEN ADA --}}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Softably</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    //font
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+
     <style>
     /* CSS untuk Sidebar */
     .sidebar-link {
@@ -99,7 +105,7 @@
     body {
         background-color: #0f172a;
         color: white;
-        font-family: sans-serif;
+        font-family: "Poppins", sans-serif; /* <--- PERUBAHAN DI SINI */
     }
 
     /* --- STYLE UNTUK TOAST NOTIFICATIONS (DIPINDAHKAN KE SINI) --- */
@@ -129,10 +135,33 @@
     .toast.show {
         transform: translateX(0);
     }
+    /* --- Gaya Scrollbar yang Diperbarui --- */
+    /* Untuk WebKit (Chrome, Safari, Edge, Opera) */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #1a202c; /* Biru tua, sedikit lebih gelap dari background */
+        border-radius: 10px;
+        border: 2px solid #0f172a; /* Border yang menyatu dengan background utama */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #2d3748; /* Sedikit lebih terang saat hover */
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: #0f172a; /* Warna background utama */
+        border-radius: 10px;
+    }
+
+
     </style>
 </head>
 
-<body class="bg-[#0f172a] text-white font-sans">
+<body class="bg-[#0f172a] text-white">
     <div class="">
 
         <aside class="w-64 bg-[#1e293b] flex flex-col justify-between fixed top-0 left-0 h-full">
@@ -159,7 +188,10 @@
                     </a>
                     <a href="{{ route('chat-customer') }}" class="sidebar-link" data-path="/chat-customer">
                         <i class="fa-solid fa-comments"></i><span>Chat</span>
-                        <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">10</span>
+                        {{-- Ini adalah badge chat yang akan diisi oleh JavaScript --}}
+                        <span id="chat-unread-badge" class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full hidden">
+                            {{-- Angka akan muncul di sini --}}
+                        </span>
                     </a>
                     <a href="{{ route('softpay-customer') }}" class="sidebar-link" data-path="/softpay">
                         <i class="fa-solid fa-wallet"></i><span>SoftPay</span>
@@ -242,7 +274,63 @@
                 link.classList.remove('active');
             }
         });
+
+        // --- JavaScript untuk Notifikasi Chat Belum Dibaca ---
+        const chatUnreadBadge = document.getElementById('chat-unread-badge');
+
+        function updateChatUnreadCount() {
+            fetch('{{ route('api.chat.unreadCount') }}', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.count > 0) {
+                    chatUnreadBadge.textContent = data.count;
+                    chatUnreadBadge.classList.remove('hidden');
+                } else {
+                    chatUnreadBadge.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching unread chat count:', error);
+            });
+        }
+
+        // Panggil fungsi saat halaman dimuat
+        updateChatUnreadCount();
+
+        // Opsional: Perbarui jumlah setiap beberapa detik
+        // Anda bisa menyesuaikan interval atau menghapusnya jika menggunakan WebSocket
+        setInterval(updateChatUnreadCount, 5000); // Perbarui setiap 5 detik
     });
+
+    // Fungsi global untuk memperbarui badge chat, bisa dipanggil dari view lain (misal chat-customer)
+    window.updateChatBadge = function() {
+        const chatUnreadBadge = document.getElementById('chat-unread-badge');
+        fetch('{{ route('api.chat.unreadCount') }}', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.count > 0) {
+                chatUnreadBadge.textContent = data.count;
+                chatUnreadBadge.classList.remove('hidden');
+            } else {
+                chatUnreadBadge.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching unread chat count:', error);
+        });
+    }
     </script>
 </body>
 

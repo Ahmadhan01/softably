@@ -5,7 +5,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Softably</title>
+    <title>Softably - Seller Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -13,8 +13,11 @@
     .sidebar-link {
         display: flex;
         align-items: center;
+        /* Mengisi lebar penuh kontainer */
+        width: 100%; /* Pastikan link mengisi lebar penuh */
+        text-align: left; /* Teks rata kiri */
         gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
+        padding: 0.5rem 0.75rem; /* Padding sudah cukup */
         border-radius: 0.25rem;
         color: #9ca3af;
         transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.2s ease-in-out;
@@ -40,7 +43,6 @@
 
     .sidebar-link.active {
         background-color: #2D3A4F;
-        /* Ganti dengan warna background aktif yang sesuai, contoh: #3b82f6 atau #1f2a3c */
         color: white;
         transform: scale(1.02);
         font-weight: 600;
@@ -55,6 +57,9 @@
     .sidebar-footer-link {
         display: flex;
         align-items: center;
+        /* Mengisi lebar penuh kontainer */
+        width: 100%; /* Pastikan link mengisi lebar penuh */
+        text-align: left; /* Teks rata kiri */
         gap: 0.5rem;
         padding: 0.5rem 0.75rem;
         border-radius: 0.25rem;
@@ -83,10 +88,15 @@
         color: white;
         text-decoration: none;
         transition: transform 0.2s ease-in-out;
+        display: block; /* Pastikan link adalah block untuk mengisi lebar */
+        width: 100%; /* Memastikan link mengisi lebar container */
+        padding: 0.5rem 0.75rem; /* Tambahkan padding di sini agar sama dengan link lain */
+        border-radius: 0.25rem;
     }
 
     .user-profile-link:hover {
         transform: scale(1.02);
+        background-color: rgba(255, 255, 255, 0.1); /* Tambahkan hover background */
     }
 
     .user-profile-link:hover .font-medium {
@@ -102,22 +112,45 @@
         height: auto;
     }
 
+    /* --- Gaya Scrollbar yang Diperbarui --- */
+    /* Untuk WebKit (Chrome, Safari, Edge, Opera) */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #1a202c; /* Biru tua, sedikit lebih gelap dari background */
+        border-radius: 10px;
+        border: 2px solid #0f172a; /* Border yang menyatu dengan background utama */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #2d3748; /* Sedikit lebih terang saat hover */
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: #0f172a; /* Warna background utama */
+        border-radius: 10px;
+    }
+
     body {
         background-color: #0f172a;
         color: white;
-        font-family: sans-serif;
+        font-family: sa
+        ns-serif;
     }
     </style>
 </head>
 
 <body class="bg-[#0f172a] text-white font-sans">
-    <div class="">
-
-        <aside class="w-64 bg-[#1e293b] flex flex-col justify-between fixed top-0 left-0 h-full">
+    <div class="flex h-screen">
+        <aside class="w-64 bg-[#1e293b] flex flex-col justify-between flex-shrink-0">
             <div>
                 <div class="flex justify-center p-4 text-xl font-bold border-b border-gray-700">
                     <img src="{{ asset('img/logo-softably.png') }}" alt="Softably Logo" class="softably-logo">
                 </div>
+                {{-- Padding di nav sudah cukup, pastikan linknya mengisi width 100% --}}
                 <nav class="p-4 space-y-2 text-sm">
 
                     {{-- Dashboard --}}
@@ -125,43 +158,40 @@
                         <i class="fa-solid fa-house-chimney"></i><span>Dashboard</span>
                     </a>
 
-                    {{-- My Product (Asumsi ada rute untuk produk seller, jika belum ada perlu ditambahkan di web.php) --}}
+                    {{-- My Product --}}
                     <a href="{{ route('seller.products.index') }}" class="sidebar-link" data-path="/seller/products">
                         <i class="fa-solid fa-box"></i><span>My Product</span>
                     </a>
 
                     {{-- Chat --}}
-                    <a href="{{ route('chat.seller') }}" class="sidebar-link" data-path="/chat-seller">
+                    <a href="{{ route('seller.chat') }}" class="sidebar-link" data-path="/seller/chat">
                         <i class="fa-solid fa-comments"></i><span>Chat</span>
                         <span class="ml-auto bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">10</span>
-                        {{-- Ganti dengan jumlah notifikasi dinamis --}}
                     </a>
 
-                    {{-- Notifikasi untuk Seller --}}
-                    <a href="{{ route('notif-seller') }}" class="sidebar-link" data-path="/notif-seller">
+                    {{-- Notification untuk Seller --}}
+                    <a href="{{ route('seller.notif-seller') }}" class="sidebar-link" data-path="/seller/notifications">
                         <i class="fa-solid fa-bell"></i><span>Notification</span>
-                        {{-- Anda bisa menambahkan badge notifikasi dinamis di sini --}}
                     </a>
 
-                    <a href="{{ route('seller.softpay.dashboard') }}" class="sidebar-link" data-path="/softpay-seller">
-                        <i class="fas fa-wallet"></i><span>SoftPay</span>    
-                        {{-- Anda bisa menambahkan badge notifikasi dinamis di sini --}}
+                    {{-- SoftPay --}}
+                    <a href="{{ route('seller.softpay.dashboard') }}" class="sidebar-link" data-path="/seller/softpay">
+                        <i class="fas fa-wallet"></i><span>SoftPay</span>
                     </a>
 
                     {{-- Help Center --}}
-                    <a href="{{ route('bantuan-seller') }}" class="sidebar-link" data-path="/bantuan-seller">
+                    <a href="{{ route('seller.bantuan-seller') }}" class="sidebar-link" data-path="/seller/help">
                         <i class="fa-solid fa-circle-question"></i><span>Help Center</span>
                     </a>
                 </nav>
             </div>
             <div class="p-4 space-y-2">
-                <div class="p-4 py-5 border-t border-gray-700">
-                    <a href="{{ route('setting-customer') }}" class="user-profile-link" data-path="/setting-customer">
-                        {{-- Asumsi seller juga menggunakan rute setting-customer --}}
+                {{-- Hapus padding di div ini dan pindahkan ke user-profile-link --}}
+                <div class="py-2 border-t border-gray-700"> {{-- Kurangi padding vertikal --}}
+                    {{-- Profil Pengguna di Sidebar --}}
+                    <a href="{{ route('seller.settings') }}" class="user-profile-link" data-path="/seller/settings">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-full overflow-hidden">
-                                {{-- Gunakan $loggedInUser untuk gambar profil --}}
-                                {{-- Pastikan $loggedInUser didefinisikan di controller yang memuat layout ini atau di setiap controller yang menggunakan sidebar --}}
                                 @php
                                 $loggedInUser = Auth::user();
                                 @endphp
@@ -169,15 +199,14 @@
                                     alt="Profile" class="w-full h-full object-cover">
                             </div>
                             <div>
-                                {{-- Gunakan $loggedInUser untuk nama pengguna --}}
                                 <div class="font-medium">{{ $loggedInUser->name ?? 'Guest' }}</div>
                                 <div class="text-sm text-gray-400">Account settings</div>
                             </div>
                         </div>
                     </a>
                 </div>
-                <a href="{{ route('setting-customer') }}" class="sidebar-footer-link" data-path="/setting-customer">
-                    {{-- Asumsi seller juga menggunakan rute setting-customer --}}
+                {{-- Link Settings utama (di bagian footer sidebar) --}}
+                <a href="{{ route('seller.settings') }}" class="sidebar-footer-link" data-path="/seller/settings">
                     <i class="fa-solid fa-gear"></i><span>Settings</span>
                 </a>
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
@@ -189,9 +218,10 @@
                 </form>
             </div>
         </aside>
-        <div>
-            @yield('isi') {{-- Ini adalah tempat child view (chat-customer.blade.php) akan dimasukkan --}}
-        </div>
+
+        <main class="flex-1 overflow-y-auto p-5">
+            @yield('isi')
+        </main>
     </div>
 
     <script>
@@ -203,29 +233,20 @@
         sidebarLinks.forEach(link => {
             const linkPath = link.dataset.path;
 
-            // Logika untuk menandai sidebar link sebagai 'active'
-            // Hapus 'active' dari semua link terlebih dahulu untuk menghindari duplikasi
             link.classList.remove('active');
 
-            // Periksa apakah path saat ini cocok dengan data-path link
             if (linkPath && currentPath.startsWith(linkPath)) {
-                // Kecualikan /logout agar tidak pernah aktif
-                if (linkPath !== '/logout') {
+                if (linkPath === '/seller/settings') {
+                    link.classList.add('active');
+                } else if (linkPath !== '/logout') {
                     link.classList.add('active');
                 }
             }
         });
-
-        // Khusus untuk 'Notification' dan 'Help Center',
-        // Jika Anda memiliki sub-halaman di dalamnya yang tidak mengubah URL utama
-        // (misal dengan JavaScript seperti tab), maka logika di atas sudah cukup.
-        // Jika ada kasus khusus di mana path tidak langsung cocok
-        // tetapi Anda ingin sidebar tetap aktif, Anda bisa menambahkan logika tambahan di sini.
-        // Contoh: jika Anda ingin /notif-seller/detail/123 tetap mengaktifkan /notif-seller
-        // maka currentPath.startsWith(linkPath) sudah menanganinya.
     });
     </script>
-    @stack('scripts') {{-- Pastikan ini ada untuk menyertakan script dari child view --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    @stack('scripts')
 </body>
 
 </html>

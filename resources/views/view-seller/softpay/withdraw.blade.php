@@ -13,13 +13,15 @@
     }
 </style>
 
-<main class="flex-1 px-6 py-8 ml-64 bg-[#10172A] min-h-screen">
+{{-- Hapus main tag di sini, karena sudah ada di layout parent --}}
+{{-- main class="flex-1 px-6 py-8 ml-64 bg-[#10172A] min-h-screen" akan diganti --}}
+<div class="bg-[#10172A] min-h-screen text-white"> {{-- Tambahkan min-h-screen jika konten pendek --}}
     <div class="max-w-xl mx-auto space-y-8">
         <h1 class="text-3xl font-semibold text-white mb-6">Tarik Dana SoftPay</h1>
 
         <div class="softpay-balance-card mb-8">
             <h2>Saldo SoftPay Anda Saat Ini</h2>
-            <p>Rp {{ number_format($sellerSoftpayBalance ?? 0, 0, ',', '.') }},00</p>
+            <p class="text-4xl">Rp {{ number_format($sellerSoftpayBalance ?? 0, 0, ',', '.') }},00</p> {{-- Perbesar font saldo --}}
         </div>
 
         <div class="bg-[#1e293b] p-6 rounded-xl shadow-md">
@@ -78,5 +80,5 @@
             </form>
         </div>
     </div>
-</main>
+</div>
 @endsection

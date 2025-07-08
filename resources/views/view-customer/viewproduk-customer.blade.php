@@ -1,8 +1,6 @@
 @extends('layouts.sidebar')
 
 @section('isi')
-{{-- CSS Anda (jika ada yang spesifik untuk halaman ini) bisa diletakkan di sini,
-         tetapi sebaiknya di file CSS terpisah atau di bagian <head> dari sidebar.blade.php --}}
 <style>
 .scrollable::-webkit-scrollbar {
     width: 6px;
@@ -31,82 +29,6 @@
     height: 100%;
     object-fit: cover;
     border-radius: 0.5rem;
-}
-
-/* Style for Toast notifications (pastikan ini konsisten di seluruh aplikasi) */
-.toast-container {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-end;
-}
-
-.toast {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    color: white;
-    transform: translateX(100%);
-    transition: transform 0.3s ease-out;
-}
-
-.toast.show {
-    transform: translateX(0);
-}
-
-/* Modal styles */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-}
-
-.modal.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background-color: #1C2438;
-    padding: 2rem;
-    border-radius: 0.75rem;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-    transform: translateY(-20px);
-    transition: transform 0.3s ease-in-out;
-}
-
-.modal.show .modal-content {
-    transform: translateY(0);
-}
-
-.close-button {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #9ca3af;
-    cursor: pointer;
 }
 </style>
 
@@ -143,11 +65,11 @@
                                 {{-- UBAH INI: Dari $product->seller menjadi $product->user --}}
                                 <span class="font-semibold">{{ $product->user->name ?? 'Toko Tidak Dikenal' }}</span>
                             </div>
-                            {{-- KEMBALIKAN TOMBOL "View Store" INI --}}
-                            <button id="viewStoreBtn" class="bg-gray-700 px-3 py-1 text-sm rounded-md hover:bg-gray-600"
-                                    data-seller-id="{{ $product->user->id ?? '' }}"> {{-- UBAH INI: data-seller-id ke $product->user->id --}}
+                            {{-- PERUBAHAN DI SINI: Tombol "View Store" menjadi TAUTAN --}}
+                            <a href="{{ route('view-seller.show', $product->user->id) }}" {{-- Menggunakan route langsung ke profil seller --}}
+                               class="bg-gray-700 px-3 py-1 text-sm rounded-md hover:bg-gray-600">
                                 View Store
-                            </button>
+                            </a>
                         </div>
 
                         <h2 class="text-2xl font-bold">{{ $product->name ?? 'Nama Produk' }}</h2>
@@ -319,8 +241,8 @@
     </div>
 </main>
 
-{{-- KEMBALIKAN MODAL POP-UP PROFIL TOKO INI --}}
-<div id="storeProfileModal" class="modal">
+{{-- HAPUS TOTAL BLOK MODAL POP-UP INI KARENA TIDAK DIGUNAKAN LAGI --}}
+{{-- <div id="storeProfileModal" class="modal">
     <div class="modal-content text-white">
         <button class="close-button" id="closeModalBtn">&times;</button>
         <div class="flex flex-col items-center gap-4">
@@ -350,14 +272,44 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 @push('scripts')
 <script>
-// Fungsi showToast sudah benar, pastikan ada di layouts/sidebar.blade.php atau di sini
-// Jika belum ada di layouts/sidebar.blade.php, tambahkan di sini
-// function showToast(message, type = 'success') { ... }
+// Fungsi showToast (pertahankan jika belum ada di layouts/sidebar.blade.php)
+// Disarankan untuk memindahkan ini ke file JS global atau layouts/sidebar.blade.php
+function showToast(message, type = 'success') {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        const newToastContainer = document.createElement('div');
+        newToastContainer.id = 'toast-container';
+        newToastContainer.classList.add('fixed', 'bottom-4', 'right-4', 'z-[9999]', 'space-y-2');
+        document.body.appendChild(newToastContainer);
+        toastContainer = newToastContainer;
+    }
+
+    const toast = document.createElement('div');
+    toast.classList.add(
+        'flex', 'items-center', 'gap-2', 'px-4', 'py-2', 'rounded-md', 'shadow-md', 'text-white',
+        type === 'success' ? 'bg-green-500' : 'bg-red-500',
+        'transform', 'translate-x-full', 'transition-transform', 'duration-300'
+    );
+    toast.innerHTML =
+        `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i> <span>${message}</span>`;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+    }, 100);
+
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        toast.addEventListener('transitionend', () => toast.remove());
+    }, 3000);
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const addToCartBtn = document.getElementById('addToCartBtn');
@@ -367,40 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     const wishlistButtonText = document.getElementById('wishlistButtonText');
-
-    // Fungsi showToast (jika belum ada di layout utama, perlu didefinisikan di sini atau di file JS terpisah)
-    // Saya asumsikan Anda akan memindahkannya ke layouts/sidebar.blade.php atau ke asset JS global
-    // Untuk memastikan kode ini bekerja, saya sertakan definisinya di sini.
-    function showToast(message, type = 'success') {
-        let toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) {
-            const newToastContainer = document.createElement('div');
-            newToastContainer.id = 'toast-container';
-            newToastContainer.classList.add('fixed', 'bottom-4', 'right-4', 'z-[9999]', 'space-y-2');
-            document.body.appendChild(newToastContainer);
-            toastContainer = newToastContainer;
-        }
-
-        const toast = document.createElement('div');
-        toast.classList.add(
-            'flex', 'items-center', 'gap-2', 'px-4', 'py-2', 'rounded-md', 'shadow-md', 'text-white',
-            type === 'success' ? 'bg-green-500' : 'bg-red-500',
-            'transform', 'translate-x-full', 'transition-transform', 'duration-300'
-        );
-        toast.innerHTML =
-            `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i> <span>${message}</span>`;
-
-        toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-            toast.classList.remove('translate-x-full');
-        }, 100);
-
-        setTimeout(() => {
-            toast.classList.add('translate-x-full');
-            toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-    }
 
 
     // Handle Add to Wishlist button click (kode sudah benar)
@@ -671,75 +589,64 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-    // --- Logika Modal Pop-up Profil Toko ---
-    const viewStoreBtn = document.getElementById('viewStoreBtn');
-    const storeProfileModal = document.getElementById('storeProfileModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const sellerProfilePicture = document.getElementById('sellerProfilePicture');
-    const sellerName = document.getElementById('sellerName');
-    const sellerStatus = document.getElementById('sellerStatus');
-    const sellerDescription = document.getElementById('sellerDescription');
-    // HAPUS INI: Tidak perlu lagi elemen-elemen ini
-    // const successTransactions = document.getElementById('successTransactions');
-    // const failedTransactions = document.getElementById('failedTransactions');
+    // --- HAPUS TOTAL LOGIKA MODAL POP-UP PROFIL TOKO INI ---
+    // const viewStoreBtn = document.getElementById('viewStoreBtn');
+    // const storeProfileModal = document.getElementById('storeProfileModal');
+    // const closeModalBtn = document.getElementById('closeModalBtn');
+    // const sellerProfilePicture = document.getElementById('sellerProfilePicture');
+    // const sellerName = document.getElementById('sellerName');
+    // const sellerStatus = document.getElementById('sellerStatus');
+    // const sellerDescription = document.getElementById('sellerDescription');
 
-    if (viewStoreBtn) {
-        viewStoreBtn.addEventListener('click', function() {
-            const sellerId = this.dataset.sellerId;
-            if (sellerId) {
-                // Fetch seller data
-                fetch(`/api/seller-info/${sellerId}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => { // Pastikan parsing error
-                                throw new Error(errorData.message || 'Gagal memuat data seller.');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success && data.user) { // Data sekarang ada di 'user'
-                            sellerProfilePicture.src = data.user.profile_picture_url || '{{ asset("img/default-profile.jpg") }}';
-                            sellerName.textContent = data.user.name;
-                            sellerStatus.textContent = data.user.is_online ? 'Online' : 'Offline';
-                            sellerStatus.className = '';
-                            sellerStatus.classList.add('text-sm', data.user.is_online ? 'text-green-500' : 'text-red-500');
-                            sellerDescription.textContent = data.user.description || 'Belum ada deskripsi toko.';
+    // if (viewStoreBtn) {
+    //     viewStoreBtn.addEventListener('click', function() {
+    //         const sellerId = this.dataset.sellerId;
+    //         if (sellerId) {
+    //             fetch(`/api/seller-info/${sellerId}`)
+    //                 .then(response => {
+    //                     if (!response.ok) {
+    //                         return response.json().then(errorData => {
+    //                             throw new Error(errorData.message || 'Gagal memuat data seller.');
+    //                         });
+    //                     }
+    //                     return response.json();
+    //                 })
+    //                 .then(data => {
+    //                     if (data.success && data.user) {
+    //                         sellerProfilePicture.src = data.user.profile_picture_url || '{{ asset("img/default-profile.jpg") }}';
+    //                         sellerName.textContent = data.user.name;
+    //                         sellerStatus.textContent = data.user.is_online ? 'Online' : 'Offline';
+    //                         sellerStatus.className = '';
+    //                         sellerStatus.classList.add('text-sm', data.user.is_online ? 'text-green-500' : 'text-red-500');
+    //                         sellerDescription.textContent = data.user.description || 'Belum ada deskripsi toko.';
+    //                         storeProfileModal.classList.add('show');
+    //                     } else {
+    //                         showToast(data.message || 'Gagal memuat data seller.', 'error');
+    //                     }
+    //                 })
+    //                 .catch(error => {
+    //                     console.error('Error fetching seller info:', error);
+    //                     showToast('Terjadi kesalahan saat memuat informasi toko: ' + error.message, 'error');
+    //                 });
+    //         } else {
+    //             showToast('Informasi seller tidak tersedia.', 'error');
+    //         }
+    //     });
+    // }
 
-                            // HAPUS INI: Tidak perlu memperbarui elemen transaksi
-                            // successTransactions.textContent = data.success_transactions;
-                            // failedTransactions.textContent = data.failed_transactions;
+    // if (closeModalBtn) {
+    //     closeModalBtn.addEventListener('click', function() {
+    //         storeProfileModal.classList.remove('show');
+    //     });
+    // }
 
-                            storeProfileModal.classList.add('show');
-                        } else {
-                            showToast(data.message || 'Gagal memuat data seller.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching seller info:', error);
-                        showToast('Terjadi kesalahan saat memuat informasi toko: ' + error.message, 'error');
-                    });
-            } else {
-                showToast('Informasi seller tidak tersedia.', 'error');
-            }
-        });
-    }
-
-
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', function() {
-            storeProfileModal.classList.remove('show');
-        });
-    }
-
-    // Tutup modal jika klik di luar konten modal
-    if (storeProfileModal) {
-        storeProfileModal.addEventListener('click', function(e) {
-            if (e.target === storeProfileModal) {
-                storeProfileModal.classList.remove('show');
-            }
-        });
-    }
+    // if (storeProfileModal) {
+    //     storeProfileModal.addEventListener('click', function(e) {
+    //         if (e.target === storeProfileModal) {
+    //             storeProfileModal.classList.remove('show');
+    //         }
+    //     });
+    // }
 });
 </script>
 @endpush

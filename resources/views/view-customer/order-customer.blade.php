@@ -55,7 +55,7 @@
     </style>
 </head>
 
-<body class="bg-[#10172A] text-white font-sans">
+<body class="bg-[#10172A] text-white">
     <main class="flex-1 p-6 space-y-6 ml-64">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-semibold">My Order</h1>

@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Softably</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    //font
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
         /* Warna-warna dasar dari gambar */
         :root {
@@ -13,6 +17,12 @@
             --color-blue-light: #0d47a1;
             --color-text-light: #f3f4f6;
             --color-text-dark: #1f2937;
+        }
+
+        body {
+        background-color: #0f172a;
+        color: white;
+        font-family: "Poppins", sans-serif; /* <--- PERUBAHAN DI SINI */
         }
 
         /* Hero Section */
@@ -43,7 +53,7 @@
         .hero-content {
             position: relative;
             z-index: 10;
-            padding-right: 5rem;
+            padding-right: 4rem;
         }
 
         /* Bagian gelap di bawah Hero Section */
@@ -165,7 +175,7 @@
     </style>
 </head>
 
-<body class="font-sans text-gray-800">
+<body class="text-gray-800">
     <header class="bg-white py-4 px-8 flex justify-between items-center shadow-sm fixed top-0 left-0 w-full z-50">
         <div>
             <img src="img/logo-softably.png" alt="Softably Logo" class="h-8" />
@@ -181,16 +191,16 @@
 
     <section class="hero-background text-white px-8 lg:px-16 pt-24 pb-8 md:pt-0 md:pb-0">
         <div class="hero-content max-w-2xl text-center md:text-left mx-auto md:ml-0">
-            <p class="text-sm opacity-80 mb-2">Selamat datang di Softably</p>
+            <p class="text-xl opacity-80 mb-2">Selamat datang di Softably</p>
             <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-6">
                 Temukan produk digital<br />yang kamu mau disini
             </h1>
             <p class="text-base lg:text-lg opacity-90 mb-8">
-                Lorem ipsum dolor sit amet consectetur. Eget nisi in fermentum amet
-                aenean orci. Tristique at elit malesuada ut. Adipiscing laoreet sed
-                mus magna viverra ut vulputate.
+                Temukan dan miliki produk digital impianmu dengan mudah di Softably.
+                Dari aplikasi inovatif, aset desain kreatif, hingga kursus online inspiratif,
+                semua kebutuhan digitalmu ada di sini. Mulai jelajahi sekarang dan wujudkan potensimu!
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <!-- <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <a href="#"
                     class="bg-white text-blue-600 px-6 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg">
                     Saya Ingin Jadi Penjual
@@ -199,7 +209,7 @@
                     class="border-2 border-white text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-300">
                     Saya Ingin Jadi Pembeli
                 </a>
-            </div>
+            </div> -->
         </div>
     </section>
 

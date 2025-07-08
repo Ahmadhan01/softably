@@ -1,198 +1,261 @@
 @extends('layouts.sidebar-seller')
 
 @section('isi')
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Fuad Pharaoh</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://kit.fontawesome.com/1531486bb6.js" crossorigin="anonymous"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'dark-bg': '#2d3748',
-                        'dark-card': '#2d3748',
-                        'dark-hover': '#374151'
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-gray-900 text-white">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 shadow-lg">
+{{-- Hapus ml-56 dan p-5 dari div ini --}}
+{{-- Padding sudah diatur oleh elemen <main> di layouts.sidebar-seller --}}
+<div class="bg-gray-900 text-white min-h-screen">
+    {{-- Konten dashboard Anda --}}
+    <div class="flex justify-between items-center mb-5">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Welcome back, {{ Auth::user()->name }}</h1>
+            <p class="text-gray-400 mt-1">Measure everything and export website traffic.</p>
+        </div>
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-3 rounded-lg font-medium transition-colors">
+            <span>Print report</span>
+            <i class="fa-solid fa-print ml-2"></i>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        {{-- Product Sold Card --}}
+        <div class="bg-[#1e293b] p-4 rounded-lg">
+            <div class="text-gray-400">Product Sold
+                <i class="fa-solid fa-eye ml-1"></i>
+            </div>
+            <div class="text-2xl font-semibold">{{ number_format($totalProductSold, 0, ',', '.') }}</div>
+            <div class="flex items-center text-sm mt-1 {{ str_contains($productSoldChange, '+') ? 'bg-green-700' : 'bg-red-900' }} rounded-lg w-20 h-6 justify-center">
+                {{ $productSoldChange }}
+                <i class="fa-solid {{ str_contains($productSoldChange, '+') ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} ml-1"></i>
+            </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto border-lg">
-            <!-- Header -->
-            <div class=" p-2.5 border-gray-700">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold text-white">Welcome back, {{ Auth::user()->name }}</h1>
-                        <p class="text-gray-400 mt-1">Measure everything and export website traffic.</p>
-                    </div>
-                    <button class="bg-white text-gray-900 px-3 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                        <span>Print report</span>
-                        <i class="fa-solid fa-print"></i>
-                    </button>
-                </div>
+        {{-- Total Revenue Card --}}
+        <div class="bg-[#1e293b] p-4 rounded-lg">
+            <div class="text-gray-400">Total revenue
+                <i class="fa-solid fa-users ml-1"></i>
             </div>
-        
-            <div class="grid grid-cols-3 gap-4 mt-4 p-4 y-1">
-                <div class="bg-[#1e293b] p-4 rounded">
-                    <div class="text-gray-400">Product Sold
-                        <i class="fa-solid fa-eye"></i>
-                    </div>
-                    <div class="text-2xl font-semibold">40.7K</div>
-                    <div class="flex m-1 items-center justify-center text-wite-700 border-cover bg-green-700 rounded-lg w-20 h-6">+8.1%
-                        <i class="fa-solid fa-arrow-trend-up m-2"></i>
-                    </div>
-                </div>
-
-                <div class="bg-[#1e293b] p-4 rounded mt5">
-                    <div class="text-gray-400">Total revenue
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="text-2xl font-semibold">11.2K</div>
-                    <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-red-900 rounded-lg w-20 h-6">-30.2%
-                        <i class="fa-solid fa-arrow-trend-down m-1"></i>
-                    </div>
-                </div>
-
-                <div class="bg-[#1e293b] p-4 rounded">
-                    <div class="text-gray-400">Monthly transactions
-                        <i class="fa-solid fa-cart-flatbed-suitcase"></i>
-                    </div>
-                    <div class="text-2xl font-semibold">$234.2K</div>
-                    <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-6">+4.1%
-                        <i class="fa-solid fa-arrow-trend-up m-2"></i> 
-                    </div>
-                </div>
+            <div class="text-2xl font-semibold">Rp{{ number_format($totalRevenue, 0, ',', '.') }}</div>
+            <div class="flex items-center text-sm mt-1 {{ str_contains($totalRevenueChange, '+') ? 'bg-green-700' : 'bg-red-900' }} rounded-lg w-20 h-6 justify-center">
+                {{ $totalRevenueChange }}
+                <i class="fa-solid {{ str_contains($totalRevenueChange, '+') ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} ml-1"></i>
             </div>
+        </div>
 
-
-            <div class="grid grid-cols-3 gap-4 p-6">
-                <div class="col-span-2 bg-[#1e293b] p-6 rounded">
-                    <div class="mb-4">
-                        <h2 class="text-lg text-gray-400 font-semibold">Total revenue</h2>
-                        <div class="text-3xl font-bold mt-1">$1220.5K</div>
-                        <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-5">+8.1%
-                          <i class="fa-solid fa-arrow-trend-up m-2"></i>  
-                        </div>
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-
-                </div>
-                <div class="flex flex-col gap-4">
-                    <div class="bg-[#1e293b] p-4 rounded">
-                        <h2 class="text-sm text-gray-400 mb-1">Product Sold</h2>
-                        <div class="text-xl font-bold">$234.2K</div>
-                        <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-5">+8.1%
-                            <i class="fa-solid fa-arrow-trend-up m-2"></i> 
-                        </div>
-                        <canvas id="profitChart" class="w-32 h-32"></canvas>
-                        <div class="mt-3 text-gray-500">
-                            <h5>Last 12 month</h5>
-                        </div>
-                    </div>
-                    <div class="bg-[#1e293b] p-4 rounded">
-                        <h2 class="text-sm text-gray-400 mb-1">Monthly Transaction</h2>
-                        <div class="text-xl font-bold">283</div>
-                        <div class="flex m-1 items-center justify-center text-wite-100 border-cover bg-green-700 rounded-lg w-20 h-5">-3.2 %
-                          <i class="fa-solid fa-arrow-trend-down m-1"></i>   
-                        </div>
-                        <canvas id="usersChart"></canvas>
-
-                    </div>
-                </div>
+        {{-- Monthly Transactions Card --}}
+        <div class="bg-[#1e293b] p-4 rounded-lg">
+            <div class="text-gray-400">Monthly transactions
+                <i class="fa-solid fa-cart-flatbed-suitcase ml-1"></i>
             </div>
-        </main>
+            <div class="text-2xl font-semibold">{{ number_format($monthlyTransactionsCount, 0, ',', '.') }}</div>
+            <div class="flex items-center text-sm mt-1 {{ str_contains($monthlyTransactionsChange, '+') ? 'bg-green-700' : 'bg-red-900' }} rounded-lg w-20 h-6 justify-center">
+                {{ $monthlyTransactionsChange }}
+                <i class="fa-solid {{ str_contains($monthlyTransactionsChange, '+') ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} ml-1"></i>
+            </div>
+        </div>
     </div>
-    <script>
-        new Chart(document.getElementById('profitChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [
-                    {
-                        label: 'New Profit',
-                        data: [70, 65, 60, 80, 55, 60, 75, 90, 45, 50, 100, 120],
-                        backgroundColor: '#22c55e',
-                    },
-                    {
-                        label: 'Old Profit',
-                        data: [60, 60, 55, 65, 60, 55, 70, 85, 40, 40, 95, 110],
-                        backgroundColor: '#3b82f6',
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    x: { ticks: { color: 'white' } },
-                    y: { ticks: { color: 'white' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white' } }
-                }
-            }
-        });
 
-        new Chart(document.getElementById('revenueChart'), {
-            type: 'line',
-            data: {
-                labels: ['Feb 1', 'Feb 20', 'Mar 5', 'Apr 10', 'May 1', 'May 17'],
-                datasets: [{
-                    label: 'Total',
-                    data: [0, 55000, 50000, 100000, 150000, 120000],
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    borderColor: '#3b82f6',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                scales: {
-                    x: { ticks: { color: 'white' } },
-                    y: { ticks: { color: 'white' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white' } }
-                }
-            }
-        });
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+        {{-- Total Revenue Chart --}}
+        <div class="lg:col-span-2 bg-[#1e293b] p-6 rounded-lg">
+            <div class="mb-4">
+                <h2 class="text-lg text-gray-400 font-semibold">Total revenue</h2>
+                <div class="text-3xl font-bold mt-1">Rp{{ number_format($totalRevenue, 0, ',', '.') }}</div>
+                <div class="flex items-center text-sm mt-1 {{ str_contains($totalRevenueChange, '+') ? 'bg-green-700' : 'bg-red-900' }} rounded-lg w-20 h-5 justify-center">
+                    {{ $totalRevenueChange }}
+                    <i class="fa-solid {{ str_contains($totalRevenueChange, '+') ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} ml-1"></i>
+                </div>
+                <div class="mt-4 h-64">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
 
-        new Chart(document.getElementById('usersChart'), {
-            type: 'line',
-            data: {
-                labels: ['Feb 1', 'Yesterday', 'Today'],
-                datasets: [{
-                    label: 'Users',
-                    data: [100, 200, 150],
-                    backgroundColor: 'rgba(59, 130, 246, 0.3)',
-                    borderColor: '#ff1f1f',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                scales: {
-                    x: { ticks: { color: 'white' } },
-                    y: { ticks: { color: 'white' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white' } }
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+        <div class="flex flex-col gap-4">
+            {{-- Product Sold Chart --}}
+            <div class="bg-[#1e293b] p-4 rounded-lg flex flex-col h-full">
+                <h2 class="text-sm text-gray-400 mb-1">Product Sold</h2>
+                <div class="text-xl font-bold">{{ number_format($totalProductSold, 0, ',', '.') }}</div>
+                <div class="flex items-center text-sm mt-1 {{ str_contains($productSoldChange, '+') ? 'bg-green-700' : 'bg-red-900' }} rounded-lg w-20 h-5 justify-center">
+                    {{ $productSoldChange }}
+                    <i class="fa-solid {{ str_contains($productSoldChange, '+') ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} ml-1"></i>
+                </div>
+                <div class="mt-2 flex-grow">
+                    <canvas id="profitChart"></canvas>
+                </div>
+                <div class="mt-3 text-gray-500">
+                    <h5>Last 12 months</h5>
+                </div>
+            </div>
+
+            {{-- Monthly Transaction Chart --}}
+            <div class="bg-[#1e293b] p-4 rounded-lg flex flex-col h-full">
+                <h2 class="text-sm text-gray-400 mb-1">Monthly Transaction</h2>
+                <div class="text-xl font-bold">{{ number_format($monthlyTransactionCountValue, 0, ',', '.') }}</div>
+                <div class="flex items-center text-sm mt-1 {{ str_contains($monthlyTransactionsChange, '+') ? 'bg-green-700' : 'bg-red-900' }} rounded-lg w-20 h-5 justify-center">
+                    {{ $monthlyTransactionsChange }}
+                    <i class="fa-solid {{ str_contains($monthlyTransactionsChange, '+') ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} ml-1"></i>
+                </div>
+                <div class="mt-2 flex-grow">
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    // Data dari Controller
+    const revenueLabels = @json($revenueChartData['months']);
+    const revenueValues = @json($revenueChartData['revenues']);
+
+    const productSoldLabels = @json($productSoldChartData['months']);
+    const productSoldNewProfit = @json($productSoldChartData['newProfit']);
+    const productSoldOldProfit = @json($productSoldChartData['oldProfit']);
+
+    const monthlyTransactionLabels = @json($monthlyTransactionChartData['months']);
+    const monthlyTransactionUsers = @json($monthlyTransactionChartData['users']);
+
+    // Inisialisasi chart setelah halaman selesai dimuat.
+    // DOMContentLoaded sudah cukup jika Chart.js dimuat SEBELUM @stack('scripts').
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart: Total Revenue
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        if (revenueCtx) { // Tambahkan cek untuk memastikan elemen ditemukan
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Total Revenue',
+                        data: revenueValues,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#3b82f6',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#3b82f6',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#9ca3af',
+                                callback: function(value) {
+                                    return 'Rp' + value.toLocaleString();
+                                }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Rp' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart: Product Sold
+        const profitCtx = document.getElementById('profitChart').getContext('2d');
+        if (profitCtx) { // Tambahkan cek untuk memastikan elemen ditemukan
+            new Chart(profitCtx, {
+                type: 'bar',
+                data: {
+                    labels: productSoldLabels,
+                    datasets: [
+                        {
+                            label: 'Current Month',
+                            data: productSoldNewProfit,
+                            backgroundColor: '#22c55e',
+                            barThickness: 10,
+                        },
+                        {
+                            label: 'Previous Month',
+                            data: productSoldOldProfit,
+                            backgroundColor: '#3b82f6',
+                            barThickness: 10,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#9ca3af' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart: Monthly Transaction
+        const usersCtx = document.getElementById('usersChart').getContext('2d');
+        if (usersCtx) { // Tambahkan cek untuk memastikan elemen ditemukan
+            new Chart(usersCtx, {
+                type: 'line',
+                data: {
+                    labels: monthlyTransactionLabels,
+                    datasets: [{
+                        label: 'Unique Users',
+                        data: monthlyTransactionUsers,
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#ef4444',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush

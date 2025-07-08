@@ -28,6 +28,7 @@ class User extends Authenticatable
         'country',
         'store_description',
         'softpay_balance',
+        'last_seen',
     ];
 
     protected $hidden = [

@@ -16,20 +16,20 @@
                         <h1 class="text-3xl font-bold text-white">{{ $user->name }}</h1>
                         <p class="text-gray-400">Email: {{ $user->email }}</p>
                         <p class="text-gray-400">Bergabung sejak: {{ $user->created_at->format('d M Y') }}</p>
-                        {{-- Anda bisa menambahkan informasi lain tentang penjual di sini --}}
                     </div>
                 </div>
 
                 <h2 class="text-xl font-semibold mt-8 mb-4 text-white">Produk dari {{ $user->name }}</h2>
                 @if($products->isNotEmpty())
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {{-- PERUBAHAN DI SINI: Ubah grid-cols menjadi lg:grid-cols-4 dan sesuaikan gap --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         @foreach($products as $product)
-                            <div class="bg-[#0f172a] p-4 rounded-lg shadow">
-                                <img src="{{ $product->image_path }}" alt="{{ $product->name }}" class="w-full h-48 object-cover rounded-md mb-2">
-                                <h3 class="font-semibold text-lg text-white">{{ $product->name }}</h3>
-                                <p class="text-gray-400 text-sm">{{ Str::limit($product->description, 100) }}</p>
-                                <p class="font-bold text-orange-400 mt-2">Rp. {{ number_format($product->price, 0, ',', '.') }},00</p>
-                                <a href="{{ route('view-product.show', $product->id) }}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">Lihat Produk</a>
+                            <div class="bg-[#0f172a] p-3 rounded-lg shadow"> {{-- Kecilkan padding --}}
+                                <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}" class="w-full aspect-square object-cover rounded-md mb-3"> {{-- Kecilkan margin bawah gambar --}}
+                                <h3 class="font-semibold text-base text-white truncate">{{ $product->name }}</h3> {{-- Kecilkan ukuran teks judul dan tambahkan truncate --}}
+                                <p class="text-gray-400 text-xs mt-1">{{ Str::limit($product->description, 70) }}</p> {{-- Kecilkan ukuran teks deskripsi dan batasi lebih pendek --}}
+                                <p class="font-bold text-orange-400 text-sm mt-2">Rp. {{ number_format($product->price, 0, ',', '.') }},00</p> {{-- Kecilkan ukuran teks harga --}}
+                                <a href="{{ route('view-product.show', $product->id) }}" class="mt-3 inline-block bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs">Lihat Produk</a> {{-- Kecilkan padding dan ukuran teks tombol --}}
                             </div>
                         @endforeach
                     </div>

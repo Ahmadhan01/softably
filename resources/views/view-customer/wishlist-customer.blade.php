@@ -44,13 +44,13 @@
             width: 6px;
         }
         .scrollable-wishlist::-webkit-scrollbar-thumb {
-            background-color: #4b5563;
+            background-color: #0f172a;
             border-radius: 3px;
         }
     </style>
 </head>
 
-<body class="bg-[#0f172a] text-white font-sans">
+<body class="bg-[#0f172a] text-white">
     <div class="flex min-h-screen">
         <main class="flex-1 p-6 space-y-6 ml-64">
             <div class="flex items-center justify-between mb-6">
@@ -72,7 +72,7 @@
                 <div class="flex items-center gap-2">
                     {{-- Filter by Purchased (Jika diimplementasikan di WishlistController) --}}
                     {{-- <label class="text-gray-300">Filter by</label>
-                    <div class="flex items-center gap-1 px-3 py-1 bg-gray-700 rounded-full text-sm">
+                    <div class="flex items-center gap-1 px-3 py-1 bg-gray-700 rounded text-sm">
                         <select name="filter_by" onchange="this.form.submit()"
                             class="bg-transparent text-white focus:outline-none">
                             <option value="">All</option>
@@ -83,7 +83,7 @@
                     {{-- Sorting --}}
                     <label for="sort-by" class="text-gray-300">Sort by</label>
                     <select name="sort_by" id="sort-by" onchange="this.form.submit()"
-                        class="px-3 py-1 bg-gray-700 rounded-full text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="px-3 py-1 bg-gray-700 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="newest" {{ $sortBy == 'newest' ? 'selected' : '' }}>Newest</option>
                         <option value="oldest" {{ $sortBy == 'oldest' ? 'selected' : '' }}>Oldest</option>
                         <option value="price_asc" {{ $sortBy == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
@@ -105,11 +105,11 @@
                 </div>
             </form>
 
-            <div class="space-y-6 scrollable-wishlist max-h-[70vh] overflow-y-auto">
+            <div class="space-y-6 scrollable-wishlist max-h-[100vh] overflow-y-auto">
                 @forelse ($wishlistItems as $item)
-                    <div class="bg-[#1e293b] p-5 rounded-xl flex justify-between items-start wishlist-item" data-wishlist-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}">
+                    <div class="bg-[#1e293b] p-5 rounded flex justify-between items-start wishlist-item" data-wishlist-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}">
                         <div class="flex items-start gap-5">
-                            <div class="w-48 h-48 bg-[#0f172a] rounded-xl relative flex-shrink-0 overflow-hidden">
+                            <div class="w-48 h-48 bg-[#0f172a] rounded relative flex-shrink-0 overflow-hidden">
                                 <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
                                 {{-- Tombol Hapus dari Wishlist --}}
                                 <button type="button"
@@ -119,7 +119,7 @@
                                 </button>
                                 {{-- Tombol Add to Cart --}}
                                 <button type="button"
-                                    class="add-to-cart-btn absolute bottom-2 left-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 text-sm"
+                                    class="add-to-cart-btn absolute bottom-2 left-2 bg-blue-600 hover:bg-blue-700 text-white rounded p-2 text-sm"
                                     data-product-id="{{ $item->product->id }}">
                                     <i class="fa-solid fa-cart-shopping"></i> Add to Cart
                                 </button>
@@ -163,7 +163,7 @@
 
             const toast = document.createElement('div');
             toast.classList.add(
-                'flex', 'items-center', 'gap-2', 'px-4', 'py-2', 'rounded-lg', 'shadow-md', 'text-white', 'opacity-0', 'transition-opacity', 'duration-300'
+                'flex', 'items-center', 'gap-2', 'px-4', 'py-2', 'rounded', 'shadow-md', 'text-white', 'opacity-0', 'transition-opacity', 'duration-300'
             );
 
             if (type === 'success') {

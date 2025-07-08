@@ -8,7 +8,18 @@
     <title>Product</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    //untuk font
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
     <style>
+    body {
+        background-color: #0f172a;
+        color: white;
+        font-family: "Poppins", sans-serif; /* <--- PERUBAHAN DI SINI */
+    }
+
     /* Custom scrollbar for demo */
     .scrollable::-webkit-scrollbar {
         width: 6px;
@@ -115,7 +126,7 @@
     /* Efek hover scale pada kartu produk */
     .product-card:hover {
         transform: scale(1.05);
-        z-index: 50;
+        z-index: 30;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
     }
 
@@ -165,17 +176,16 @@
         height: 100px;
         /* Tinggi yang Anda inginkan */
         background-color: #10172A;
-        z-index: 80;
+        z-index: 40;
     }
     </style>
 </head>
 
-<main class="flex-1 p-6 space-y-6 ml-64 bg-[#10172A] text-white font-sans">
+<main class="flex-1 p-6 space-y-6 ml-64 bg-[#10172A] text-white">
     {{-- Lapisan latar belakang putih yang sticky --}}
     <!-- <div class="sticky-background-layer"></div> -->
 
-    <div
-        class="sticky top-[25px] z-50 bg-[#1e293b] p-2 flex justify-between items-center shadow-md rounded-lg sticky-header-search">
+    <div class="fixed top-3 left-64 right-0 z-50 bg-[#10172A] p-4 flex justify-between items-center ">
         <form action="{{ route('customer.produk') }}" method="GET" class="relative max-w-md w-full">
             <input type="text" id="simple-search" name="search"
                 class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-4 py-2.5 h-10"
@@ -202,16 +212,15 @@
     <div class="flex justify-between items-center">
         <h2 class="text-5xl font-bold text-white">Temukan produk<br>yang kamu sukai</h2>
         <p class="text-sm text-gray-300 max-w-xl text-right">
-            Lorem ipsum dolor sit amet consectetur. Nunc hac viverra aliquam malesuada. Pulvinar facilisis aliquam urna
-            ut hendrerit urna in. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas repellendus
-            repellat voluptate itaque recusandae, error earum ab id eos. Unde harum illum atque magni incidunt rerum
-            adipisci sequi necessitatibus. Explicabo?
+            Temukan dan miliki produk digital impianmu dengan mudah di Softably.
+            Dari aplikasi inovatif hingga konten kreatif, semua kebutuhan digitalmu
+            ada di sini. Mulai jelajahi sekarang dan wujudkan potensimu!
         </p>
     </div>
 
     <div class="grid grid-cols-4 grid-rows-2 gap-4 mt-6">
         <div class="col-span-2 row-span-2 bg-gray-300 rounded h-[343px] rounded-lg overflow-hidden">
-            <img src="{{ asset('img/promosi.png') }}" alt="Promosi" class="w-full h-full object-cover rounded-lg">
+            <img src="{{ asset('img/slogan.png') }}" alt="Promosi" class="w-full h-full object-cover rounded-lg">
         </div>
         <div class="col-span-1 bg-gray-300 rounded h-[160px] rounded-lg overflow-hidden">
             <img src="{{ asset('img/belanja.png') }}" alt="Belanja" class="w-full h-full object-cover rounded-lg">
@@ -468,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
         productListContainer.classList.add('grid-cols-5');
         document.querySelectorAll('.product-card').forEach(card => {
             card.classList.remove('list-view');
-        });
+        }); 
         document.querySelectorAll('.product-description').forEach(desc => {
             desc.style.display = 'none'; // Hide description in grid view
         });

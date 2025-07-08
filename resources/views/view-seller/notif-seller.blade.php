@@ -3,9 +3,11 @@
 @section('title', 'Notifikasi Penjual - Softably')
 
 @section('isi')
-<main class="ml-64 min-h-screen flex flex-col bg-[#10172A] text-white font-sans">
-    <div class="p-8 flex-grow">
-        <div class="flex justify-between items-center mb-8">
+{{-- Hapus <main class="ml-64 min-h-screen flex flex-col bg-[#10172A] text-white font-sans"> --}}
+{{-- Ganti dengan div wrapper, karena main sudah diatur di parent layout --}}
+<div class="bg-[#10172A] text-white font-sans flex-grow"> {{-- flex-grow agar mengisi tinggi vertikal --}}
+    <div class="p-3"> {{-- Sesuaikan padding keseluruhan jika p-5 di main parent terasa terlalu banyak --}}
+        <div class="flex justify-between items-center mb-6"> {{-- Kurangi mb-8 menjadi mb-6 --}}
             <h1 class="text-3xl font-bold text-white">Notifikasi Penjual</h1>
             <form action="{{ route('notif-seller.markAllAsRead') }}" method="POST">
                 @csrf
@@ -72,7 +74,7 @@
             @endif
         </div>
     </div>
-</main>
+</div>
 @endsection
 
 @push('scripts')

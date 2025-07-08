@@ -3,9 +3,11 @@
 @section('title', 'Help Center - Softably')
 
 @section('isi')
-<main class="ml-64 min-h-screen flex flex-col bg-[#10172A] text-white font-sans">
-    <div class="p-8 flex-grow">
-        <div class="flex justify-between items-center mb-8">
+{{-- Hapus <main class="ml-64 min-h-screen flex flex-col bg-[#10172A] text-white font-sans"> --}}
+{{-- Ganti dengan div wrapper, karena main sudah diatur di parent layout --}}
+<div class="bg-[#10172A] text-white font-sans flex-grow"> {{-- flex-grow agar mengisi tinggi vertikal --}}
+    <div class="p-3"> {{-- Sesuaikan padding keseluruhan jika p-5 di main parent terasa terlalu banyak --}}
+        <div class="flex justify-between items-center mb-6"> {{-- Kurangi mb-8 menjadi mb-6 --}}
             <h1 class="text-3xl font-bold text-white">Help Center</h1>
             <button id="talkWithSoftablyBtn"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-transform transform hover:scale-105">
@@ -14,7 +16,7 @@
             </button>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-8">
+        <div class="flex flex-col md:flex-row gap-6"> {{-- Kurangi gap-8 menjadi gap-6 --}}
             <div class="w-full md:w-1/3 lg:w-1/4">
                 <div class="bg-[#1E293B] p-4 rounded-lg">
                     <nav class="space-y-1">
@@ -153,7 +155,7 @@
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <style>
 /* ... (CSS yang sudah ada) ... */

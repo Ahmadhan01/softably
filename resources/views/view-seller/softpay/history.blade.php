@@ -28,7 +28,9 @@
     }
 </style>
 
-<main class="flex-1 px-6 py-8 ml-64 bg-[#10172A] min-h-screen">
+{{-- Hapus main tag di sini, karena sudah ada di layout parent --}}
+{{-- main class="flex-1 px-6 py-8 ml-64 bg-[#10172A] min-h-screen" akan diganti --}}
+<div class="bg-[#10172A] min-h-screen text-white"> {{-- Tambahkan min-h-screen jika konten pendek --}}
     <div class="max-w-4xl mx-auto space-y-8">
         <h1 class="text-3xl font-semibold text-white mb-6">Riwayat Pemasukan SoftPay</h1>
 
@@ -66,5 +68,5 @@
             </div>
         </div>
     </div>
-</main>
+</div>
 @endsection
