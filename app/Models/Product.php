@@ -96,4 +96,9 @@ class Product extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function seller()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
 }

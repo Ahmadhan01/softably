@@ -79,11 +79,15 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
         return view('view-seller/bantuan-seller', compact('loggedInUser'));
     })->name('bantuan-seller');
 
+    // Rute untuk seller chat dengan admin
+    Route::get('/seller/chat/history', [ChatController::class, 'fetchMessagesWithAdmin'])->name('seller.chat.history');
+    Route::post('/seller/chat/send', [ChatController::class, 'sendMessageToAdmin'])->name('seller.chat.send');
+
     // Rute untuk daftar produk seller
     Route::get('/seller/products', [SellerProductController::class, 'index'])->name('seller.products.index');
     // Rute untuk menampilkan form tambah produk
     Route::get('/seller/products/create', [SellerProductController::class, 'create'])->name('seller.products.create');
-    // Rute untuk menyimpan produk baru (method POST)   
+    // Rute untuk menyimpan produk baru (method POST)
     Route::post('/seller/products', [SellerProductController::class, 'store'])->name('seller.products.store');
 
     Route::get('/seller/products/{product}/details', [SellerProductController::class, 'show'])->name('seller.products.details');
@@ -112,7 +116,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply'); // Rute untuk membalas komentar
     Route::post('/comments/{product}', [CommentController::class, 'store'])->name('comments.store');
-    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update'); 
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
 
@@ -130,20 +134,20 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
             }
         ]);
         return view('view-customer.viewproduk-customer', compact('product'));
-    })->name('view-product.show');      
-    
+    })->name('view-product.show');
+
     //rute wishlist
     Route::get('/wishlist-customer', [WishlistController::class, 'index'])->name('wishlist-customer.index');
     Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store'); // Untuk menambah
     Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy'); // Untuk menghapus
-    
+
     // Rute Cart
     Route::get('/cart-customer', [CartController::class, 'index'])->name('cart-customer.index');
     Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
     Route::patch('/cart/{cart}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/cart/multiple', [CartController::class, 'destroyMultiple'])->name('cart.destroy.multiple');
-    
+
     // UBAH BARIS INI: dari CartController::class, 'processCheckout' ke CartController::class, 'processToCheckout'
     Route::post('/cart/process-to-checkout', [CartController::class, 'processToCheckout'])->name('cart.processToCheckout');
 
@@ -279,7 +283,7 @@ Route::middleware(['auth', UpdateLastSeen::class])->group(function () {
 
 Route::get('/go/{id}', function ($id) {
     $link = \App\Models\Link::where('id', $id)
-        ->where('status', 'active') 
+        ->where('status', 'active')
         ->firstOrFail();
 
     $link->increment('clicks');
@@ -287,21 +291,21 @@ Route::get('/go/{id}', function ($id) {
 })->name('link.redirect');
 
 // Ambil daftar customer yang pernah kirim chat
-Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin'])->middleware('auth');
+// Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin'])->middleware('auth'); // OLD
 
 // Ambil isi chat antara admin dan 1 customer tertentu
-Route::get('/admin/chat/customer/{id}', [ChatController::class, 'viewChatWithCustomer'])->middleware('auth');
+// Route::get('/admin/chat/customer/{id}', [ChatController::class, 'viewChatWithCustomer'])->middleware('auth'); // OLD
 
 Route::middleware('auth')->group(function () {
-    // Ambil daftar customer yang pernah kirim chat
-    Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin'])->name('admin.chat.customers');
-    // Ambil isi chat antara admin dan 1 customer tertentu
-    Route::get('/admin/chat/messages/{id}', [ChatController::class, 'fetchMessagesWithCustomer'])->name('admin.chat.messages');
-    // Kirim pesan dari admin ke customer
-    Route::post('/admin/chat/send/{id}', [ChatController::class, 'sendMessageToCustomer'])->name('admin.chat.send');
-    // Ambil isi chat antara customer dan admin
+    // Ambil daftar user (customer/seller) yang pernah kirim chat ke admin
+    Route::get('/admin/chat/users', [ChatController::class, 'getChatUsersForAdmin'])->name('admin.chat.users'); // NEW
+    // Ambil isi chat antara admin dan 1 user tertentu (customer/seller)
+    Route::get('/admin/chat/messages/{id}', [ChatController::class, 'fetchMessagesWithUser'])->name('admin.chat.messages'); // Modified
+    // Kirim pesan dari admin ke user (customer/seller)
+    Route::post('/admin/chat/send/{id}', [ChatController::class, 'sendMessageToUser'])->name('admin.chat.send'); // Modified
+    // Ambil isi chat antara customer/seller dan admin
     Route::get('/chat/admin/messages', [ChatController::class, 'fetchMessagesWithAdmin'])->name('customer.chat.messages');
-    // Kirim pesan dari customer ke admin
+    // Kirim pesan dari customer/seller ke admin
     Route::post('/chat/admin/send', [ChatController::class, 'sendMessageToAdmin'])->name('customer.chat.send');
 });
 

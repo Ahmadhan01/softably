@@ -22,32 +22,43 @@
             <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
             <script>
-                Pusher.logToConsole = true;
                 const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
-                    cluster: '{{ config('broadcasting.connections.pusher.cluster') }}',
-                    encrypted: true
+                    cluster: '{{ config('broadcasting.connections.pusher.cluster') }}'
                 });
-                const adminId = {{ auth()->id() }};
-                const channel = pusher.subscribe(`chat.${adminId}`); // Channel untuk admin yang sedang login
-                channel.bind('MessageSent', (data) => {
-                    const notifBox = document.getElementById('adminNotifBox');
-                    // Jika pesan diterima oleh admin yang sedang login DAN pengirimnya BUKAN admin itu sendiri
-                    // Ini berarti pesan datang dari customer
-                    if (data.receiver_id === adminId && data.sender_id !== adminId) {
-                        if (notifBox) {
-                            const noNotifMessage = notifBox.querySelector('.text-gray-400');
-                            if (noNotifMessage && noNotifMessage.textContent === 'Belum ada notifikasi.') {
-                                noNotifMessage.remove();
-                            }
-                            const newNotif = document.createElement('div');
-                            newNotif.className = 'bg-blue-600 p-3 rounded text-white mb-2';
-                            newNotif.innerHTML =
-                                `<strong>Pesan Baru dari Customer (ID: ${data.sender_id}):</strong> ${data.content}`;
-                            notifBox.prepend(newNotif);
-                        }
+
+                const channel = pusher.subscribe('chat.{{ auth()->id() }}');
+
+                channel.bind('MessageSent', function(data) {
+                    if (data.receiver_id === {{ auth()->id() }} && data.sender_role === 'seller') {
+                        // Update notifikasi
+                        const notifContainer = document.getElementById('notification-container');
+                        const noNotif = document.getElementById('no-notification');
+
+                        if (noNotif) noNotif.remove();
+
+                        const notifItem = document.createElement('div');
+                        notifItem.className = 'p-3 border-b border-gray-700';
+                        notifItem.innerHTML = `
+                <div class="font-semibold">Pesan baru dari ${data.sender_name}</div>
+                <div class="text-sm text-gray-300">${data.content}</div>
+                <div class="text-xs text-gray-500 mt-1">${new Date(data.created_at).toLocaleString()}</div>
+            `;
+                        notifContainer.prepend(notifItem);
+
+                        // Update badge counter di sidebar
+                        updateSidebarBadge(data.unread_count);
                     }
                 });
+
+                function updateSidebarBadge(count) {
+                    const badge = document.getElementById('notification-badge');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.classList.toggle('hidden', count === 0);
+                    }
+                }
             </script>
+
         </body>
 
         </html>
