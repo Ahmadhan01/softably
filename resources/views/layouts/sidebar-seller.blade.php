@@ -156,7 +156,7 @@
             </div>
             <div class="p-4 space-y-2">
                 <div class="p-4 py-5 border-t border-gray-700">
-                    <a href="{{ route('setting-customer') }}" class="user-profile-link" data-path="/setting-customer">
+                    <a href="/setting-seller" class="user-profile-link" data-path="/setting-customer">
                         {{-- Asumsi seller juga menggunakan rute setting-customer --}}
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-full overflow-hidden">
@@ -176,7 +176,7 @@
                         </div>
                     </a>
                 </div>
-                <a href="{{ route('setting-customer') }}" class="sidebar-footer-link" data-path="/setting-customer">
+                <a href="/setting-seller" class="sidebar-footer-link" data-path="/setting-customer">
                     {{-- Asumsi seller juga menggunakan rute setting-customer --}}
                     <i class="fa-solid fa-gear"></i><span>Settings</span>
                 </a>

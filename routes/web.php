@@ -9,6 +9,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\SellerSettingController;
 
 
 
@@ -104,6 +105,12 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
     Route::get('/seller/softpay/history', [SellerSoftpayController::class, 'history'])->name('seller.softpay.history');
     Route::get('/seller/softpay/withdraw', [SellerSoftpayController::class, 'showWithdrawForm'])->name('seller.softpay.withdraw');
     Route::post('/seller/softpay/withdraw', [SellerSoftpayController::class, 'processWithdraw'])->name('seller.softpay.processWithdraw');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/setting-seller', [SellerSettingController::class, 'index'])->name('seller.setting');
+    Route::put('/seller/setting', [SellerSettingController::class, 'update'])->name('seller.setting.update');
+    Route::put('/seller/setting/password', [SellerSettingController::class, 'updatePassword'])->name('seller.setting.updatePassword');
 });
 
 
