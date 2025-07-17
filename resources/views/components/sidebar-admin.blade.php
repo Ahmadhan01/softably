@@ -24,17 +24,16 @@
             </a>
             <a href="/manage-complain" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
                 <i class="fa-solid fa-comments"></i><span>Chat</span>
-                <span id="chatNotificationBadge"
-                    class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full hidden">0</span>
-            </a>
-            <a href="/notif-admin" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
-                <i class="fas fa-bell mr-3"></i>
-                Notifikasi
                 @if ($unreadCount > 0)
                     <span class="ml-auto bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                         {{ $unreadCount }}
                     </span>
                 @endif
+            </a>
+            <a href="/notif-admin" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
+                <i class="fas fa-bell mr-3"></i>
+                Notifikasi
+                
             </a>
             <a href="/helpcenter-admin" class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded">
                 <i class="fa-solid fa-question"></i><span>Help Center</span>

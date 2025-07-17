@@ -3,75 +3,102 @@
 @section('title', 'Notifikasi Penjual - Softably')
 
 @section('isi')
-{{-- Hapus <main class="ml-64 min-h-screen flex flex-col bg-[#10172A] text-white font-sans"> --}}
-{{-- Ganti dengan div wrapper, karena main sudah diatur di parent layout --}}
-<div class="bg-[#10172A] text-white font-sans flex-grow"> {{-- flex-grow agar mengisi tinggi vertikal --}}
-    <div class="p-3"> {{-- Sesuaikan padding keseluruhan jika p-5 di main parent terasa terlalu banyak --}}
-        <div class="flex justify-between items-center mb-6"> {{-- Kurangi mb-8 menjadi mb-6 --}}
-            <h1 class="text-3xl font-bold text-white">Notifikasi Penjual</h1>
-            <form action="{{ route('notif-seller.markAllAsRead') }}" method="POST">
-                @csrf
-                <button type="submit"
-                    class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-transform transform hover:scale-105">
-                    <i class="fa-solid fa-check-double"></i>
-                    <span>Mark as read</span>
-                </button>
-            </form>
-        </div>
 
-        <div class="bg-[#1E293B] p-6 rounded-lg shadow-md">
-            @if($notifications->isEmpty())
-            <p class="text-gray-400 text-center py-8">Belum ada notifikasi transaksi untuk produk Anda.</p>
-            @else
-            <div class="space-y-4">
-                @foreach($notifications as $notification)
-                {{-- Pastikan relasi dan data tidak null --}}
-                @php
-                // Mengambil data dari SellerNotification model
-                $title = $notification->title;
-                $message = $notification->message;
-                $isRead = $notification->is_read;
-                $timeAgo = $notification->created_at->diffForHumans();
-                $iconClass = 'fa-solid fa-info-circle text-gray-400'; // Default icon
+    <style>
+        /* CSS untuk Animasi Notifikasi */
+        .notification-item {
+            /* Gaya dasar notifikasi Anda */
+            background-color: #FFFFFF; /* Background item notifikasi jadi putih */
+            border: 1px solid #E0E0E0; /* Border abu-abu terang */
+            border-radius: 0.5rem; /* rounded-lg */
+            padding: 1rem; /* p-4 */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem; /* space-y-4 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Sedikit shadow */
 
-                if ($notification->type === 'transaction_alert') {
-                $iconClass = 'fa-solid fa-receipt text-green-400';
-                }
-                // Tambahkan logika untuk tipe notifikasi lain jika ada
-                @endphp
+            /* Properti untuk animasi */
+            opacity: 0; /* Mulai dengan tidak terlihat */
+            transform: translateY(40px); /* Mulai sedikit di bawah */
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out; /* Durasi dan jenis transisi */
+        }
 
-                <div class="bg-[#2D3A4F] p-4 rounded-lg flex justify-between items-start space-x-4
-                            {{ $isRead ? 'opacity-60' : 'opacity-100' }}" {{-- Opacity berdasarkan status --}}
-                    id="notification-{{ $notification->id }}">
-                    <div class="flex items-start space-x-4 flex-grow">
-                        <div class="flex-shrink-0 w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
-                            <i class="{{ $iconClass }} text-2xl"></i>
-                        </div>
-                        <div class="flex-grow">
-                            <h2 class="font-semibold text-white">{{ $title }}</h2>
-                            <p class="text-sm text-gray-400 mt-1">
-                                {{ $message }}
-                            </p>
-                            <p class="text-xs text-gray-500 mt-1">
-                                {{ $timeAgo }}
-                            </p>
-                        </div>
+        .notification-item.show {
+            opacity: 1; /* Tampilkan */
+            transform: translateY(0); /* Geser ke posisi normal */
+        }
+
+        .notification-item.read {
+            opacity: 0.7; /* 70% opacity untuk notifikasi yang sudah dibaca, lebih terang dari 0.6 */
+        }
+    </style>
+
+{{-- Kontainer utama untuk halaman notifikasi --}}
+<div class="bg-[#F8FAFC] text-gray-800 h-full flex flex-col p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Notifikasi Penjual</h1>
+        <form action="{{ route('notif-seller.markAllAsRead') }}" method="POST">
+            @csrf
+            <button type="submit"
+                class="text-sm text-blue-600 hover:text-blue-700"> {{-- Sesuaikan dengan notif-customer: text-sm text-blue-600 hover:text-blue-700 --}}
+                Mark as read
+            </button>
+        </form>
+    </div>
+
+    {{-- Kontainer Notifikasi (mengisi sisa ruang dan bisa discroll) --}}
+    <div class="bg-white p-6 rounded-lg shadow-md flex-1 overflow-y-auto border border-gray-200" id="notifications-container"> {{-- Tambahkan ID ini --}}
+        @if($notifications->isEmpty())
+        <p class="text-gray-600 text-center py-8">Belum ada notifikasi transaksi untuk produk Anda.</p>
+        @else
+        <div class="space-y-4">
+            @foreach($notifications as $notification)
+            @php
+            $title = $notification->title;
+            $message = $notification->message;
+            $isRead = $notification->is_read;
+            $timeAgo = $notification->created_at->diffForHumans();
+            $iconClass = 'fa-solid fa-info-circle text-gray-500'; // Default icon
+
+            if ($notification->type === 'transaction_alert') {
+            $iconClass = 'fa-solid fa-receipt text-blue-600'; // Ubah warna ikon transaksi
+            } elseif ($notification->type == 'chat') { // Tambahkan tipe 'chat' jika ada di notifikasi seller
+            $iconClass = 'fa-solid fa-comments text-blue-600';
+            }
+            @endphp
+
+            <div class="notification-item {{ $isRead ? 'read' : '' }}" id="notification-{{ $notification->id }}"> {{-- Gunakan class 'notification-item' --}}
+                <div class="flex items-start space-x-4 flex-grow">
+                    <div class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200"> {{-- Ukuran ikon dan background mirip notif customer --}}
+                        <i class="{{ $iconClass }} text-3xl"></i> {{-- Ukuran ikon --}}
                     </div>
-                    <div class="flex-shrink-0 flex items-center">
-                        @if(!$isRead)
-                        <button
-                            class="mark-as-read-btn bg-white text-xs text-black font-semibold px-3 py-1 rounded hover:bg-gray-300 transition"
-                            data-notification-id="{{ $notification->id }}">
-                            Check
-                        </button>
-                        @else
-                        <span class="text-xs text-gray-500">Read</span>
-                        @endif
+                    <div class="flex-grow">
+                        <h2 class="font-semibold text-gray-800">{{ $title }}</h2>
+                        <p class="text-sm text-gray-600 mt-1"> {{ $message }}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1"> {{ $timeAgo }}
+                        </p>
                     </div>
                 </div>
-                @endforeach
+                <div class="flex-shrink-0 flex items-center">
+                    @if(!$isRead)
+                    <button
+                        class="mark-as-read-btn bg-[#2563EB] text-white text-xs font-semibold px-3 py-1 rounded hover:bg-[#3B82F6] transition" {{-- Warna tombol seperti notif customer --}}
+                        data-notification-id="{{ $notification->id }}">
+                        Check
+                    </button>
+                    @else
+                    <span class="text-xs text-gray-500">Read</span>
+                    @endif
+                </div>
             </div>
-            @endif
+            @endforeach
+        </div>
+        @endif
+        {{-- Pagination Links --}}
+        <div class="mt-6">
+            {{ $notifications->links() }}
         </div>
     </div>
 </div>
@@ -83,7 +110,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const markAsReadButtons = document.querySelectorAll('.mark-as-read-btn');
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    // Event listener untuk tombol "Check" (Mark as Read per notifikasi)
+    // --- Logika Animasi Notifikasi ---
+    const notificationsContainer = document.getElementById('notifications-container');
+    if (notificationsContainer) {
+        const notificationItems = notificationsContainer.querySelectorAll('.notification-item');
+        notificationItems.forEach((item, index) => {
+            setTimeout(() => {
+                item.classList.add('show'); // Tambahkan kelas 'show' setelah penundaan
+            }, index * 100); // Penundaan 100ms untuk setiap item (bisa disesuaikan)
+        });
+    }
+
+    // --- Logika Mark As Read ---
     markAsReadButtons.forEach(button => {
         button.addEventListener('click', function() {
             const notificationId = this.dataset.notificationId;
@@ -101,8 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         if (notificationElement) {
-                            notificationElement.classList.remove('opacity-100');
-                            notificationElement.classList.add('opacity-60');
+                            notificationElement.classList.add('read'); // Tambahkan kelas 'read'
                             this.remove(); // Hapus tombol "Check"
                             const parentDiv = this.closest('.flex.items-center');
                             if (parentDiv) {
@@ -114,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         console.log(data.message);
                         // Opsional: Perbarui counter notifikasi di sidebar jika ada
+                        // if (window.updateNotificationBadge) { window.updateNotificationBadge(); }
                     } else {
                         console.error(data.message);
                     }
@@ -140,17 +178,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Perbarui semua notifikasi di UI
-                        document.querySelectorAll('.bg-[#2D3A4F]').forEach(element => {
-                            element.classList.remove('opacity-100');
-                            element.classList.add('opacity-60');
-                            // Hapus semua tombol "Check" dan ganti dengan "Read"
+                        document.querySelectorAll('.notification-item').forEach(element => { // Ubah selektor menjadi .notification-item
+                            element.classList.add('read');
                             const checkButton = element.querySelector('.mark-as-read-btn');
                             if (checkButton) {
                                 const parentDiv = checkButton.closest('.flex.items-center');
                                 checkButton.remove();
                                 if (parentDiv && !parentDiv.querySelector(
-                                        '.text-gray-500')) { // Hindari duplikasi "Read"
+                                        '.text-gray-500')) {
                                     const readSpan = document.createElement('span');
                                     readSpan.classList.add('text-xs', 'text-gray-500');
                                     readSpan.textContent = 'Read';
@@ -160,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         console.log(data.message);
                         // Opsional: Perbarui counter notifikasi di sidebar jika ada
+                        // if (window.updateNotificationBadge) { window.updateNotificationBadge(); }
                     } else {
                         console.error(data.message);
                     }

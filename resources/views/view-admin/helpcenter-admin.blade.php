@@ -10,6 +10,7 @@
                     <h1 class="text-3xl font-bold text-white">Help Center</h1>
                 </div>
 
+
                 <div class="flex flex-col md:flex-row gap-8">
                     <div class="w-full md:w-1/3 lg:w-1/4">
                         <div class="bg-[#1E293B] p-4 rounded-lg">
@@ -43,7 +44,8 @@
                     </div>
 
                     <div class="w-full md:w-2/3 lg:w-3/4">
-                        <div class="bg-[#1E293B] p-6 rounded-lg min-h-[500px]">
+                        <div class="bg-[#1E293B] p-6 rounded-lg min-h-fit transition-all duration-300 ease-in-out">
+
                             <div id="home-content" class="help-content-panel">
                                 <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Selamat Datang di
                                     Pusat
@@ -61,7 +63,7 @@
                                         melalui tombol "Talk with Softably" di atas.</p>
                                 </div>
                             </div>
-                            <div id="get-started-content" class="help-content-panel" style="display: none;">
+                            <div id="get-started-content" class="help-content-panel hidden">
                                 <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Memulai dengan
                                     Softably</h2>
                                 <div class="space-y-4 text-gray-300">
@@ -70,6 +72,7 @@
                                     <p>Langkah 3: Lakukan pesanan pertama Anda dan nikmati kemudahannya.</p>
                                 </div>
                             </div>
+
                             <div id="what-is-softably-content" class="help-content-panel" style="display: none;">
                                 <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Apa itu Softably?</h2>
                                 <div class="space-y-4 text-gray-300">
@@ -165,7 +168,40 @@
                     });
                 });
             });
+
+            
         </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const topicLinks = document.querySelectorAll('.help-topic-link');
+                const contentPanels = document.querySelectorAll('.help-content-panel');
+
+                // Inisialisasi: Sembunyikan semua, lalu tampilkan 'home-content'
+                contentPanels.forEach(panel => panel.classList.add('hidden'));
+                document.getElementById('home-content').classList.remove('hidden');
+
+                topicLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('data-target');
+
+                        // Sembunyikan semua konten
+                        contentPanels.forEach(panel => panel.classList.add('hidden'));
+
+                        // Hapus style aktif dari semua link
+                        topicLinks.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+
+                        // Tampilkan konten yang sesuai
+                        document.getElementById(targetId).classList.remove('hidden');
+
+                        // Tambahkan style aktif ke link yang dipilih
+                        this.classList.add('bg-blue-600', 'text-white');
+                    });
+                });
+            });
+        </script>
+
+
     </div>
 </body>
 

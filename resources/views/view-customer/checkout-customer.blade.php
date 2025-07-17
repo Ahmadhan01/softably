@@ -2,12 +2,11 @@
 
 @section('isi')
     <div class="flex min-h-screen">
-        <main class="flex-1 p-6 space-y-6 ml-64">
-            <div class="text-white">
-                <a href="{{ route('cart-customer.index') }}" class="text-sm text-white hover:underline ">
-                    <i class="fa-solid fa-arrow-left"></i>&nbsp; Checkout
-                </a>
-
+        <main class="flex-1 p-6 space-y-6 ml-64 bg-[#F8FAFC]"> {{-- Ubah background main menjadi cerah --}}
+            <div class="text-gray-800"> {{-- Ubah warna teks default di sini --}}
+                <span class="text-2xl font-semibold text-gray-700">
+                    Checkout
+                </span>
                 {{-- FORM CHECKOUT UTAMA --}}
                 <form id="checkoutForm" action="{{ route('checkout.process') }}" method="POST">
                     @csrf
@@ -23,59 +22,59 @@
                         {{-- KOLOM KIRI: PRODUK & BUYER INFO --}}
                         <div>
                             {{-- BAGIAN PRODUK (Disesuaikan ukurannya) --}}
-                            <div class="bg-[#1e293b] rounded-lg p-6 shadow-md mb-6">
-                                <h2 class="text-xl font-semibold mb-4">Product</h2>
+                            <div class="bg-white rounded-lg p-6 shadow-md mb-6"> {{-- Ubah background card produk menjadi putih --}}
+                                <h2 class="text-xl font-semibold mb-4 text-gray-800">Product</h2> {{-- Ubah teks judul --}}
                                 @forelse ($checkoutItems as $item)
                                 <div class="flex items-start justify-between mb-4">
                                     <div class="flex">
-                                        <div
-                                            class="w-28 h-28 bg-white rounded-md mr-4 overflow-hidden flex items-center justify-center">
-                                            <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover rounded-lg">
-                                        </div>
+                                            <div
+                                                class="w-28 h-28 bg-gray-100 rounded-md mr-4 overflow-hidden"> {{-- Ubah background gambar produk --}}
+                                                <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover rounded-lg">
+                                            </div>
                                         <div>
-                                            <h3 class="text-md font-semibold">{{ $item->product->name }}</h3>
-                                            <p class="text-sm text-gray-400">
+                                            <h3 class="text-md font-semibold text-gray-800">{{ $item->product->name }}</h3> {{-- Ubah teks nama produk --}}
+                                            <p class="text-sm text-gray-600"> {{-- Ubah teks deskripsi --}}
                                                 {{ Str::limit($item->product->description, 100) }}
                                             </p>
-                                            <p class="text-sm text-gray-400">Quantity: {{ $item->quantity }}</p>
+                                            <p class="text-sm text-gray-600">Quantity: {{ $item->quantity }}</p> {{-- Ubah teks quantity --}}
                                         </div>
                                     </div>
-                                    <div class="flex items-start ml-6 self-start text-md font-bold space-x-1 mt-6">
+                                    <div class="flex items-start ml-6 self-start text-md font-bold space-x-1 mt-6 text-gray-900"> {{-- Ubah warna harga --}}
                                         <span>Rp</span>
                                         <span>{{ number_format($item->quantity * $item->product->price, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                                 @empty
-                                <p class="text-gray-400">Tidak ada produk yang dipilih untuk checkout.</p>
+                                <p class="text-gray-600">Tidak ada produk yang dipilih untuk checkout.</p> {{-- Ubah teks kosong --}}
                                 @endforelse
                             </div>
 
                             {{-- BAGIAN BUYER INFO --}}
-                            <div class="bg-[#1e293b] rounded-lg p-6 shadow-md">
-                                <h2 class="text-xl font-semibold mb-4">Buyer info</h2>
+                            <div class="bg-white rounded-lg p-6 shadow-md"> {{-- Ubah background card buyer info menjadi putih --}}
+                                <h2 class="text-xl font-semibold mb-4 text-gray-800">Buyer info</h2> {{-- Ubah teks judul --}}
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block mb-1 text-sm">Email</label>
+                                        <label class="block mb-1 text-sm text-gray-700">Email</label> {{-- Ubah teks label --}}
                                         <input type="email" name="email"
                                             value="{{ old('email', $buyerInfo['email'] ?? Auth::user()->email ?? '') }}"
-                                            class="w-full px-4 py-2 rounded-md text-black" required />
+                                            class="w-full px-4 py-2 rounded-md border border-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" required /> {{-- Ubah input --}}
                                         @error('email')
                                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                                         @enderror
                                     </div>
                                     <div>
-                                        <label class="block mb-1 text-sm">Name</label>
+                                        <label class="block mb-1 text-sm text-gray-700">Name</label> {{-- Ubah teks label --}}
                                         <input type="text" name="name" value="{{ old('name', $buyerInfo['name'] ?? Auth::user()->name ?? '') }}"
-                                            class="w-full px-4 py-2 rounded-md text-black" required />
+                                            class="w-full px-4 py-2 rounded-md border border-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" required /> {{-- Ubah input --}}
                                         @error('name')
                                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                                         @enderror
                                     </div>
                                     <div>
-                                        <label class="block mb-1 text-sm">Phone Number</label>
+                                        <label class="block mb-1 text-sm text-gray-700">Phone Number</label> {{-- Ubah teks label --}}
                                         <input type="text" name="phone_number"
                                             value="{{ old('phone_number', $buyerInfo['phone'] ?? Auth::user()->phone_number ?? '') }}"
-                                            class="w-full px-4 py-2 rounded-md text-black" required />
+                                            class="w-full px-4 py-2 rounded-md border border-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" required /> {{-- Ubah input --}}
                                         @error('phone_number')
                                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                                         @enderror
@@ -86,9 +85,9 @@
 
                         {{-- KOLOM KANAN: PAYMENT DETAIL --}}
                         <div>
-                            <div class="bg-[#1e293b] rounded-lg p-6 shadow-md">
-                                <h2 class="text-xl font-semibold mb-4">Payment detail</h2>
-                                <div class="text-sm text-gray-300 space-y-2">
+                            <div class="bg-white rounded-lg p-6 shadow-md"> {{-- Ubah background card payment detail menjadi putih --}}
+                                <h2 class="text-xl font-semibold mb-4 text-gray-800">Payment detail</h2> {{-- Ubah teks judul --}}
+                                <div class="text-sm text-gray-700 space-y-2"> {{-- Ubah warna teks --}}
                                     <div class="flex justify-between">
                                         <span>Sub total</span>
                                         <span id="subtotalDisplay">Rp. {{ number_format($subtotal, 0, ',', '.') }}</span>
@@ -103,48 +102,48 @@
                                     </div>
                                 </div>
 
-                                <div class="flex justify-between items-center mt-4 text-xl font-bold">
+                                <div class="flex justify-between items-center mt-4 text-xl font-bold text-gray-900"> {{-- Ubah warna total --}}
                                     <span>Total</span>
-                                    <span class="text-orange-400" id="totalAmountDisplay">Rp. {{ number_format($initialTotalAmount, 0, ',', '.') }}</span>
+                                    <span class="text-blue-600" id="totalAmountDisplay">Rp. {{ number_format($initialTotalAmount, 0, ',', '.') }}</span> {{-- Ubah warna total --}}
                                 </div>
 
                                 <div class="mt-4">
-                                    <label for="payment_method_radio_group" class="block mb-2 text-sm">Select payment method</label>
+                                    <label for="payment_method_radio_group" class="block mb-2 text-sm text-gray-700">Select payment method</label> {{-- Ubah teks label --}}
                                     <div class="space-y-3">
                                         {{-- SoftPay Option --}}
-                                        <label for="payment_softpay" class="flex items-center p-4 rounded-lg border border-gray-600 cursor-pointer hover:bg-[#2D3A4F]">
+                                        <label for="payment_softpay" class="flex items-center p-4 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50"> {{-- Ubah border dan hover --}}
                                             <input type="radio" id="payment_softpay" name="payment_method" value="SoftPay" class="form-radio h-5 w-5 text-blue-600" checked>
                                             <div class="ml-4 flex-1">
-                                                <span class="font-semibold text-lg">SoftPay</span>
-                                                <p class="text-sm text-gray-400">Saldo Anda: <span class="font-bold text-yellow-400">Rp {{ number_format($softpayBalance ?? 0, 0, ',', '.') }}</span></p>
-                                                <p class="text-xs text-gray-400 mt-1">Convenience fee: Rp 0</p>
+                                                <span class="font-semibold text-lg text-gray-800">SoftPay</span> {{-- Ubah teks --}}
+                                                <p class="text-sm text-gray-600">Saldo Anda: <span class="font-bold text-blue-600">Rp {{ number_format($softpayBalance ?? 0, 0, ',', '.') }}</span></p> {{-- Ubah warna saldo --}}
+                                                <p class="text-xs text-gray-500 mt-1">Convenience fee: Rp 0</p> {{-- Ubah teks --}}
                                                 @if(($softpayBalance ?? 0) < $initialTotalAmount)
-                                                    <p class="text-xs text-red-400 mt-1">Saldo SoftPay tidak cukup. Anda membutuhkan Rp {{ number_format($initialTotalAmount - ($softpayBalance ?? 0), 0, ',', '.') }} lagi.</p>
+                                                    <p class="text-xs text-red-600 mt-1">Saldo SoftPay tidak cukup. Anda membutuhkan Rp {{ number_format($initialTotalAmount - ($softpayBalance ?? 0), 0, ',', '.') }} lagi.</p>
                                                 @endif
                                             </div>
-                                            <i class="fa-solid fa-wallet text-2xl text-green-400"></i>
+                                            <i class="fa-solid fa-wallet text-2xl text-blue-600"></i> {{-- Ubah warna ikon --}}
                                         </label>
 
                                         {{-- QRIS Option --}}
-                                        <label for="payment_qris" class="flex items-center p-4 rounded-lg border border-gray-600 cursor-pointer hover:bg-[#2D3A4F]">
+                                        <label for="payment_qris" class="flex items-center p-4 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50"> {{-- Ubah border dan hover --}}
                                             <input type="radio" id="payment_qris" name="payment_method" value="QRIS" class="form-radio h-5 w-5 text-blue-600">
                                             <div class="ml-4 flex-1">
-                                                <span class="font-semibold text-lg">QRIS</span>
-                                                <p class="text-sm text-gray-400">Pembayaran melalui QRIS.</p>
-                                                <p class="text-xs text-gray-400 mt-1">Convenience fee: Rp {{ number_format($qrisFee ?? 5000, 0, ',', '.') }}</p>
+                                                <span class="font-semibold text-lg text-gray-800">QRIS</span> {{-- Ubah teks --}}
+                                                <p class="text-sm text-gray-600">Pembayaran melalui QRIS.</p> {{-- Ubah teks --}}
+                                                <p class="text-xs text-gray-500 mt-1">Convenience fee: Rp {{ number_format($qrisFee ?? 5000, 0, ',', '.') }}</p> {{-- Ubah teks --}}
                                             </div>
-                                            <i class="fa-solid fa-qrcode text-2xl text-blue-400"></i>
+                                            <i class="fa-solid fa-qrcode text-2xl text-blue-600"></i> {{-- Ubah warna ikon --}}
                                         </label>
 
                                         {{-- Bank Transfer Option (digabung) --}}
-                                        <label for="payment_bank_transfer" class="flex items-center p-4 rounded-lg border border-gray-600 cursor-pointer hover:bg-[#2D3A4F]">
+                                        <label for="payment_bank_transfer" class="flex items-center p-4 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50"> {{-- Ubah border dan hover --}}
                                             <input type="radio" id="payment_bank_transfer" name="payment_method" value="Bank Transfer" class="form-radio h-5 w-5 text-blue-600">
                                             <div class="ml-4 flex-1">
-                                                <span class="font-semibold text-lg">Bank Transfer</span>
-                                                <p class="text-sm text-gray-400">Pembayaran melalui transfer bank (BCA/Mandiri).</p>
-                                                <p class="text-xs text-gray-400 mt-1">Convenience fee: Rp {{ number_format($bankTransferFee ?? 10000, 0, ',', '.') }}</p>
+                                                <span class="font-semibold text-lg text-gray-800">Bank Transfer</span> {{-- Ubah teks --}}
+                                                <p class="text-sm text-gray-600">Pembayaran melalui transfer bank (BCA/Mandiri).</p> {{-- Ubah teks --}}
+                                                <p class="text-xs text-gray-500 mt-1">Convenience fee: Rp {{ number_format($bankTransferFee ?? 10000, 0, ',', '.') }}</p> {{-- Ubah teks --}}
                                             </div>
-                                            <i class="fa-solid fa-bank text-2xl text-blue-400"></i>
+                                            <i class="fa-solid fa-bank text-2xl text-blue-600"></i> {{-- Ubah warna ikon --}}
                                         </label>
                                     </div>
                                     @error('payment_method')
@@ -154,16 +153,16 @@
 
                                 <div class="flex items-center mt-4">
                                     <input type="checkbox" id="terms" name="agree_terms"
-                                        class="form-checkbox text-green-500 mr-2" value="1"
+                                        class="form-checkbox text-blue-600 mr-2" value="1" {{-- Ubah warna checkbox --}}
                                         {{ old('agree_terms') ? 'checked' : '' }} required />
-                                    <label for="terms" class="text-sm text-gray-300">I agree to the Terms of Use</label>
+                                    <label for="terms" class="text-sm text-gray-700">I agree to the Terms of Use</label> {{-- Ubah teks label --}}
                                     @error('agree_terms')
                                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                                     @enderror
                                 </div>
 
-                                <button type="submit" id="buyNowBtn"
-                                    class="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg
+                                <button type="submit" id="buyNowBtn"    
+                                    class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg
                                     {{ ($softpayBalance ?? 0) < $initialTotalAmount && old('payment_method', 'SoftPay') === 'SoftPay' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                     {{ ($softpayBalance ?? 0) < $initialTotalAmount && old('payment_method', 'SoftPay') === 'SoftPay' ? 'disabled' : '' }}
                                     >
@@ -179,9 +178,9 @@
 
     {{-- MODAL SUKSES (Tampil saat ada session 'success_modal_data' setelah redirect) --}}
     <div id="successModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-[#1e293b] text-white rounded-lg w-full max-w-md p-6 shadow-lg text-center">
+        <div class="bg-white text-gray-800 rounded-lg w-full max-w-md p-6 shadow-lg text-center"> {{-- Ubah background modal dan teks --}}
             <h2 class="text-xl font-bold mb-2">Your purchase was successful</h2>
-            <p class="text-sm text-gray-400 mb-4" id="modalEmailReceipt">
+            <p class="text-sm text-gray-600 mb-4" id="modalEmailReceipt"> {{-- Ubah teks --}}
                 We sent the receipt to your email.
             </p>
 
@@ -189,25 +188,25 @@
                 {{-- Products akan diisi secara dinamis oleh JavaScript jika modal ditampilkan --}}
             </div>
 
-            <div class="flex justify-between text-sm text-gray-300">
+            <div class="flex justify-between text-sm text-gray-700"> {{-- Ubah teks --}}
                 <span>Payment method</span><span id="modalPaymentMethod"></span>
             </div>
-            <div class="flex justify-between text-sm text-gray-300">
+            <div class="flex justify-between text-sm text-gray-700"> {{-- Ubah teks --}}
                 <span>Discount</span><span id="modalDiscount"></span>
             </div>
-            <div class="flex justify-between text-sm text-gray-300">
+            <div class="flex justify-between text-sm text-gray-700"> {{-- Ubah teks --}}
                 <span>Convenience fee</span><span id="modalConvenienceFee"></span>
             </div>
-            <div class="flex justify-between text-lg font-bold">
+            <div class="flex justify-between text-lg font-bold text-gray-900"> {{-- Ubah teks total --}}
                 <span>Total</span>
-                <span class="text-orange-400" id="modalTotalAmount"></span>
+                <span class="text-blue-600" id="modalTotalAmount"></span> {{-- Ubah warna total --}}
             </div>
 
             <div class="flex justify-between space-x-4 mt-4">
-                <button onclick="closeModalAndRedirect()" class="w-full py-2 bg-white text-[#1e293b] font-bold rounded-lg">
+                <button onclick="closeModalAndRedirect()" class="w-full py-2 bg-gray-200 text-gray-800 font-bold rounded-lg hover:bg-gray-300"> {{-- Ubah warna tombol --}}
                     Close
                 </button>
-                <button id="viewProductBtn" class="w-full py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg">
+                <button id="viewProductBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg"> {{-- Ubah warna tombol --}}
                     View Order Detail
                 </button>
             </div>
@@ -216,10 +215,8 @@
 
     @push('scripts')
     <script>
-        // Mengubah nama variabel untuk lebih jelas dan menyimpan ID transaksi
         let purchasedTransactionId = null;
 
-        // Fungsi untuk menutup modal dan redirect ke halaman My Orders
         function closeModalAndRedirect() {
             document.getElementById("successModal").classList.add("hidden");
             fetch('{{ route('clear.checkout.session') }}', {
@@ -240,10 +237,8 @@
             });
         }
 
-        // Fungsi untuk mengarahkan ke detail order berdasarkan ID transaksi
         function redirectToOrderDetail() {
             if (purchasedTransactionId) {
-                // Ubah 'order-customer.detail' menjadi 'order-customer.show'
                 window.location.href = `{{ route('order-customer.show', ['transaction' => 'TRANSACTION_ID_PLACEHOLDER']) }}`.replace('TRANSACTION_ID_PLACEHOLDER', purchasedTransactionId);
             } else {
                 alert('Tidak ada ID transaksi yang ditemukan untuk ditampilkan.');
@@ -253,39 +248,34 @@
         document.addEventListener('DOMContentLoaded', function() {
             @if(session('success_modal_data'))
                 const modalData = @json(session('success_modal_data'));
-
-                // Simpan ID transaksi yang dibeli dari data modal
-                purchasedTransactionId = modalData.invoice_id; // Mengambil 'invoice_id' dari data sesi
+                purchasedTransactionId = modalData.invoice_id;
 
                 document.getElementById('modalEmailReceipt').textContent = `We sent the receipt to ${modalData.email}`;
 
                 const productListDiv = document.getElementById('modalProductList');
-                productListDiv.innerHTML = ''; // Kosongkan daftar produk sebelumnya
+                productListDiv.innerHTML = '';
 
-                // Karena kita membatasi checkout ke 1 produk, ambil produk pertama dari array
                 const product = modalData.products[0];
                 if (product) {
                     const productHtml = `
                         <div class="flex items-center w-full">
                             <div class="flex items-center space-x-4">
-                                <div class="w-16 h-16 bg-white rounded-md overflow-hidden flex items-center justify-center">
+                                <div class="w-16 h-16 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center"> {{-- Ubah background gambar di modal --}}
                                     <img src="${product.image_url || 'https://via.placeholder.com/64x64'}" alt="${product.name}" class="object-cover w-full h-full">
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-sm">${product.name}</p>
-                                    <p class="text-xs">x${product.quantity}</p>
+                                    <p class="font-semibold text-sm text-gray-800">${product.name}</p> {{-- Ubah teks nama produk di modal --}}
+                                    <p class="text-xs text-gray-600">x${product.quantity}</p> {{-- Ubah teks quantity di modal --}}
                                 </div>
                             </div>
-                            <div class="ml-auto font-bold">Rp. ${product.price}</div>
+                            <div class="ml-auto font-bold text-gray-900">Rp. ${product.price}</div> {{-- Ubah warna harga di modal --}}
                         </div>
                     `;
                     productListDiv.insertAdjacentHTML('beforeend', productHtml);
                 } else {
-                    // Handle case where no product data is found in modalData (should not happen with single product checkout)
-                    productListDiv.innerHTML = '<p class="text-gray-400">Tidak ada detail produk.</p>';
-                    purchasedTransactionId = null; // Reset jika tidak ada ID transaksi
+                    productListDiv.innerHTML = '<p class="text-gray-600">Tidak ada detail produk.</p>';
+                    purchasedTransactionId = null;
                 }
-
 
                 document.getElementById('modalPaymentMethod').textContent = modalData.payment_method;
                 document.getElementById('modalDiscount').textContent = `Rp. ${modalData.discount}`;
@@ -294,14 +284,9 @@
 
                 document.getElementById('successModal').classList.remove('hidden');
 
-                // Tambahkan event listener untuk tombol "View Order Detail"
                 document.getElementById('viewProductBtn').addEventListener('click', redirectToOrderDetail);
-
-                {{-- Hapus sesi success_modal_data setelah ditampilkan agar tidak muncul lagi saat refresh --}}
-                // {{-- session()->forget('success_modal_data'); --}}
             @endif
 
-            // --- LOGIKA PEMBAYARAN & UPDATE BIAYA ---
             const checkoutForm = document.getElementById('checkoutForm');
             const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
             const softpayRadio = document.getElementById('payment_softpay');
@@ -357,4 +342,4 @@
         });
     </script>
     @endpush
-@endsection
+@endsection 

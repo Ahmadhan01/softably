@@ -6,14 +6,15 @@
         /* CSS untuk Animasi Notifikasi */
         .notification-item {
             /* Gaya dasar notifikasi Anda */
-            background-color: #1e293b;
-            border: 1px solid #475569; /* border-gray-700 */
+            background-color: #FFFFFF; /* Background item notifikasi jadi putih */
+            border: 1px solid #E0E0E0; /* Border abu-abu terang */
             border-radius: 0.5rem; /* rounded-lg */
             padding: 1rem; /* p-4 */
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem; /* space-y-4 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Sedikit shadow */
 
             /* Properti untuk animasi */
             opacity: 0; /* Mulai dengan tidak terlihat */
@@ -22,23 +23,20 @@
         }
 
         .notification-item.show {
-            opacity: 1  ; /* Tampilkan */
+            opacity: 1; /* Tampilkan */
             transform: translateY(0); /* Geser ke posisi normal */
         }
 
         .notification-item.read {
-            opacity: 0.6; /* 60% opacity untuk notifikasi yang sudah dibaca */
+            opacity: 0.7; /* 70% opacity untuk notifikasi yang sudah dibaca, lebih terang dari 0.6 */
         }
     </style>
 
     <div class="flex min-h-screen">
-      <main class="flex-1 p-6 space-y-6 ml-64">
-        <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-semibold">Notification</h1>
-          <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
+      <main class="flex-1 p-6 space-y-6 ml-64 bg-[#F8FAFC]"> <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-semibold text-gray-800">Notification</h1> <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
             @csrf
-            <button type="submit" class="text-sm text-gray-300 hover:text-white">
-              Mark as read
+            <button type="submit" class="text-sm text-blue-600 hover:text-blue-700"> Mark as read
             </button>
           </form>
         </div>
@@ -50,41 +48,31 @@
               id="notification-{{ $notification->id }}">
             <div class="flex items-start space-x-4">
               {{-- Gambar Notifikasi (Opsional, bisa disesuaikan berdasarkan type) --}}
-              <div class="w-20 h-20 bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center">
-                @if($notification->type == 'transaction')
-                    <i class="fa-solid fa-receipt text-3xl text-green-400"></i>
-                @elseif($notification->type == 'chat')
-                    <i class="fa-solid fa-comments text-3xl text-blue-400"></i>
-                @else
-                    <i class="fa-solid fa-info-circle text-3xl text-gray-400"></i>
-                @endif
+              <div class="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200"> @if($notification->type == 'transaction')
+                    <i class="fa-solid fa-receipt text-3xl text-blue-600"></i> @elseif($notification->type == 'chat')
+                    <i class="fa-solid fa-comments text-3xl text-blue-600"></i> @else
+                    <i class="fa-solid fa-info-circle text-3xl text-gray-500"></i> @endif
               </div>
               <div>
-                <h2 class="font-semibold text-white">{{ $notification->title }}</h2>
-                <p class="text-sm text-gray-400">
-                  {{ $notification->message }}
+                <h2 class="font-semibold text-gray-800">{{ $notification->title }}</h2> <p class="text-sm text-gray-600"> {{ $notification->message }}
                 </p>
-                <p class="text-xs text-gray-500 mt-1">
-                    {{ $notification->created_at->diffForHumans() }}
+                <p class="text-xs text-gray-500 mt-1"> {{ $notification->created_at->diffForHumans() }}
                 </p>
               </div>
             </div>
             <div class="flex items-center">
               @if(!$notification->is_read)
               <button
-                class="mark-as-read-btn bg-white text-xs text-black font-semibold px-3 py-1 rounded hover:bg-gray-300 transition"
-                data-notification-id="{{ $notification->id }}"
+                class="mark-as-read-btn bg-[#2563EB] text-white text-xs font-semibold px-3 py-1 rounded hover:bg-[#3B82F6] transition" data-notification-id="{{ $notification->id }}"
               >
                 Check
               </button>
               @else
-              <span class="text-xs text-gray-500">Read</span>
-              @endif
+              <span class="text-xs text-gray-500">Read</span> @endif
             </div>
           </div>
           @empty
-          <p class="text-gray-400 text-center">Tidak ada notifikasi baru.</p>
-          @endforelse
+          <p class="text-gray-600 text-center">Tidak ada notifikasi baru.</p> @endforelse
         </div>
 
         {{-- Pagination Links --}}
@@ -134,7 +122,7 @@
                                 const parentDiv = this.closest('.flex.items-center');
                                 if (parentDiv) {
                                     const readSpan = document.createElement('span');
-                                    readSpan.classList.add('text-xs', 'text-gray-500');
+                                    readSpan.classList.add('text-xs', 'text-gray-500'); /* Teks Read jadi abu-abu gelap */
                                     readSpan.textContent = 'Read';
                                     parentDiv.appendChild(readSpan);
                                 }

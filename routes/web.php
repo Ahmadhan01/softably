@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
@@ -9,9 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\TransactionController;
-
-
-
+use App\Http\Controllers\SellerSettingController;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
@@ -19,31 +16,22 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\NotificationController; // Pastikan ini di-import
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\SellerNotificationController;
 use App\Http\Controllers\SoftPayController;
 use App\Http\Controllers\HomeController;
-
-
-
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminSettingController;
-use App\Http\Middleware\UpdateLastSeen; 
+use App\Http\Middleware\UpdateLastSeen;
 use App\Http\Middleware\TrackPageView;
-use App\Http\Middleware\LogVisitTest;
 use App\Http\Controllers\LinkController;
 use App\Models\Link;
-
 use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerSoftpayController;
 use App\Http\Controllers\SellerDashboardController;
-
-
-Route::get('/', function () {
-    return view('landing-page');
-});
+use App\Http\Controllers\SellerProfileController; // Tambahkan ini jika belum ada
 
 Route::get('/', [HomeController::class, 'index']);
 
@@ -58,45 +46,32 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
-
-
 Route::middleware(['auth'])->get('/admin/dashboard', function () {
     return view('view-admin.dashboard-admin');
 });
 
-
-
-
-
-
-// Seller
+// Seller Routes
 Route::middleware(['auth', 'role:seller'])->group(function () {
     Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
-    // Route::get('/seller/dashboard', [SellerDashboardController::class, 'index'])->name('seller.dashboard');
-
-    // Route::get('/chat-seller', [ChatController::class, 'sellerChat'])->name('chat.seller');
-    Route::get('/chat', [ChatController::class, 'sellerChat'])->name('chat');
+    Route::get('/chat', [ChatController::class, 'sellerChat'])->name('chat'); // Rute untuk halaman chat seller
 
     Route::get('/bantuan-seller', function () {
         $loggedInUser = Auth::user();
         return view('view-seller/bantuan-seller', compact('loggedInUser'));
     })->name('bantuan-seller');
 
-    // Rute untuk seller chat dengan admin
-    Route::get('/seller/chat/history', [ChatController::class, 'fetchMessagesWithAdmin'])->name('seller.chat.history');
-    Route::post('/seller/chat/send', [ChatController::class, 'sendMessageToAdmin'])->name('seller.chat.send');
+    // Rute untuk seller chat dengan admin (INI HANYA UNTUK VIEW JIKA ADA)
+    // Jika fetchMessagesWithAdmin dan sendMessageToAdmin digunakan untuk AJAX,
+    // maka endpoint API-nya harus ada di api.php seperti yang sudah kita lakukan.
+    Route::get('/seller/chat/history', [ChatController::class, 'fetchMessagesWithAdminPage'])->name('seller.chat.history'); // Contoh: jika ini mengembalikan view
+    Route::post('/seller/chat/send', [ChatController::class, 'sendMessageToAdminPost'])->name('seller.chat.send'); // Contoh: jika ini memproses form dan redirect
 
     // Rute untuk daftar produk seller
     Route::get('/seller/products', [SellerProductController::class, 'index'])->name('seller.products.index');
-    // Rute untuk menampilkan form tambah produk
     Route::get('/seller/products/create', [SellerProductController::class, 'create'])->name('seller.products.create');
-    // Rute untuk menyimpan produk baru (method POST)
     Route::post('/seller/products', [SellerProductController::class, 'store'])->name('seller.products.store');
-
     Route::get('/seller/products/{product}/details', [SellerProductController::class, 'show'])->name('seller.products.details');
-
     Route::get('/seller/products/{product}/edit', [SellerProductController::class, 'edit'])->name('seller.products.edit');
-    // Rute untuk memperbarui produk (method PUT/PATCH)
     Route::put('/seller/products/{product}', [SellerProductController::class, 'update'])->name('seller.products.update');
     Route::delete('/products/{product}', [SellerProductController::class, 'destroy'])->name('products.destroy');
 
@@ -115,42 +90,31 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
     Route::post('/settings/password', [SellerProfileController::class, 'updatePassword'])->name('seller.settings.updatePassword');
 });
 
-
+// Middleware auth (ini adalah group middleware yang lebih umum)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/chat/messages/{conversation}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
-    Route::post('/chat/send/{conversation}', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
-    Route::post('/chat/create-or-get-conversation', [ChatController::class, 'createOrGetConversation'])->name('chat.createOrGetConversation');
+    Route::get('/setting-seller', [SellerSettingController::class, 'index'])->name('seller.setting');
+    Route::put('/seller/setting', [SellerSettingController::class, 'update'])->name('seller.setting.update');
+    Route::put('/seller/setting/password', [SellerSettingController::class, 'updatePassword'])->name('seller.setting.updatePassword');
 
-    Route::get('/api/chat/unread-count', [ChatController::class, 'getUnreadMessagesCount'])->name('api.chat.unreadCount');
-    Route::post('/api/chat/mark-as-read/{conversation}', [ChatController::class, 'markConversationAsRead'])->name('api.chat.markAsRead');
-
-    // TAMBAHKAN RUTE INI UNTUK STATUS ONLINE USER
-    // Anda perlu mengimplementasikan metode `isOnline()` di model `User` Anda
-    Route::get('/api/user-status/{user}', function (User $user) {
-        // Asumsi Anda memiliki metode `isOnline()` di model User
-        // atau Anda bisa memeriksa kolom `last_seen` jika ada
-        return response()->json(['is_online' => $user->isOnline()]);
-    })->name('api.user.status');
+    // Rute chat yang mengembalikan VIEW, atau redirect
+    // Chat with seller redirect bisa tetap di web.php
+    Route::get('/chat/with-seller/{seller}', [ChatController::class, 'chatWithSellerRedirect'])->name('chat.withSellerRedirect');
 });
 
+// Comment routes
+Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply');
+Route::post('/comments/{product}', [CommentController::class, 'store'])->name('comments.store');
+Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
-Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply'); // Rute untuk membalas komentar
-    Route::post('/comments/{product}', [CommentController::class, 'store'])->name('comments.store');
-    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
-
-// Customer
+// Customer Routes
 Route::middleware(['auth', 'role:customer'])->group(function () {
-    // Route::get('/customer/produks', [ProductController::class, 'index'])->name('customer.produk');
-
     Route::get('/view-product/{product}', function (Product $product) {
-        // UBAH INI: Eager load 'user' (bukan 'seller')
         $product->load([
-            'user', // <-- PENTING: Gunakan 'user' sesuai nama relasi di Product.php
+            'user',
             'comments' => function ($query) {
-                $query->whereNull('parent_id') // Tetap filter top-level di sini
-                      ->with(['user', 'replies.user']);
+                $query->whereNull('parent_id')->with(['user', 'replies.user']);
             }
         ]);
         return view('view-customer.viewproduk-customer', compact('product'));
@@ -158,8 +122,8 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
     //rute wishlist
     Route::get('/wishlist-customer', [WishlistController::class, 'index'])->name('wishlist-customer.index');
-    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store'); // Untuk menambah
-    Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy'); // Untuk menghapus
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product_id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
     // Rute Cart
     Route::get('/cart-customer', [CartController::class, 'index'])->name('cart-customer.index');
@@ -168,27 +132,25 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/cart/multiple', [CartController::class, 'destroyMultiple'])->name('cart.destroy.multiple');
 
-    // UBAH BARIS INI: dari CartController::class, 'processCheckout' ke CartController::class, 'processToCheckout'
     Route::post('/cart/process-to-checkout', [CartController::class, 'processToCheckout'])->name('cart.processToCheckout');
-
 
     // Rute Checkout (method GET untuk menampilkan, method POST untuk memproses pembelian)
     Route::get('/checkout-customer', [CheckoutController::class, 'index'])->name('checkout-customer.index');
-    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process'); // Ini method POST untuk menyelesaikan pembelian
+    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
     Route::post('/prepare-checkout', [CartController::class, 'prepareCheckout'])->name('prepare.checkout');
-    Route::post('/checkout/softpay', [CheckoutController::class, 'processSoftPayPayment'])->name('checkout.softpay'); // <--- TAMBAHKAN INI
+    Route::post('/checkout/softpay', [CheckoutController::class, 'processSoftPayPayment'])->name('checkout.softpay');
 
     // Rute Notifikasi (Hanya satu definisi ini yang benar)
     Route::get('/notif-customer', [NotificationController::class, 'index'])->name('notif-customer');
     Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-    Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead'); // Opsional
+    Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
     Route::post('/clear-checkout-session', function (Illuminate\Http\Request $request) {
-    $request->session()->forget('selected_cart_items_for_checkout');
-    return response()->json(['message' => 'Checkout session cleared.']);
+        $request->session()->forget('selected_cart_items_for_checkout');
+        return response()->json(['message' => 'Checkout session cleared.']);
     })->name('clear.checkout.session');
 
-    // Rute CHAT BARU
+    // Rute CHAT BARU (ini untuk halaman VIEW chat customer)
     Route::get('/chat-customer', [ChatController::class, 'index'])->name('chat-customer');
 
     //rute bantuan
@@ -215,22 +177,21 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
         if ($user->role !== 'seller') {
             abort(404);
         }
-        $products = $user->products()->get(); // Memuat produk milik seller
+        $products = $user->products()->get();
         return view('view-customer.seller-profile', compact('user', 'products'));
     })->name('view-seller.show');
 
     //Rute softpay
     Route::middleware(['auth'])->group(function () {
-    Route::get('/softpay', [SoftPayController::class, 'index'])->name('softpay-customer');
-    Route::get('/softpay/topup', function() { return view('view-customer.softpay.topup'); })->name('softpay.topup'); // Contoh halaman terpisah
-    Route::get('/softpay/withdraw', function() { return view('view-customer.softpay.withdraw'); })->name('softpay.withdraw');
-    Route::get('/softpay/pay', function() { return view('view-customer.softpay.pay'); })->name('softpay.pay');
-    Route::get('/softpay/transfer', function() { return view('view-customer.softpay.transfer'); })->name('softpay.transfer');
-    Route::get('/softpay/history', function() { return view('view-customer.softpay.history'); })->name('softpay.history');
-    Route::get('/softpay/promo', function() { return view('view-customer.softpay.promo'); })->name('softpay.promo');
-    Route::get('/softpay/help', function() { return view('view-customer.softpay.help'); })->name('softpay.help');
-});
-
+        Route::get('/softpay', [SoftPayController::class, 'index'])->name('softpay-customer');
+        Route::get('/softpay/topup', function() { return view('view-customer.softpay.topup'); })->name('softpay.topup');
+        Route::get('/softpay/withdraw', function() { return view('view-customer.softpay.withdraw'); })->name('softpay.withdraw');
+        Route::get('/softpay/pay', function() { return view('view-customer.softpay.pay'); })->name('softpay.pay');
+        Route::get('/softpay/transfer', function() { return view('view-customer.softpay.transfer'); })->name('softpay.transfer');
+        Route::get('/softpay/history', function() { return view('view-customer.softpay.history'); })->name('softpay.history');
+        Route::get('/softpay/promo', function() { return view('view-customer.softpay.promo'); })->name('softpay.promo');
+        Route::get('/softpay/help', function() { return view('view-customer.softpay.help'); })->name('softpay.help');
+    });
 });
 
 // Admin routes
@@ -246,7 +207,6 @@ Route::get('/faq-admin', function () {
 
 Route::middleware(['auth', UpdateLastSeen::class, TrackPageView::class])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    // Route::get('/seller/dashboard', fn() => view('view-seller.dashboard-seller'))->name('seller.dashboard');
     Route::get('/customer/produks', [ProductController::class, 'index'])->name('customer.produk');
 });
 
@@ -258,17 +218,14 @@ Route::get('/setting-admin', function () {
     return view('view-admin.setting-admin');
 });
 
-
 Route::prefix('admin')->group(function () {
     Route::get('/setting-app', [AdminSettingController::class, 'appSettings'])->name('admin.settings.app');
     Route::post('/setting-app', [AdminSettingController::class, 'updateAppSettings'])->name('admin.settings.update');
 });
 
-
 Route::middleware(['auth', UpdateLastSeen::class])->group(function () {
     Route::get('/table-user', [UserController::class, 'index'])->name('admin.user.index');
 });
-
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products.index');
@@ -300,7 +257,6 @@ Route::middleware(['auth', UpdateLastSeen::class])->group(function () {
     Route::delete('/links/{link}', [LinkController::class, 'destroy'])->name('links.destroy');
 });
 
-
 Route::get('/go/{id}', function ($id) {
     $link = \App\Models\Link::where('id', $id)
         ->where('status', 'active')
@@ -310,58 +266,11 @@ Route::get('/go/{id}', function ($id) {
     return redirect()->away($link->url);
 })->name('link.redirect');
 
-// Ambil daftar customer yang pernah kirim chat
-// Route::get('/admin/chat/customers', [ChatController::class, 'getCustomerListForAdmin'])->middleware('auth'); // OLD
-
-// Ambil isi chat antara admin dan 1 customer tertentu
-// Route::get('/admin/chat/customer/{id}', [ChatController::class, 'viewChatWithCustomer'])->middleware('auth'); // OLD
-
+// Admin chat routes (VIEW-BASED, jika ada)
 Route::middleware('auth')->group(function () {
-    // Ambil daftar user (customer/seller) yang pernah kirim chat ke admin
-    Route::get('/admin/chat/users', [ChatController::class, 'getChatUsersForAdmin'])->name('admin.chat.users'); // NEW
-    // Ambil isi chat antara admin dan 1 user tertentu (customer/seller)
-    Route::get('/admin/chat/messages/{id}', [ChatController::class, 'fetchMessagesWithUser'])->name('admin.chat.messages'); // Modified
-    // Kirim pesan dari admin ke user (customer/seller)
-    Route::post('/admin/chat/send/{id}', [ChatController::class, 'sendMessageToUser'])->name('admin.chat.send'); // Modified
-    // Ambil isi chat antara customer/seller dan admin
-    Route::get('/chat/admin/messages', [ChatController::class, 'fetchMessagesWithAdmin'])->name('customer.chat.messages');
-    // Kirim pesan dari customer/seller ke admin
-    Route::post('/chat/admin/send', [ChatController::class, 'sendMessageToAdmin'])->name('customer.chat.send');
+    Route::get('/admin/chat/users', [ChatController::class, 'getChatUsersForAdminPage'])->name('admin.chat.users'); // Contoh: jika ini mengembalikan view
+    Route::get('/admin/chat/messages/{id}', [ChatController::class, 'fetchMessagesWithUserPage'])->name('admin.chat.messages'); // Contoh: jika ini mengembalikan view
+    Route::post('/admin/chat/send/{id}', [ChatController::class, 'sendMessageToUserPost'])->name('admin.chat.send'); // Contoh: jika ini memproses form dan redirect
+    Route::get('/chat/admin/messages', [ChatController::class, 'fetchMessagesWithAdminPage'])->name('customer.chat.messages'); // Contoh: jika ini mengembalikan view
+    Route::post('/chat/admin/send', [ChatController::class, 'sendMessageToAdminPost'])->name('customer.chat.send'); // Contoh: jika ini memproses form dan redirect
 });
-
-// *** Rute API untuk Info Seller ***
-Route::get('/api/seller-info/{user}', function (User $user) {
-    if ($user->role !== 'seller') {
-        return response()->json(['success' => false, 'message' => 'User bukan seller.'], 404);
-    }
-
-    // HAPUS LOGIKA PENGHITUNGAN TRANSAKSI
-    // $successTransactions = 0;
-    // $failedTransactions = 0;
-    // $user->load('products.transactions');
-    // foreach ($user->products as $product) {
-    //     if ($product->transactions) {
-    //         foreach ($product->transactions as $transaction) {
-    //             if (in_array($transaction->status, ['completed', 'success'])) {
-    //                 $successTransactions++;
-    //             } elseif (in_array($transaction->status, ['failed', 'cancelled'])) {
-    //                 $failedTransactions++;
-    //             }
-    //         }
-    //     }
-    // }
-
-    return response()->json([
-        'success' => true,
-        'user' => [ // Kunci ini tetap 'user' agar sesuai dengan pemanggilan di JS
-            'id' => $user->id,
-            'name' => $user->name,
-            'profile_picture_url' => $user->profile_picture_url,
-            'is_online' => $user->isOnline(),
-            'description' => $user->store_description,
-        ],
-        // HAPUS data transaksi dari respons
-        // 'success_transactions' => $successTransactions,
-        // 'failed_transactions' => $failedTransactions,
-    ]);
-})->name('api.seller.info');

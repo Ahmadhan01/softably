@@ -1,106 +1,113 @@
 @extends('layouts.sidebar-seller')
 
 @section('isi')
-{{-- Hapus div flex min-h-screen karena sudah ditangani oleh sidebar-seller.blade.php --}}
-{{-- Main tag sekarang akan diatur oleh layout parent (sidebar-seller) --}}
-{{-- Class 'ml-64' di main dihapus, karena sudah diatur oleh flex-1 di parent --}}
-<div class="flex w-full h-[calc(100vh-2.5rem)] bg-[#0f172a] text-white"> {{-- Gunakan h-[calc(100vh-padding)] --}}
-    <div class="w-full md:w-1/4 xl:w-2/6 border-r border-gray-700 p-4 flex flex-col">
-        <h1 class="text-2xl font-semibold mb-4">Chat Customer</h1>
+{{-- Kontainer utama untuk halaman chat --}}
+<div class="flex flex-col md:flex-row w-full h-full text-gray-800">
+    {{-- Panel kiri chat (daftar percakapan) --}}
+    <div class="w-full md:w-1/4 xl:w-2/6 border-r border-gray-200 pr-4 flex flex-col bg-white rounded-l-lg p-6 ml-64">
+        <h1 class="text-2xl font-semibold mb-4 text-gray-800">Chat Customer</h1>
 
         <div class="relative mb-4">
-            <input type="text" placeholder="Search people" class="w-full bg-[#1e293b] text-white py-2 px-4 rounded focus:outline-none" id="chat-search-input" />
-            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">All</span> {{-- Posisikan "All" lebih baik --}}
+            <input type="text" placeholder="Search people" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded focus:outline-none border border-gray-300 shadow-sm" id="chat-search-input" />
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">All</span>
         </div>
 
         <ul class="space-y-3 overflow-y-auto flex-1 pr-2" id="conversation-list">
-            {{-- Pisahkan percakapan yang belum dibaca dan sudah dibaca untuk pengurutan --}}
+            {{-- Bagian ini akan diisi oleh JavaScript dari fetchConversationsAndRender() --}}
+            {{-- Anda bisa menghapus blok @php ... @endphp dan @foreach ... @endforeach di sini
+                 jika Anda benar-benar hanya ingin mengandalkan JavaScript untuk rendering awal,
+                 tetapi untuk saat ini, biarkan sebagai fallback dan inisialisasi awal.
+                 Jika Anda ingin menghapusnya, cukup tinggalkan <ul> kosong.
+            --}}
             @php
-                $unreadConversations = $conversations->filter(function($conversation) {
-                    $latestMessage = $conversation->messages->last();
-                    return $latestMessage && $latestMessage->sender_id !== Auth::id() && is_null($latestMessage->read_at);
-                })->sortByDesc(function($conversation) {
-                    return $conversation->messages->last() ? $conversation->messages->last()->created_at : null;
+                $sortedConversations = $conversations->sortByDesc(function($conversation) {
+                    return $conversation->is_pinned ? 2 : (optional($conversation->messages->last())->created_at ? optional($conversation->messages->last())->created_at->timestamp : 1);
                 });
-
-                $readConversations = $conversations->filter(function($conversation) {
-                    $latestMessage = $conversation->messages->last();
-                    return !$latestMessage || $latestMessage->sender_id === Auth::id() || !is_null($latestMessage->read_at);
-                })->sortByDesc(function($conversation) {
-                    return $conversation->messages->last() ? $conversation->messages->last()->created_at : null;
-                });
-
-                $sortedConversations = $unreadConversations->merge($readConversations);
             @endphp
 
-            {{-- Tampilkan percakapan yang belum dibaca terlebih dahulu --}}
             @foreach ($sortedConversations as $conversation)
                 @php
                     $otherUser = ($conversation->user1_id === Auth::id()) ? $conversation->user2 : $conversation->user1;
-                    $latestMessage = $conversation->messages->last();
+                    $latestMessage = optional($conversation->messages->last());
+                    $isUnread = $latestMessage && $latestMessage->receiver_id === Auth::id() && is_null($latestMessage->read_at);
                     $isActive = isset($activeConversation) && $activeConversation->id === $conversation->id;
-                    $isUnread = $latestMessage && $latestMessage->sender_id !== Auth::id() && is_null($latestMessage->read_at);
                 @endphp
-                <li class="flex items-center gap-3 cursor-pointer hover:bg-[#1e293b] p-2 rounded chat-item {{ $isActive ? 'active' : '' }}"
+                <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded chat-item {{ $isActive ? 'active bg-gray-100' : '' }} {{ $conversation->is_pinned ? 'pinned-chat' : '' }}"
                     data-conversation-id="{{ $conversation->id }}"
                     data-other-user-id="{{ $otherUser->id }}"
                     data-other-user-name="{{ $otherUser->name ?? $otherUser->username }}"
-                    style="opacity: {{ $isUnread ? '1' : '0.8' }};"> {{-- Opacity berdasarkan status baca --}}
-                    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
-                        <img src="{{ $otherUser->profile_picture_url }}" class="w-10 h-10 rounded-full object-cover" />
+                    data-is-unread="{{ $isUnread ? 'true' : 'false' }}">
+                    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                        <img src="{{ $otherUser->profile_picture_url ?? asset('path/to/default/profile_picture.jpg') }}" class="w-10 h-10 rounded-full object-cover" /> {{-- Pastikan default path gambar --}}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-white truncate">{{ $otherUser->name ?? $otherUser->username }}</p>
-                        <p class="text-sm {{ $isUnread ? 'text-blue-400 font-bold' : 'text-gray-400' }} truncate message-content">
-                            {{ $latestMessage ? Str::limit($latestMessage->content, 30) : 'Mulai percakapan baru...' }}
+                        <p class="font-semibold text-gray-800 truncate">
+                            {{ $otherUser->name ?? $otherUser->username }}
+                            @if ($conversation->is_pinned)
+                                <i class="fa-solid fa-thumbtack text-gray-500 text-xs ml-1"></i>
+                            @endif
+                        </p>
+                        <p class="text-sm {{ $isUnread ? 'text-[#2563EB] font-bold' : 'text-gray-500' }} truncate message-content">
+                            {{ $latestMessage->content ? Str::limit($latestMessage->content, 30) : 'Mulai percakapan baru...' }}
                         </p>
                     </div>
                     <span class="text-xs text-gray-400 message-time">
-                        {{ $latestMessage ? $latestMessage->created_at->format('H:i') : '' }}
+                        {{ $latestMessage->created_at ? $latestMessage->created_at->format('H:i') : '' }}
                     </span>
+                    @if ($isUnread)
+                        <span class="w-2 h-2 bg-[#2563EB] rounded-full flex-shrink-0 unread-dot"></span>
+                    @endif
+                    <div class="relative flex-shrink-0 ml-auto context-menu-trigger p-1 rounded-full hover:bg-gray-200">
+                        <i class="fas fa-ellipsis-v text-gray-500 text-sm"></i>
+                    </div>
                 </li>
             @endforeach
-            @foreach ($availableUsersToChat as $userToChat)
-                @php
-                    // Cek apakah sudah ada percakapan dengan user ini
-                    $existingConversation = $conversations->first(function($conv) use ($userToChat) {
-                        return ($conv->user1_id === Auth::id() && $conv->user2_id === $userToChat->id) ||
-                               ($conv->user1_id === $userToChat->id && $conv->user2_id === Auth::id());
-                    });
-                @endphp
-                @if (!$existingConversation)
-                    <li class="new-chat-item p-2 rounded hover:bg-[#1e293b] cursor-pointer"
-                        data-other-user-id="{{ $userToChat->id }}"
-                        data-other-user-name="{{ $userToChat->name ?? $userToChat->username }}">
-                        <div class="flex gap-3 items-center">
-                            <img src="{{ $userToChat->profile_picture_url }}" class="w-10 h-10 rounded-full object-cover" />
+            {{-- ... (sisa new-chat-item jika ada) ... --}}
+            @if($availableUsersToChat->isNotEmpty())
+                <li class="text-center text-gray-600 mt-4 pt-4 border-t border-gray-300">Mulai Chat Baru</li>
+                @foreach($availableUsersToChat as $userToChat)
+                    @php
+                        $existingConversation = $conversations->first(function($conv) use ($userToChat) {
+                            return ($conv->user1_id === Auth::id() && $conv->user2_id === $userToChat->id) ||
+                                ($conv->user1_id === $userToChat->id && $conv->user2_id === Auth::id());
+                        });
+                    @endphp
+                    @if (!$existingConversation)
+                        <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded new-chat-item"
+                            data-other-user-id="{{ $userToChat->id }}"
+                            data-other-user-name="{{ $userToChat->name ?? $userToChat->username }}">
+                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                                <img src="{{ $userToChat->profile_picture_url ?? asset('path/to/default/profile_picture.jpg') }}" class="w-10 h-10 rounded-full object-cover" />
+                            </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-white truncate">{{ $userToChat->name ?? $userToChat->username }}</p>
+                                <p class="font-semibold text-gray-800 truncate">
+                                    {{ $userToChat->name ?? $userToChat->username }}</p>
                                 <p class="text-sm text-gray-500">Klik untuk chat...</p>
                             </div>
-                        </div>
-                    </li>
-                @endif
-            @endforeach
+                        </li>
+                    @endif
+                @endforeach
+            @endif
         </ul>
     </div>
 
-    <div class="flex-1 p-4 flex flex-col bg-[#0f172a]" id="chat-right-panel">
-        <div class="flex-1 flex items-center justify-center text-gray-400 text-lg" id="chat-placeholder">
+    {{-- Ini div panel kanan chat --}}
+    <div class="flex-1 pl-4 flex flex-col bg-[#F8FAFC] rounded-r-lg p-6">
+        <div class="flex-1 flex items-center justify-center text-gray-600 text-lg" id="chat-placeholder">
             Pilih percakapan untuk memulai chat.
         </div>
         <div class="hidden flex-col flex-1 h-full" id="chat-content">
-            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-4" id="chat-header"> {{-- Tambahkan mb-4 --}}
+            <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
                 <div>
-                    <p class="font-bold text-lg" id="active-chat-name">User</p>
-                    <p class="text-sm text-gray-400" id="active-user-status">Offline</p> {{-- Status online/offline --}}
+                    <p class="font-bold text-lg text-gray-800" id="active-chat-name">User</p>
+                    <p class="text-sm text-gray-500" id="active-user-status">Offline</p>
                 </div>
             </div>
-            <div class="flex flex-col space-y-2 overflow-y-auto flex-1 pr-2 pb-3" id="chat-messages-container"></div> {{-- Hapus pt-3, biarkan padding dari parent --}}
-            <div class="mt-auto pt-4 border-t border-gray-700"> {{-- Pastikan input pesan selalu di bawah --}}
+            <div class="flex flex-col space-y-2 overflow-y-auto flex-1 pr-2 pb-3" id="chat-messages-container"></div>
+            <div class="mt-auto pt-4 border-t border-gray-200">
                 <div class="flex gap-2">
-                    <input type="text" placeholder="Ketik pesan..." class="flex-1 px-4 py-2 bg-[#1e293b] text-white rounded focus:outline-none" id="message-input" />
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded" id="send-message-btn">
+                    <input type="text" placeholder="Ketik pesan..." class="flex-1 px-4 py-2 bg-gray-100 text-gray-800 rounded focus:outline-none border border-gray-300 shadow-sm" id="message-input" />
+                    <button class="bg-[#2563EB] hover:bg-[#3B82F6] text-white px-4 rounded" id="send-message-btn">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
@@ -109,58 +116,229 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://js.pusher.com/7.0/pusher.min.js"></script> {{-- Tambahkan Pusher JS --}}
-<script src="{{ asset('js/app.js') }}"></script> {{-- Pastikan Laravel Echo sudah di-setup di app.js --}}
+{{-- HTML for Context Menu --}}
+<div id="chat-context-menu" class="absolute bg-white border border-gray-200 rounded shadow-lg py-1 z-50 hidden">
+    <a href="#" id="pin-chat-option" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+        <i class="fa-solid fa-thumbtack mr-2"></i> Pin Chat
+    </a>
+    <a href="#" id="delete-chat-option" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+        <i class="fa-solid fa-trash mr-2"></i> Hapus Chat
+    </a>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+@vite(['resources/js/app.js'])
+
+@push('scripts')
 <script>
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const authUserId = {{ Auth::id() }};
-        let activeConversationId = null;
-        let activeOtherUserId = null; // Untuk melacak ID pengguna lain yang sedang aktif chat
+    axios.defaults.withCredentials = true; // Penting untuk mengirim cookie (termasuk session dan XSRF-TOKEN)
 
-        // Fungsi untuk memperbarui status online/offline
+    document.addEventListener('DOMContentLoaded', function () {
+        const authUserId = {{ Auth::id() ?? 'null' }};
+        let activeConversationId = null;
+        let activeOtherUserId = null;
+        let clickedChatItem = null;
+
+        const contextMenu = document.getElementById('chat-context-menu');
+        const pinChatOption = document.getElementById('pin-chat-option');
+        const deleteChatOption = document.getElementById('delete-chat-option');
+
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                const div = document.createElement('div');
+                div.id = 'toast-container';
+                div.style.position = 'fixed';
+                div.style.top = '20px';
+                div.style.right = '20px';
+                div.style.zIndex = '9999';
+                document.body.appendChild(div);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `p-3 rounded-md shadow-md text-white mb-3 flex items-center gap-2`;
+            if (type === 'success') {
+                toast.classList.add('bg-green-500');
+                toast.innerHTML = `<i class="fas fa-check-circle"></i> <span>${message}</span>`;
+            } else if (type === 'error') {
+                toast.classList.add('bg-red-500');
+                toast.innerHTML = `<i class="fas fa-times-circle"></i> <span>${message}</span>`;
+            } else {
+                toast.classList.add('bg-blue-500');
+                toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${message}</span>`;
+            }
+
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease-in-out';
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+            });
+
+            document.getElementById('toast-container').prepend(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
+        function showContextMenu(x, y, chatItem) {
+            clickedChatItem = chatItem;
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+            contextMenu.classList.remove('hidden');
+
+            const isPinned = chatItem.classList.contains('pinned-chat');
+            pinChatOption.innerHTML = `<i class="fa-solid fa-thumbtack mr-2"></i> ${isPinned ? 'Unpin Chat' : 'Pin Chat'}`;
+        }
+
+        function hideContextMenu() {
+            contextMenu.classList.add('hidden');
+            clickedChatItem = null;
+        }
+
+        document.querySelectorAll('.context-menu-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const chatItem = this.closest('.chat-item');
+                showContextMenu(e.clientX, e.clientY, chatItem);
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!contextMenu.contains(e.target) && !e.target.closest('.context-menu-trigger')) {
+                hideContextMenu();
+            }
+        });
+
+        pinChatOption.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (clickedChatItem) {
+                const conversationId = clickedChatItem.dataset.conversationId;
+                const isPinned = !clickedChatItem.classList.contains('pinned-chat');
+
+                axios.post(`{{ url('/api/chat/pin') }}/${conversationId}`, { is_pinned: isPinned })
+                    .then(response => {
+                        if (response.data.success) {
+                            showToast(response.data.message, 'success');
+                            if (isPinned) {
+                                clickedChatItem.classList.add('pinned-chat');
+                                const conversationList = document.getElementById('conversation-list');
+                                if (conversationList) {
+                                    conversationList.prepend(clickedChatItem);
+                                }
+                            } else {
+                                clickedChatItem.classList.remove('pinned-chat');
+                                fetchConversationsAndRender();
+                            }
+                            pinChatOption.innerHTML = `<i class="fa-solid fa-thumbtack mr-2"></i> ${isPinned ? 'Unpin Chat' : 'Pin Chat'}`;
+                        } else {
+                            showToast(response.data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error pinning/unpinning chat:', error);
+                        const errorMessage = error.response && error.response.data && error.response.data.message
+                                           ? error.response.data.message
+                                           : 'Terjadi kesalahan saat mengubah status pin chat.';
+                        showToast(errorMessage, 'error');
+                    });
+            }
+            hideContextMenu();
+        });
+
+        deleteChatOption.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (clickedChatItem) {
+                const conversationId = clickedChatItem.dataset.conversationId;
+                const otherUserName = clickedChatItem.dataset.otherUserName;
+
+                if (confirm(`Apakah Anda yakin ingin menghapus chat dengan ${otherUserName} beserta semua riwayatnya?`)) {
+                    axios.delete(`{{ url('/api/chat/conversations') }}/${conversationId}`)
+                        .then(response => {
+                            if (response.data.success) {
+                                showToast(response.data.message, 'success');
+                                clickedChatItem.remove();
+
+                                if (activeConversationId == conversationId) {
+                                    activeConversationId = null;
+                                    activeOtherUserId = null;
+                                    document.getElementById('chat-placeholder').classList.remove('hidden');
+                                    document.getElementById('chat-content').style.display = 'none';
+                                }
+                                if (window.updateChatBadge) {
+                                    window.updateChatBadge();
+                                }
+                            } else {
+                                showToast(response.data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error deleting chat:', error);
+                            const errorMessage = error.response && error.response.data && error.response.data.message
+                                               ? error.response.data.message
+                                               : 'Terjadi kesalahan saat menghapus chat.';
+                            showToast(errorMessage, 'error');
+                        });
+                }
+            }
+            hideContextMenu();
+        });
+
         function updateOnlineStatus(userId, isOnline) {
-            const statusElement = document.querySelector(`#conversation-list li[data-other-user-id="${userId}"] .online-status`);
-            if (statusElement) {
+            if (activeOtherUserId === userId) {
+                const statusElement = document.getElementById('active-user-status');
                 statusElement.textContent = isOnline ? 'Online' : 'Offline';
                 statusElement.classList.toggle('text-green-400', isOnline);
-                statusElement.classList.toggle('text-gray-400', !isOnline);
+                statusElement.classList.toggle('text-gray-500', !isOnline);
             }
-            // Update status di panel chat kanan jika pengguna sedang aktif
-            if (activeOtherUserId === userId) {
-                document.getElementById('active-user-status').textContent = isOnline ? 'Online' : 'Offline';
-                document.getElementById('active-user-status').classList.toggle('text-green-400', isOnline);
-                document.getElementById('active-user-status').classList.toggle('text-gray-400', !isOnline);
+            const listItem = document.querySelector(`#conversation-list li[data-other-user-id="${userId}"]`);
+            if (listItem) {
+                let statusSpan = listItem.querySelector('.online-status');
+                if (!statusSpan) {
+                    statusSpan = document.createElement('span');
+                    statusSpan.classList.add('text-xs', 'ml-1', 'online-status');
+                    const nameElement = listItem.querySelector('.font-semibold');
+                    if (nameElement) {
+                        nameElement.appendChild(statusSpan);
+                    }
+                }
+                statusSpan.textContent = isOnline ? 'Online' : 'Offline';
+                statusSpan.classList.toggle('text-green-400', isOnline);
+                statusSpan.classList.toggle('text-gray-500', !isOnline);
             }
         }
 
         function initChat(conversationId, otherUserName, otherUserId) {
             activeConversationId = conversationId;
-            activeOtherUserId = otherUserId; // Set ID pengguna lain yang aktif
+            activeOtherUserId = otherUserId;
             document.getElementById('chat-placeholder').classList.add('hidden');
             document.getElementById('chat-content').classList.remove('hidden');
+            document.getElementById('chat-content').style.display = 'flex';
             document.getElementById('active-chat-name').textContent = otherUserName;
 
-            // Dapatkan status online pengguna lain
-            axios.get(`/chat/status/${otherUserId}`)
+            // Menggunakan URL helper Laravel
+            axios.get(`{{ url('/api/user-status') }}/${otherUserId}`)
                 .then(res => {
-                    updateOnlineStatus(otherUserId, res.data.is_online); // Gunakan fungsi updateOnlineStatus
+                    updateOnlineStatus(otherUserId, res.data.is_online);
                 })
                 .catch(error => {
                     console.error("Error fetching user status:", error);
-                    updateOnlineStatus(otherUserId, false); // Default jika gagal
+                    showToast('Gagal mengambil status online.', 'error');
+                    updateOnlineStatus(otherUserId, false);
                 });
 
             loadMessages(conversationId);
-            markAsRead(conversationId); // Tandai pesan sebagai telah dibaca saat chat dibuka
+            markConversationAsRead(conversationId);
         }
 
         function loadMessages(conversationId) {
-            axios.get(`/chat/messages/${conversationId}`)
+            // Menggunakan URL helper Laravel
+            axios.get(`{{ url('/api/chat/messages') }}/${conversationId}`)
                 .then(res => {
                     const container = document.getElementById('chat-messages-container');
                     container.innerHTML = '';
@@ -171,85 +349,162 @@
                         if (msgDate !== lastDate) {
                             lastDate = msgDate;
                             const dateBubble = document.createElement('div');
-                            dateBubble.classList.add('text-center', 'text-sm', 'text-gray-400', 'my-2');
+                            dateBubble.classList.add('text-center', 'text-sm', 'text-gray-500', 'my-2');
                             dateBubble.textContent = msgDate;
                             container.appendChild(dateBubble);
                         }
 
                         const bubble = document.createElement('div');
                         bubble.classList.add('p-3', 'rounded-lg', 'max-w-[70%]', 'break-words');
-                        // Opacity untuk bubble chat tergantung sudah dibaca atau belum (jika pesan ini milik penerima)
-                        // Karena ini chat-seller, pesan yang dikirim seller akan selalu 'terlihat', pesan dari customer bisa punya status read_at
+
+                        const isMessageReceivedAndUnread = (msg.receiver_id === authUserId && msg.read_at === null);
+
                         if (msg.sender_id === authUserId) {
-                             bubble.classList.add('bg-blue-600', 'self-end');
-                             // Untuk pesan yang dikirim sendiri, tidak perlu opacity berdasarkan read_at
+                             bubble.classList.add('bg-[#2563EB]', 'self-end', 'text-white');
                         } else {
-                             bubble.classList.add('bg-[#1e293b]', 'self-start');
-                             bubble.style.opacity = msg.read_at ? '0.8' : '1';
+                             bubble.classList.add('bg-gray-200', 'self-start');
+                             bubble.style.opacity = isMessageReceivedAndUnread ? '1' : '0.8';
                         }
 
-
                         if (msg.sender_id === authUserId) {
-                            bubble.innerHTML = `<p class='text-sm text-white'>${msg.content}</p><span class='text-xs text-blue-200 block text-right mt-1'>${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+                            bubble.innerHTML = `<p class='text-sm'>${msg.content}</p><span class='text-xs text-blue-200 block text-right mt-1'>${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
                         } else {
-                            bubble.innerHTML = `<p class='font-semibold text-xs text-gray-300 mb-1'>${msg.sender.name ?? msg.sender.username}</p><p class='text-sm text-gray-200'>${msg.content}</p><span class='text-xs text-gray-400 block mt-1'>${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+                            bubble.innerHTML = `<p class='font-semibold text-xs text-gray-700 mb-1'>${msg.sender.name ?? msg.sender.username}</p><p class='text-sm text-gray-800'>${msg.content}</p><span class='text-xs text-gray-500 block mt-1'>${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
                         }
 
                         container.appendChild(bubble);
                     });
-                    container.scrollTop = container.scrollHeight; // Scroll ke bawah setelah memuat pesan
+                    container.scrollTop = container.scrollHeight;
                 })
                 .catch(error => {
                     console.error("Error loading messages:", error);
+                    showToast('Gagal memuat pesan.', 'error');
                 });
         }
 
-        // Fungsi untuk menandai pesan sebagai sudah dibaca
-        function markAsRead(conversationId) {
-            axios.post(`/chat/read/${conversationId}`)
+        function markConversationAsRead(conversationId) {
+            axios.post(`/api/chat/mark-as-read/${conversationId}`)
                 .then(res => {
-                    // console.log('Messages marked as read:', res.data);
-                    // Setelah pesan ditandai dibaca, perbarui opacity di sidebar
                     const item = document.querySelector(`.chat-item[data-conversation-id="${conversationId}"]`);
                     if (item) {
-                        item.style.opacity = '0.8'; // Set opacity ke 80%
+                        item.dataset.isUnread = 'false';
+                        const unreadDot = item.querySelector('.unread-dot');
+                        if (unreadDot) {
+                            unreadDot.remove();
+                        }
                         const messageContent = item.querySelector('.message-content');
                         if (messageContent) {
-                            messageContent.classList.remove('text-blue-400', 'font-bold');
-                            messageContent.classList.add('text-gray-400');
+                            messageContent.classList.remove('text-[#2563EB]', 'font-bold');
+                            messageContent.classList.add('text-gray-500');
                         }
+                    }
+                    if (window.updateChatBadge) {
+                        window.updateChatBadge();
                     }
                 })
                 .catch(error => {
-                    console.error("Error marking messages as read:", error);
+                    console.error("Error marking conversation as read:", error);
+                    showToast('Gagal menandai pesan sebagai sudah dibaca.', 'error');
                 });
         }
 
-        document.querySelectorAll('.chat-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const conversationId = item.dataset.conversationId;
-                const otherUserName = item.dataset.otherUserName;
-                const otherUserId = item.dataset.otherUserId;
-                initChat(conversationId, otherUserName, otherUserId);
+        async function fetchConversationsAndRender() {
+            try {
+                // Menggunakan URL helper Laravel
+                const response = await axios.get(`{{ url('/api/seller/chat/conversations') }}`);
+                const conversations = response.data.conversations;
+                const conversationList = document.getElementById('conversation-list');
+                conversationList.innerHTML = '';
 
-                // Hapus kelas 'active' dari semua item dan tambahkan ke item yang diklik
-                document.querySelectorAll('.chat-item').forEach(li => li.classList.remove('active'));
-                item.classList.add('active');
+                conversations.forEach(conversation => {
+                    const otherUser = (conversation.user1_id === authUserId) ? conversation.user2 : conversation.user1;
+                    const latestMessage = conversation.messages.length > 0 ? conversation.messages[0] : null;
+                    const isUnread = latestMessage && latestMessage.receiver_id === authUserId && latestMessage.read_at === null;
+                    const isActive = activeConversationId && activeConversationId === conversation.id;
+
+                    const li = document.createElement('li');
+                    li.className = `flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded chat-item ${isActive ? 'active bg-gray-100' : ''} ${conversation.is_pinned ? 'pinned-chat' : ''}`;
+                    li.dataset.conversationId = conversation.id;
+                    li.dataset.otherUserId = otherUser.id;
+                    li.dataset.otherUserName = otherUser.name || otherUser.username;
+                    li.dataset.isUnread = isUnread ? 'true' : 'false';
+
+                    const profilePicUrl = otherUser.profile_picture_url || '{{ asset('path/to/default/profile_picture.jpg') }}';
+
+                    li.innerHTML = `
+                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                            <img src="${profilePicUrl}" class="w-10 h-10 rounded-full object-cover" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-gray-800 truncate">
+                                ${otherUser.name || otherUser.username}
+                                ${conversation.is_pinned ? '<i class="fa-solid fa-thumbtack text-gray-500 text-xs ml-1"></i>' : ''}
+                            </p>
+                            <p class="text-sm ${isUnread ? 'text-[#2563EB] font-bold' : 'text-gray-500'} truncate message-content">
+                                ${latestMessage && latestMessage.content ? latestMessage.content.substring(0, 30) + (latestMessage.content.length > 30 ? '...' : '') : 'Mulai percakapan baru...'}
+                            </p>
+                        </div>
+                        <span class="text-xs text-gray-400 message-time">
+                            ${latestMessage && latestMessage.created_at ? new Date(latestMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                        </span>
+                        ${isUnread ? '<span class="w-2 h-2 bg-[#2563EB] rounded-full flex-shrink-0 unread-dot"></span>' : ''}
+                        <div class="relative flex-shrink-0 ml-auto context-menu-trigger p-1 rounded-full hover:bg-gray-200">
+                            <i class="fas fa-ellipsis-v text-gray-500 text-sm"></i>
+                        </div>
+                    `;
+
+                    li.querySelector('.context-menu-trigger').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const chatItem = this.closest('.chat-item');
+                        showContextMenu(e.clientX, e.clientY, chatItem);
+                    });
+                    li.addEventListener('click', function(e) {
+                        if (!e.target.closest('.context-menu-trigger')) {
+                            const conversationId = this.dataset.conversationId;
+                            const otherUserName = this.dataset.otherUserName;
+                            const otherUserId = this.dataset.otherUserId;
+                            initChat(conversationId, otherUserName, otherUserId);
+
+                            document.querySelectorAll('.chat-item').forEach(li => li.classList.remove('active', 'bg-gray-100'));
+                            this.classList.add('active', 'bg-gray-100');
+                        }
+                    });
+
+                    conversationList.appendChild(li);
+                });
+            } catch (error) {
+                console.error("Error fetching and rendering conversations:", error);
+                showToast('Gagal memuat ulang daftar chat. Silakan coba refresh halaman.', 'error');
+            }
+        }
+
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (!e.target.closest('.context-menu-trigger')) {
+                    const conversationId = this.dataset.conversationId;
+                    const otherUserName = this.dataset.otherUserName;
+                    const otherUserId = this.dataset.otherUserId;
+                    initChat(conversationId, otherUserName, otherUserId);
+
+                    document.querySelectorAll('.chat-item').forEach(li => li.classList.remove('active', 'bg-gray-100'));
+                    this.classList.add('active', 'bg-gray-100');
+                }
             });
         });
 
         document.querySelectorAll('.new-chat-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const otherUserId = item.dataset.otherUserId;
-                const otherUserName = item.dataset.otherUserName;
-                axios.post('/chat/create-or-get-conversation', {
+            item.addEventListener('click', function() {
+                const otherUserId = this.dataset.otherUserId;
+                const otherUserName = this.dataset.otherUserName;
+                // Menggunakan URL helper Laravel
+                axios.post(`{{ url('/api/chat/create-or-get-conversation') }}`, {
                     other_user_id: otherUserId
                 }).then(res => {
                     initChat(res.data.conversation_id, otherUserName, otherUserId);
-                    // Mungkin perlu menambahkan item baru ini ke daftar percakapan dan mengurutkannya
-                    location.reload(); // Untuk kemudahan, refresh halaman untuk melihat percakapan baru di daftar
+                    fetchConversationsAndRender();
                 }).catch(error => {
                     console.error("Error creating new conversation:", error);
+                    showToast('Gagal memulai chat baru: ' + (error.response.data.message || error.message), 'error');
                 });
             });
         });
@@ -259,13 +514,16 @@
             const message = input.value.trim();
             if (!message || !activeConversationId) return;
 
-            axios.post(`/chat/send/${activeConversationId}`, {
+            // Menggunakan URL helper Laravel
+            axios.post(`{{ url('/api/chat/send') }}/${activeConversationId}`, {
                 content: message
             }).then(() => {
-                loadMessages(activeConversationId);
                 input.value = '';
+                loadMessages(activeConversationId);
+                fetchConversationsAndRender();
             }).catch(error => {
                 console.error("Error sending message:", error);
+                showToast('Gagal mengirim pesan.', 'error');
             });
         });
 
@@ -276,10 +534,12 @@
             }
         });
 
-        // Search functionality
         document.getElementById('chat-search-input').addEventListener('keyup', function() {
             const searchTerm = this.value.toLowerCase();
             document.querySelectorAll('#conversation-list > li').forEach(item => {
+                if (item.classList.contains('text-center')) {
+                    return;
+                }
                 const userName = item.querySelector('.font-semibold').textContent.toLowerCase();
                 const messagePreview = item.querySelector('.message-content') ? item.querySelector('.message-content').textContent.toLowerCase() : '';
                 if (userName.includes(searchTerm) || messagePreview.includes(searchTerm)) {
@@ -290,60 +550,47 @@
             });
         });
 
-        // Laravel Echo Listener
-        // Menggunakan private channel 'chat.{userId}'
-        window.Echo.private(`chat.${authUserId}`)
-            .listen('NewChatMessage', (e) => {
-                // Periksa apakah pesan masuk ke percakapan yang sedang aktif
-                if (e.message.conversation_id == activeConversationId) {
-                    loadMessages(activeConversationId); // Muat ulang pesan untuk percakapan aktif
-                    markAsRead(activeConversationId); // Tandai sebagai sudah dibaca secara otomatis
-                } else {
-                    // Jika pesan masuk ke percakapan lain, perbarui sidebar
-                    const conversationItem = document.querySelector(`.chat-item[data-conversation-id="${e.message.conversation_id}"]`);
-                    if (conversationItem) {
-                        // Perbarui pratinjau pesan dan waktu
-                        const messageContent = conversationItem.querySelector('.message-content');
-                        if (messageContent) {
-                            messageContent.textContent = `Pesan baru: ${e.message.content.substring(0, 30)}...`;
-                            messageContent.classList.add('text-blue-400', 'font-bold'); // Tandai sebagai belum dibaca
-                        }
-                        const messageTime = conversationItem.querySelector('.message-time');
-                        if (messageTime) {
-                            messageTime.textContent = new Date(e.message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        }
-                        conversationItem.style.opacity = '1'; // Set opacity ke 100%
-                        // Pindahkan item ke atas
-                        const parentList = document.getElementById('conversation-list');
-                        parentList.prepend(conversationItem);
-                    } else {
-                        // Jika percakapan belum ada di sidebar (misal, baru dibuat oleh orang lain)
-                        // Anda mungkin perlu membuat AJAX call untuk mendapatkan data percakapan baru
-                        // Untuk saat ini, refresh halaman sederhana bisa digunakan (bukan real-time yang ideal)
-                        location.reload();
-                    }
-                }
-            });
+        if (authUserId) {
+            window.Echo.private(`chat.${authUserId}`)
+                .listen('new-message', (e) => {
+                    console.log('Pesan baru diterima:', e);
 
-        // Listener untuk status online/offline (Anda perlu implementasikan event ini di backend)
-        window.Echo.join('presence-online-users') // Sesuaikan nama channel presence Anda
-            .here((users) => {
-                // console.log("Current online users:", users);
-                users.forEach(user => {
-                    updateOnlineStatus(user.id, true);
+                    if (e.conversation_id == activeConversationId) {
+                        loadMessages(activeConversationId);
+                    } else {
+                        fetchConversationsAndRender();
+                    }
+                    if (window.updateChatBadge) {
+                        window.updateChatBadge();
+                    }
                 });
-            })
-            .joining((user) => {
-                // console.log(user.name + ' bergabung.');
-                updateOnlineStatus(user.id, true);
-            })
-            .leaving((user) => {
-                // console.log(user.name + ' keluar.');
-                updateOnlineStatus(user.id, false);
-            })
-            .error((error) => {
-                console.error(error);
-            });
+
+            window.Echo.join('presence-online-users')
+                .here((users) => {
+                    users.forEach(user => {
+                        updateOnlineStatus(user.id, true);
+                    });
+                })
+                .joining((user) => {
+                    updateOnlineStatus(user.id, true);
+                })
+                .leaving((user) => {
+                    updateOnlineStatus(user.id, false);
+                })
+                .error((error) => {
+                    console.error("Presence Channel Error:", error);
+                    showToast('Kesalahan koneksi status online.', 'error');
+                });
+        }
+
+        fetchConversationsAndRender();
+
+        @if(isset($activeConversation) && $activeConversation)
+            const initialConversationId = {{ $activeConversation->id }};
+            const initialOtherUserName = "{{ ($activeConversation->user1_id === Auth::id() ? $activeConversation->user2 : $activeConversation->user1)->name ?? ($activeConversation->user1_id === Auth::id() ? $activeConversation->user2 : $activeConversation->user1)->username }}";
+            const initialOtherUserId = {{ ($activeConversation->user1_id === Auth::id() ? $activeConversation->user2 : $activeConversation->user1)->id }};
+            initChat(initialConversationId, initialOtherUserName, initialOtherUserId);
+        @endif
     });
 </script>
-@endsection
+@endpush

@@ -7,7 +7,7 @@
 }
 
 .scrollable::-webkit-scrollbar-thumb {
-    background-color: #4b5563;
+    background-color: #60A5FA; /* Biru terang untuk scrollbar internal */
     border-radius: 3px;
 }
 
@@ -18,7 +18,7 @@
     position: relative;
     overflow: hidden;
     border-radius: 0.5rem;
-    border: 2px solid white;
+    border: 2px solid #E0E0E0; /* Border gambar utama jadi abu-abu terang */
 }
 
 .main-product-image-container img.main-product-image {
@@ -32,20 +32,19 @@
 }
 </style>
 
-<main class="flex-1 px-6 py-8 ml-64 bg-[#10172A] min-h-screen">
-    <div class="max-w-5xl mx-auto space-y-6">
-        <a href="{{ route('customer.produk') }}" class="text-sm text-white hover:underline"><i
-                class="fa-solid fa-arrow-left"></i> View Product</a>
-
-        <div class="bg-[#1C2438] p-6 rounded-xl shadow-md space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+{{-- Pastikan main ini memiliki background terang yang konsisten --}}
+<main class="flex-1 px-6 py-8 ml-64 bg-[#F8FAFC] min-h-screen"> <div class="max-w-5xl mx-auto space-y-6">
+        <span class="text-2xl font-semibold text-gray-700">
+            View Product
+        </span>
+            
+        <div class="bg-white p-6 rounded-xl shadow-md space-y-8"> <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="space-y-4">
                     <div class="main-product-image-container bg-white">
                         <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}"
                         class="absolute inset-0 w-full h-full object-cover rounded-lg mb-4">
                         <div
-                            class="absolute top-3 right-3 w-8 h-8 bg-orange-400 text-white rounded-full flex items-center justify-center shadow-lg ring-2 ring-white">
-                            <i class="fa-solid fa-bookmark text-sm"></i>
+                            class="absolute top-3 right-3 w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center shadow-lg ring-2 ring-gray-200"> <i class="fa-solid fa-bookmark text-sm"></i>
                         </div>
                     </div>
                     {{-- Removed thumbnail images --}}
@@ -63,56 +62,45 @@
                                     </div>
                                 {{-- Nama Toko/Seller --}}
                                 {{-- UBAH INI: Dari $product->seller menjadi $product->user --}}
-                                <span class="font-semibold">{{ $product->user->name ?? 'Toko Tidak Dikenal' }}</span>
-                            </div>
+                                <span class="font-semibold text-gray-800">{{ $product->user->name ?? 'Toko Tidak Dikenal' }}</span> </div>
                             {{-- PERUBAHAN DI SINI: Tombol "View Store" menjadi TAUTAN --}}
                             <a href="{{ route('view-seller.show', $product->user->id) }}" {{-- Menggunakan route langsung ke profil seller --}}
-                               class="bg-gray-700 px-3 py-1 text-sm rounded-md hover:bg-gray-600">
-                                View Store
+                               class="bg-gray-200 text-gray-800 px-3 py-1 text-sm rounded-md hover:bg-gray-300"> View Store
                             </a>
                         </div>
 
-                        <h2 class="text-2xl font-bold">{{ $product->name ?? 'Nama Produk' }}</h2>
-
-                        <div class="text-sm text-gray-400 max-h-64 overflow-y-auto pr-2 scrollable">
-                            <p>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ $product->name ?? 'Nama Produk' }}</h2> <div class="text-sm text-gray-600 max-h-64 overflow-y-auto pr-2 scrollable"> <p>
                                 {{ $product->description ?? 'Deskripsi produk belum ada.' }}
                             </p>
                         </div>
                         <br />
-                        <span class="text-2xl font-bold text-yellow-400">
-                            Rp. {{ number_format($product->price ?? 0, 2, ',', '.') }}
+                        <span class="text-2xl font-bold text-[#2563EB]"> Rp. {{ number_format($product->price ?? 0, 2, ',', '.') }}
                         </span>
                     </div>
 
                     <div class="mt-6 flex items-center justify-end">
                         <div class="flex gap-3">
-                            {{-- Tombol Add to Wishlist ... (tidak ada perubahan) --}}
+                            {{-- Tombol Add to Wishlist --}}
                             @auth
                             <button id="addToWishlistBtn" data-product-id="{{ $product->id }}"
-                                class="px-4 py-2 text-white rounded-md transition-colors duration-200
-                                        {{ Auth::user()->hasInWishlist($product->id) ? 'bg-orange-500 hover:bg-orange-600' : 'bg-gray-600 hover:bg-gray-500' }}">
-                                <i class="fa-solid fa-bookmark mr-2"></i>
+                                class="px-10 py-2 text-white rounded-md transition-colors duration-200
+                                        {{ Auth::user()->hasInWishlist($product->id) ? 'bg-[#2563EB] hover:bg-[#3B82F6]' : 'bg-gray-300 hover:bg-[#2563EB]' }}"> <i class="fa-solid fa-bookmark mr-2"></i>
                                 <span id="wishlistButtonText">
-                                    {{ Auth::user()->hasInWishlist($product->id) ? 'Remove from Wishlist' : 'Add to Wishlist' }}
+                                    {{ Auth::user()->hasInWishlist($product->id) ? 'Remove' : 'Add to Wishlist' }}
                                 </span>
                             </button>
                             @endauth
                             @guest
                             <a href="{{ route('login') }}"
-                                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500">
-                                <i class="fa-solid fa-bookmark mr-2"></i> Add to Wishlist
+                                class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-[#2563EB] hover:text-white"> <i class="fa-solid fa-bookmark mr-2"></i> Add to Wishlist
                             </a>
                             @endguest
 
-
                             <button id="addToCartBtn" data-product-id="{{ $product->id }}"
-                                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500">
-                                Add to cart
+                                class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-[#2563EB] hover:text-white"> Add to cart
                             </button>
                             <button id="buyNowBtn" data-product-id="{{ $product->id }}"
-                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-400">
-                                Buy Now
+                                class="px-4 py-2 bg-[#2563EB] text-white rounded-md hover:bg-[#3B82F6]"> Buy Now
                             </button>
                         </div>
                     </div>
@@ -120,9 +108,7 @@
             </div>
 
             <div class="space-y-6">
-                <h3 class="text-lg font-semibold">Comments</h3>
-
-                {{-- Form untuk Menambah/Mengedit Komentar --}}
+                <h3 class="text-lg font-semibold text-gray-800">Comments</h3> {{-- Form untuk Menambah/Mengedit Komentar --}}
                 @auth
                 <form id="comment-form" action="{{ route('comments.store', $product->id) }}" method="POST"
                     class="flex items-center gap-2">
@@ -139,48 +125,42 @@
                                 <img src="{{ Auth::user()->profile_picture_url }}" alt="User Profile" class="w-full h-full object-cover">
                             </div>
                     <input type="text" name="content" id="comment-input" placeholder="Write a comment..."
-                        class="flex-1 p-3 rounded-md bg-[#1F2A40] text-white border border-gray-600 focus:outline-none @error('content') border-red-500 @enderror"
-                        value=""
+                        class="flex-1 p-3 py-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none @error('content') border-red-500 @enderror" value=""
                         required />
-                    <button type="submit" class="bg-green-500 px-4 py-2 rounded-md hover:bg-green-400">
-                        <i class="fa-solid fa-paper-plane"></i> <span id="comment-button-text">Kirim</span>
-                    </button>
+                    <button type="submit" class="bg-[#2563EB] px-4 py-2 rounded-md hover:bg-[#3B82F6] text-white"> <i class="fa-solid fa-paper-plane"></i> <span id="comment-button-text">Kirim</span>
+                        </button>
                 </form>
                 @error('content')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
                 @else
-                <p class="text-gray-400 text-sm">Silakan <a href="{{ route('login') }}"
-                        class="text-blue-400 hover:underline">login</a> untuk berkomentar.</p>
-                @endauth
+                <p class="text-gray-600 text-sm">Silakan <a href="{{ route('login') }}"
+                        class="text-blue-600 hover:underline">login</a> untuk berkomentar.</p> @endauth
 
                 {{-- Tampilkan Daftar Komentar --}}
                 <div class="space-y-4">
                     @forelse ($product->comments->sortByDesc('created_at') as $comment)
-                    <div class="flex gap-3 bg-[#1F2A40] p-3 rounded-md" id="comment-item-{{ $comment->id }}">
-                        {{-- Foto Profil Komentator --}}
+                    <div class="flex gap-3 bg-gray-100 p-3 rounded-md" id="comment-item-{{ $comment->id }}"> {{-- Foto Profil Komentator --}}
                         <div class="w-10 h-10 rounded-full overflow-hidden">
                                 <img src="{{ $comment->user->profile_picture_url }}" alt="User Profile"class="w-full h-full object-cover">
                             </div>
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <p class="font-semibold">{{ $comment->user->name ?? 'User Tidak Dikenal' }}</p>
-                                @auth
-                                <div class="text-xs text-gray-500 space-x-2">
-                                    @if (Auth::id() === $comment->user_id)
-                                    <button class="text-white/70 hover:text-white edit-comment-btn"
+                                <p class="font-semibold text-gray-800">{{ $comment->user->name ?? 'User Tidak Dikenal' }}</p> @auth
+                                <div class="text-xs text-gray-600 space-x-2"> @if (Auth::id() === $comment->user_id)
+                                    <button class="text-gray-700 hover:text-gray-900 edit-comment-btn"
                                         data-comment-id="{{ $comment->id }}"
                                         data-comment-content="{{ $comment->content }}">
                                         <i class="fas fa-pen text-xs"></i> Edit
                                     </button>
                                     @endif
                                     @if (Auth::id() === $comment->user_id || Auth::id() === $product->user_id)
-                                    <button class="text-red-500 hover:text-red-400 delete-comment-btn"
+                                    <button class="text-red-600 hover:text-red-700 delete-comment-btn"
                                         data-comment-id="{{ $comment->id }}">
                                         <i class="fa-solid fa-trash"></i> Hapus
                                     </button>
                                     @endif
-                                    <button class="text-blue-400 hover:text-blue-300 reply-comment-btn"
+                                    <button class="text-blue-600 hover:text-blue-700 reply-comment-btn"
                                         data-comment-id="{{ $comment->id }}"
                                         data-comment-user="{{ $comment->user->name ?? 'User' }}">
                                         <i class="fa-solid fa-reply"></i> Reply
@@ -188,33 +168,31 @@
                                 </div>
                                 @endauth
                             </div>
-                            <p class="text-sm text-gray-300 mt-1" id="comment-content-display-{{ $comment->id }}">
-                                {{ $comment->content }}</p>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-sm text-gray-700 mt-1" id="comment-content-display-{{ $comment->id }}">
+                                {{ $comment->content }}</p> <p class="text-xs text-gray-600 mt-1">
                                 {{ $comment->created_at->diffForHumans() }}
                             </p>
 
                             {{-- Balasan Komentar --}}
                             @foreach($comment->replies->sortBy('created_at') as $reply)
-                            <div class="flex gap-3 bg-[#2A354D] p-3 rounded-md mt-3 ml-8" id="comment-item-{{ $reply->id }}"> {{-- Indent for replies --}}
-                                <div class="w-8 h-8 rounded-full overflow-hidden">
+                            <div class="flex gap-3 bg-gray-200 p-3 rounded-md mt-3 ml-8" id="comment-item-{{ $reply->id }}"> <div class="w-8 h-8 rounded-full overflow-hidden">
                                     <img src="{{ $reply->user->profile_picture_url ?? asset('img/default-profile.png') }}" alt="User Profile"
                                         class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex-1">
                                     <div class="flex items-center justify-between">
-                                        <p class="font-semibold text-white text-sm">{{ $reply->user->name ?? 'User Tidak Dikenal' }}</p>
+                                        <p class="font-semibold text-gray-800 text-sm">{{ $reply->user->name ?? 'User Tidak Dikenal' }}</p>
                                         @auth
-                                        <div class="text-xs text-gray-500 space-x-2">
+                                        <div class="text-xs text-gray-600 space-x-2">
                                             @if (Auth::id() === $reply->user_id)
-                                            <button class="text-white/70 hover:text-white edit-comment-btn"
+                                            <button class="text-gray-700 hover:text-gray-900 edit-comment-btn"
                                                 data-comment-id="{{ $reply->id }}"
                                                 data-comment-content="{{ $reply->content }}">
                                                 <i class="fas fa-pen text-xs"></i> Edit
                                             </button>
                                             @endif
                                             @if (Auth::id() === $reply->user_id || Auth::id() === $product->user_id)
-                                            <button class="text-red-500 hover:text-red-400 delete-comment-btn"
+                                            <button class="text-red-600 hover:text-red-700 delete-comment-btn"
                                                 data-comment-id="{{ $reply->id }}">
                                                 <i class="fa-solid fa-trash"></i> Hapus
                                             </button>
@@ -222,9 +200,9 @@
                                         </div>
                                         @endauth
                                     </div>
-                                    <p class="text-xs text-gray-300 mt-1" id="comment-content-display-{{ $reply->id }}">
+                                    <p class="text-xs text-gray-700 mt-1" id="comment-content-display-{{ $reply->id }}">
                                         {{ $reply->content }}</p>
-                                    <p class="text-xs text-gray-500 mt-1">
+                                    <p class="text-xs text-gray-600 mt-1">
                                         {{ $reply->created_at->diffForHumans() }}
                                     </p>
                                 </div>
@@ -233,46 +211,13 @@
                         </div>
                     </div>
                     @empty
-                    <p class="text-gray-400 text-center">Belum ada komentar.</p>
+                    <p class="text-gray-600 text-center">Belum ada komentar.</p>
                     @endforelse
                 </div>
             </div>
         </div>
     </div>
 </main>
-
-{{-- HAPUS TOTAL BLOK MODAL POP-UP INI KARENA TIDAK DIGUNAKAN LAGI --}}
-{{-- <div id="storeProfileModal" class="modal">
-    <div class="modal-content text-white">
-        <button class="close-button" id="closeModalBtn">&times;</button>
-        <div class="flex flex-col items-center gap-4">
-            <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
-                <img id="sellerProfilePicture" src="{{ asset('img/default-profile.jpg') }}" alt="Seller Profile"
-                    class="w-full h-full object-cover">
-            </div>
-            <h3 id="sellerName" class="text-xl font-bold">Nama Toko</h3>
-            <p id="sellerStatus" class="text-green-500 text-sm">Online</p>
-            <p id="sellerDescription" class="text-gray-400 text-center text-sm">Deskripsi toko...</p>
-
-            <div class="grid grid-cols-2 gap-4 w-full mt-4">
-                <div class="bg-[#2A354D] rounded-lg p-4 flex flex-col items-center">
-                    <div class="w-12 h-12 rounded-full overflow-hidden bg-white/20 mb-2 flex items-center justify-center">
-                        <i class="fa-solid fa-check-circle text-green-400 text-2xl"></i>
-                    </div>
-                    <span class="text-lg font-semibold" id="successTransactions">0</span>
-                    <span class="text-xs text-gray-400">Success Transactions</span>
-                </div>
-                <div class="bg-[#2A354D] rounded-lg p-4 flex flex-col items-center">
-                    <div class="w-12 h-12 rounded-full overflow-hidden bg-white/20 mb-2 flex items-center justify-center">
-                        <i class="fa-solid fa-times-circle text-red-400 text-2xl"></i>
-                    </div>
-                    <span class="text-lg font-semibold" id="failedTransactions">0</span>
-                    <span class="text-xs text-gray-400">Failed Transactions</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> --}}
 
 
 @push('scripts')
@@ -351,17 +296,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         if (data.action === 'removed') {
-                            this.classList.remove('bg-orange-500', 'hover:bg-orange-600');
-                            this.classList.add('bg-gray-600', 'hover:bg-gray-500');
+                            // Mengubah warna tombol wishlist ketika dihapus dari wishlist (tema terang)
+                            this.classList.remove('bg-[#2563EB]', 'hover:bg-[#3B82F6]');
+                            this.classList.add('bg-gray-300', 'hover:bg-[#2563EB]');
                             if (wishlistButtonText) {
                                 wishlistButtonText.textContent = 'Add to Wishlist';
                             }
                             showToast('Produk dihapus dari wishlist.', 'success');
                         } else if (data.action === 'added') {
-                            this.classList.remove('bg-gray-600', 'hover:bg-gray-500');
-                            this.classList.add('bg-orange-500', 'hover:bg-orange-600');
+                            // Mengubah warna tombol wishlist ketika ditambahkan ke wishlist (tema terang)
+                            this.classList.remove('bg-gray-300', 'hover:bg-[#2563EB]');
+                            this.classList.add('bg-[#2563EB]', 'hover:bg-[#3B82F6]');
                             if (wishlistButtonText) {
-                                wishlistButtonText.textContent = 'Remove from Wishlist';
+                                wishlistButtonText.textContent = 'Remove';
                             }
                             showToast('Produk ditambahkan ke wishlist.', 'success');
                         }
@@ -587,66 +534,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-
-    // --- HAPUS TOTAL LOGIKA MODAL POP-UP PROFIL TOKO INI ---
-    // const viewStoreBtn = document.getElementById('viewStoreBtn');
-    // const storeProfileModal = document.getElementById('storeProfileModal');
-    // const closeModalBtn = document.getElementById('closeModalBtn');
-    // const sellerProfilePicture = document.getElementById('sellerProfilePicture');
-    // const sellerName = document.getElementById('sellerName');
-    // const sellerStatus = document.getElementById('sellerStatus');
-    // const sellerDescription = document.getElementById('sellerDescription');
-
-    // if (viewStoreBtn) {
-    //     viewStoreBtn.addEventListener('click', function() {
-    //         const sellerId = this.dataset.sellerId;
-    //         if (sellerId) {
-    //             fetch(`/api/seller-info/${sellerId}`)
-    //                 .then(response => {
-    //                     if (!response.ok) {
-    //                         return response.json().then(errorData => {
-    //                             throw new Error(errorData.message || 'Gagal memuat data seller.');
-    //                         });
-    //                     }
-    //                     return response.json();
-    //                 })
-    //                 .then(data => {
-    //                     if (data.success && data.user) {
-    //                         sellerProfilePicture.src = data.user.profile_picture_url || '{{ asset("img/default-profile.jpg") }}';
-    //                         sellerName.textContent = data.user.name;
-    //                         sellerStatus.textContent = data.user.is_online ? 'Online' : 'Offline';
-    //                         sellerStatus.className = '';
-    //                         sellerStatus.classList.add('text-sm', data.user.is_online ? 'text-green-500' : 'text-red-500');
-    //                         sellerDescription.textContent = data.user.description || 'Belum ada deskripsi toko.';
-    //                         storeProfileModal.classList.add('show');
-    //                     } else {
-    //                         showToast(data.message || 'Gagal memuat data seller.', 'error');
-    //                     }
-    //                 })
-    //                 .catch(error => {
-    //                     console.error('Error fetching seller info:', error);
-    //                     showToast('Terjadi kesalahan saat memuat informasi toko: ' + error.message, 'error');
-    //                 });
-    //         } else {
-    //             showToast('Informasi seller tidak tersedia.', 'error');
-    //         }
-    //     });
-    // }
-
-    // if (closeModalBtn) {
-    //     closeModalBtn.addEventListener('click', function() {
-    //         storeProfileModal.classList.remove('show');
-    //     });
-    // }
-
-    // if (storeProfileModal) {
-    //     storeProfileModal.addEventListener('click', function(e) {
-    //         if (e.target === storeProfileModal) {
-    //             storeProfileModal.classList.remove('show');
-    //         }
-    //     });
-    // }
 });
 </script>
 @endpush

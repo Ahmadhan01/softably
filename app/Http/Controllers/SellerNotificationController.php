@@ -28,7 +28,7 @@ class SellerNotificationController extends Controller
                                             'transactionDetail.transaction.user'
                                         ])
                                         ->orderBy('created_at', 'desc')
-                                        ->get();
+                                        ->paginate(10); // <--- UBAH DI SINI: Gunakan paginate()
 
         return view('view-seller.notif-seller', compact('notifications'));
     }

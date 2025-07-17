@@ -13,67 +13,68 @@
 
     {{-- Tambahkan CSS kustom jika diperlukan, misalnya untuk styling select atau input search --}}
     <style>
-    /* Gaya dasar untuk select dan input di tema gelap */
-    .bg-gray-700 {
-        background-color: #374151;
-        /* Darker gray for select backgrounds */
+    /* Gaya dasar untuk select dan input di tema terang */
+    .filter-select { /* Gaya yang sama seperti di produk-customer.blade.php */
+        background-color: #FFFFFF;
+        border: 1px solid #D0D0D0;
+        color: #333333;
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        width: 180px; /* Sesuaikan lebar */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 1em;
+        padding-right: 2rem;
     }
 
-    .bg-gray-800 {
-        background-color: #1f2937;
-        /* Even darker gray for search input */
+    /* Untuk search input */
+    .search-input {
+        background-color: #F8FAFC; /* Background input search sama dengan body utama */
+        border: 1px solid #D0D0D0; /* Border abu-abu terang */
+        color: #333333; /* Teks gelap */
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        width: 100%;
+        outline: none; /* Hapus outline default */
+    }
+    .search-input:focus {
+        border-color: #2563EB; /* Border biru saat fokus */
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); /* Sedikit shadow biru saat fokus */
     }
 
-    .text-white {
-        color: #ffffff;
+    /* Search icon dalam input */
+    .search-icon {
+        color: #6B7280; /* Warna ikon abu-abu gelap */
     }
 
-    .focus\:ring-blue-500:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-        /* Blue ring on focus */
-    }
 
-    /* Tambahan styling untuk ikon di input search agar vertikal center */
-    .absolute.right-3.top-1\/2.-translate-y-1\/2 {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        /* Ensure it spans the full height of the input */
-        pointer-events: none;
-        /* Make icon unclickable to pass click to input */
-    }
-
-    /* Override pointer-events for the button within the search input */
+    /* Override pointer-events for the button within the search input (pastikan ini masih relevan) */
     .absolute.right-3.top-1\/2.-translate-y-1\/2 button {
         pointer-events: auto;
-        /* Re-enable click for the button itself */
         height: auto;
-        /* Reset height */
     }
     </style>
 </head>
 
-<body class="bg-[#10172A] text-white">
-    <main class="flex-1 p-6 space-y-6 ml-64">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-semibold">My Order</h1>
-
+<body class="bg-[#F8FAFC] text-[#333333]"> <main class="flex-1 p-6 space-y-6 ml-64 bg-[#F8FAFC]"> <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-semibold text-gray-800">My Order</h1> {{-- Bagian ini mungkin tidak diperlukan lagi jika search dipindahkan ke form filter utama --}}
+            {{-- Namun, jika ini untuk ikon wishlist di header halaman My Order, pertahankan dan sesuaikan warnanya --}}
             <div class="flex items-center space-x-4">
-                <a href="{{ route('wishlist-customer.index') }}" class="text-lg hover:text-blue-400">
-                    <i class="fa-solid fa-bookmark"></i>
+                <a href="{{ route('wishlist-customer.index') }}" class="text-[#2563EB] text-lg hover:text-[#3B82F6]"> <i class="fa-solid fa-bookmark"></i>
                 </a>
             </div>
         </div>
 
         <form action="{{ route('order-customer') }}" method="GET"
-            class="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div class="flex items-center gap-2">
-                <label for="status-filter" class="text-gray-300">Filter by</label>
-                <select name="status" id="status-filter" onchange="this.form.submit()"
-                    class="px-3 py-1 bg-gray-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="all" {{ $selectedStatus == 'all' ? 'selected' : '' }}>All Status</option>
+            class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white p-4 rounded-lg shadow-md"> <div class="flex items-center gap-2">
+                <label for="status-filter" class="text-gray-600">Filter by</label> <select name="status" id="status-filter" onchange="this.form.submit()"
+                    class="filter-select"> <option value="all" {{ $selectedStatus == 'all' ? 'selected' : '' }}>All Status</option>
                     <option value="completed" {{ $selectedStatus == 'completed' ? 'selected' : '' }}>Completed
                     </option>
                     <option value="pending" {{ $selectedStatus == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -81,10 +82,8 @@
                     </option>
                 </select>
 
-                <label for="category-filter" class="text-gray-300 ml-4">Category</label>
-                <select name="category" id="category-filter" onchange="this.form.submit()"
-                    class="px-3 py-1 bg-gray-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">All Categories</option>
+                <label for="category-filter" class="text-gray-600 ml-4">Category</label> <select name="category" id="category-filter" onchange="this.form.submit()"
+                    class="filter-select"> <option value="">All Categories</option>
                     @foreach ($categories as $key => $label)
                     <option value="{{ $key }}" {{ $selectedCategory == $key ? 'selected' : '' }}>{{ $label }}
                     </option>
@@ -94,10 +93,8 @@
 
             <div class="relative w-full max-w-xs">
                 <input type="text" name="search" placeholder="Search product" value="{{ $searchQuery }}"
-                    class="w-full px-4 py-2 bg-gray-800 text-sm text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <button type="submit"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm cursor-pointer">
-                    <i class="fa fa-search"></i>
+                    class="search-input" /> <button type="submit"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 search-icon cursor-pointer"> <i class="fa fa-search"></i>
                 </button>
             </div>
         </form>
@@ -111,10 +108,8 @@
             $firstDetail = $transaction->details->first();
             $product = $firstDetail ? $firstDetail->product : null;
             @endphp
-            <div class="bg-gray-800 p-4 rounded-lg flex items-center gap-6">
-                {{-- PERBAIKAN DI SINI: Kontainer gambar seragam untuk semua produk --}}
-                <div class="w-36 h-36 flex-shrink-0 relative overflow-hidden rounded-lg bg-gray-700">
-                    {{-- Tambahkan w-36 h-36 untuk ukuran seragam --}}
+            <div class="bg-white p-4 rounded-lg flex items-center gap-6 shadow-sm border border-gray-200"> {{-- PERBAIKAN DI SINI: Kontainer gambar seragam untuk semua produk --}}
+                <div class="w-36 h-36 flex-shrink-0 relative overflow-hidden rounded-lg bg-gray-100 border border-gray-300"> {{-- Tambahkan w-36 h-36 untuk ukuran seragam --}}
                     @if($product && $product->image_path)
                     <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}"
                         class="absolute inset-0 w-full h-full object-cover">
@@ -127,27 +122,19 @@
                 </div>
 
                 <div class="flex-1">
-                    <a href="#" class="text-sm text-gray-400">
-                        {{ $product->user->name ?? 'Toko Tidak Dikenal' }}
+                    <a href="#" class="text-sm text-gray-600"> {{ $product->user->name ?? 'Toko Tidak Dikenal' }}
                     </a>
-                    <h2 class="font-bold text-lg">{{ $firstDetail->product_name ?? 'Produk Tidak Diketahui' }}</h2>
-                    <p class="text-sm text-gray-400 line-clamp-2 mb-2">
-                        {{ Str::limit($product->description ?? 'Deskripsi produk tidak tersedia.', 100) }}
+                    <h2 class="font-bold text-lg text-gray-900">{{ $firstDetail->product_name ?? 'Produk Tidak Diketahui' }}</h2> <p class="text-sm text-gray-600 line-clamp-2 mb-2"> {{ Str::limit($product->description ?? 'Deskripsi produk tidak tersedia.', 100) }}
                     </p>
                     <a href="{{ route('order-customer.show', $transaction->id) }}"
-                        class="text-sm px-3 py-1 border border-gray-500 text-white rounded hover:bg-gray-700"
-                        type="button">Check Details</a>
-                </div>
+                        class="text-sm px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-200">Check Details</a> </div>
 
                 <div class="flex flex-col items-end justify-between h-full ml-auto text-right">
-                    <span class="text-green-400 font-semibold mb-9">✔ {{ $transaction->status_label }}</span>
-                    <span class="text-orange-400 font-bold text-lg mt-9">Rp.
-                        {{ number_format($transaction->total_amount, 2, ',', '.') }}</span>
+                    <span class="text-green-600 font-semibold mb-9">✔ {{ $transaction->status_label }}</span> <span class="text-[#2563EB] font-bold text-lg mt-9">Rp. {{ number_format($transaction->total_amount, 2, ',', '.') }}</span>
                 </div>
             </div>
             @empty
-            <div class="text-center text-gray-500 p-6">
-                Belum ada order yang ditemukan.
+            <div class="text-center text-gray-600 p-6"> Belum ada order yang ditemukan.
             </div>
             @endforelse
         </div>

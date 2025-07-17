@@ -3,10 +3,10 @@
 @section('title', 'Help Center - Softably')
 
 @section('isi')
-<main class="ml-64 min-h-screen flex flex-col bg-[#10172A] text-white font-sans">
-    <div class="p-8 flex-grow">
+<main class="min-h-screen flex flex-col bg-[#F8FAFC] text-gray-800 font-sans p-6 rounded-lg shadow-md"> {{-- Ubah background, teks, dan tambahkan padding, rounded, shadow --}}
+    <div class="flex-grow"> {{-- Tambahkan flex-grow agar konten mengisi ruang --}}
         <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-white">Help Center</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Help Center</h1> {{-- Ubah warna teks --}}
             <button id="talkWithSoftablyBtn"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-transform transform hover:scale-105">
                 <i class="fa-solid fa-headset"></i>
@@ -16,47 +16,45 @@
 
         <div class="flex flex-col md:flex-row gap-8">
             <div class="w-full md:w-1/3 lg:w-1/4">
-                <div class="bg-[#1E293B] p-4 rounded-lg">
+                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200"> {{-- Ubah background, tambahkan shadow dan border --}}
                     <nav class="space-y-1">
                         {{-- Added 'active' class to the default active link --}}
                         <a href="#"
-                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all active"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all active" {{-- Ubah warna teks, hover background, dan hover teks --}}
                             data-target="home-content">
-                            <i class="fa-solid fa-house-chimney w-5 text-center"></i>
+                            <i class="fa-solid fa-house-chimney w-5 text-center text-blue-600"></i> {{-- Ubah warna ikon --}}
                             <span>Home</span>
                         </a>
                         <a href="#"
-                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all" {{-- Ubah warna teks, hover background, dan hover teks --}}
                             data-target="get-started-content">
-                            <i class="fa-solid fa-rocket w-5 text-center"></i>
+                            <i class="fa-solid fa-rocket w-5 text-center text-blue-600"></i> {{-- Ubah warna ikon --}}
                             <span>Get Started</span>
                         </a>
                         <a href="#"
-                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all" {{-- Ubah warna teks, hover background, dan hover teks --}}
                             data-target="what-is-softably-content">
-                            <i class="fa-solid fa-circle-info w-5 text-center"></i>
+                            <i class="fa-solid fa-circle-info w-5 text-center text-blue-600"></i> {{-- Ubah warna ikon --}}
                             <span>What is Softably</span>
                         </a>
                         <a href="#"
-                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-300 hover:bg-[#2D3A4F] hover:text-white transition-all"
+                            class="help-topic-link flex items-center gap-3 p-3 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all" {{-- Ubah warna teks, hover background, dan hover teks --}}
                             data-target="faq-content">
-                            <i class="fa-solid fa-question-circle w-5 text-center"></i>
+                            <i class="fa-solid fa-question-circle w-5 text-center text-blue-600"></i> {{-- Ubah warna ikon --}}
                             <span>FAQ</span>
                         </a>
                     </nav>
                 </div>
             </div>
 
-                <!-- Main Content -->
                 <div class="w-full md:w-2/3 lg:w-3/4">
-                    <div class="bg-[#1E293B] p-6 rounded-lg min-h-[500px]">
+                    <div class="bg-white p-6 rounded-lg min-h-[500px] shadow-md border border-gray-200"> {{-- Ubah background, tambahkan shadow dan border --}}
 
-                        <!-- Home Panel -->
                         <div id="home-content" class="help-content-panel active">
-                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Selamat Datang di
+                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-300 pb-2 text-gray-800">Selamat Datang di
                                 Pusat
-                                Bantuan Softably!</h2>
-                            <div class="space-y-4 text-gray-300">
+                                Bantuan Softably!</h2> {{-- Ubah border dan warna teks --}}
+                            <div class="space-y-4 text-gray-700"> {{-- Ubah warna teks --}}
                                 <p>Halo! Di sini Anda dapat menemukan jawaban atas pertanyaan umum, panduan langkah
                                     demi
                                     langkah, dan informasi mendetail tentang semua fitur yang ditawarkan Softably.
@@ -70,21 +68,19 @@
                             </div>
                         </div>
 
-                        <!-- Get Started Panel -->
                         <div id="get-started-content" class="help-content-panel">
-                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Memulai dengan
-                                Softably</h2>
-                            <div class="space-y-4 text-gray-300">
+                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-300 pb-2 text-gray-800">Memulai dengan
+                                Softably</h2> {{-- Ubah border dan warna teks --}}
+                            <div class="space-y-4 text-gray-700"> {{-- Ubah warna teks --}}
                                 <p>Langkah 1: Selesaikan pendaftaran akun Anda.</p>
                                 <p>Langkah 2: Jelajahi katalog produk kami.</p>
                                 <p>Langkah 3: Lakukan pesanan pertama Anda dan nikmati kemudahannya.</p>
                             </div>
                         </div>
 
-                        <!-- What is Softably Panel -->
                         <div id="what-is-softably-content" class="help-content-panel">
-                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Apa itu Softably?</h2>
-                            <div class="space-y-4 text-gray-300">
+                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-300 pb-2 text-gray-800">Apa itu Softably?</h2> {{-- Ubah border dan warna teks --}}
+                            <div class="space-y-4 text-gray-700"> {{-- Ubah warna teks --}}
                                 <p>Softably adalah platform revolusioner yang dirancang untuk menyederhanakan proses
                                     akuisisi dan manajemen perangkat lunak untuk bisnis dan individu. Kami
                                     menyediakan pasar
@@ -100,33 +96,32 @@
                             </div>
                         </div>
 
-                        <!-- FAQ Panel -->
                         <div id="faq-content" class="help-content-panel">
-                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Frequently Asked
+                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-300 pb-2 text-gray-800">Frequently Asked
                                 Questions
-                                (FAQ)</h2>
-                            <div class="space-y-4 text-gray-300">
-                                <div class="border-b border-gray-700 pb-2 mb-2">
-                                    <h3 class="font-semibold text-white">Q: Bagaimana cara melacak pesanan saya?
-                                    </h3>
-                                    <p class="mt-1 text-sm text-gray-400">A: Anda dapat melacak semua pesanan Anda
+                                (FAQ)</h2> {{-- Ubah border dan warna teks --}}
+                            <div class="space-y-4 text-gray-700"> {{-- Ubah warna teks --}}
+                                <div class="border-b border-gray-300 pb-2 mb-2"> {{-- Ubah border --}}
+                                    <h3 class="font-semibold text-gray-800">Q: Bagaimana cara melacak pesanan saya?
+                                    </h3> {{-- Ubah warna teks --}}
+                                    <p class="mt-1 text-sm text-gray-600">A: Anda dapat melacak semua pesanan Anda
                                         melalui
                                         menu "My Orders"
                                         di sidebar Anda. Status pesanan akan diperbarui secara real-time.</p>
                                 </div>
-                                <div class="border-b border-gray-700 pb-2 mb-2">
-                                    <h3 class="font-semibold text-white">Q: Apakah pembayaran aman?</h3>
-                                    <p class="mt-1 text-sm text-gray-400">A: Ya, kami menggunakan gateway pembayaran
+                                <div class="border-b border-gray-300 pb-2 mb-2"> {{-- Ubah border --}}
+                                    <h3 class="font-semibold text-gray-800">Q: Apakah pembayaran aman?</h3> {{-- Ubah warna teks --}}
+                                    <p class="mt-1 text-sm text-gray-600">A: Ya, kami menggunakan gateway pembayaran
                                         terenkripsi dan
                                         protokol keamanan standar industri untuk memastikan semua transaksi Anda
                                         aman dan
                                         terlindungi.</p>
                                 </div>
-                                <div class="border-b border-gray-700 pb-2 mb-2">
-                                    <h3 class="font-semibold text-white">Q: Bisakah saya mengembalikan produk yang
+                                <div class="border-b border-gray-300 pb-2 mb-2"> {{-- Ubah border --}}
+                                    <h3 class="font-semibold text-gray-800">Q: Bisakah saya mengembalikan produk yang
                                         sudah
-                                        dibeli?</h3>
-                                    <p class="mt-1 text-sm text-gray-400">A: Kebijakan pengembalian dana kami
+                                        dibeli?</h3> {{-- Ubah warna teks --}}
+                                    <p class="mt-1 text-sm text-gray-600">A: Kebijakan pengembalian dana kami
                                         bervariasi
                                         tergantung pada
                                         jenis produk. Silakan lihat bagian 'Kebijakan Pengembalian' di Ketentuan
@@ -134,11 +129,11 @@
                                         kami,
                                         atau hubungi dukungan pelanggan untuk bantuan lebih lanjut.</p>
                                 </div>
-                                <div class="border-b border-gray-700 pb-2 mb-2">
-                                    <h3 class="font-semibold text-white">Q: Bagaimana cara menghubungi dukungan
+                                <div class="border-b border-gray-300 pb-2 mb-2"> {{-- Ubah border --}}
+                                    <h3 class="font-semibold text-gray-800">Q: Bagaimana cara menghubungi dukungan
                                         pelanggan?
-                                    </h3>
-                                    <p class="mt-1 text-sm text-gray-400">A: Anda dapat menghubungi dukungan
+                                    </h3> {{-- Ubah warna teks --}}
+                                    <p class="mt-1 text-sm text-gray-600">A: Anda dapat menghubungi dukungan
                                         pelanggan kami
                                         melalui
                                         fitur 'Chat with Softably' yang tersedia di pusat bantuan ini, atau melalui
@@ -146,11 +141,11 @@
                                         kami di
                                         support@softably.com.</p>
                                 </div>
-                                <div class="border-b border-gray-700 pb-2 mb-2">
-                                    <h3 class="font-semibold text-white">Q: Apa perbedaan antara Aplikasi, Konten
+                                <div class="border-b border-gray-300 pb-2 mb-2"> {{-- Ubah border --}}
+                                    <h3 class="font-semibold text-gray-800">Q: Apa perbedaan antara Aplikasi, Konten
                                         Digital,
-                                        Kursus Online, dan Aset Digital?</h3>
-                                    <p class="mt-1 text-sm text-gray-400">A: <b>Aplikasi</b> adalah perangkat lunak
+                                        Kursus Online, dan Aset Digital?</h3> {{-- Ubah warna teks --}}
+                                    <p class="mt-1 text-sm text-gray-600">A: <b>Aplikasi</b> adalah perangkat lunak
                                         yang
                                         dapat diinstal dan dijalankan. <b>Konten Digital</b> adalah media seperti
                                         e-book,
@@ -164,17 +159,16 @@
                             </div>
                         </div>
 
-                        <!-- Chat Panel -->
                         <div id="chat-softably-content" class="help-content-panel">
-                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Chat with Softably Support
-                            </h2>
+                            <h2 class="text-2xl font-bold mb-4 border-b border-gray-300 pb-2 text-gray-800">Chat with Softably Support
+                            </h2> {{-- Ubah border dan warna teks --}}
                             <div id="chat-messages" class="h-96 overflow-y-auto mb-4 space-y-4 pr-2">
-                                <div class="text-center text-gray-500 py-10">Mulai percakapan dengan tim support kami</div>
+                                <div class="text-center text-gray-600 py-10">Mulai percakapan dengan tim support kami</div> {{-- Ubah warna teks --}}
                             </div>
-                            <div class="mt-auto border-t border-gray-700 pt-4">
+                            <div class="mt-auto border-t border-gray-300 pt-4"> {{-- Ubah border --}}
                                 <div class="flex gap-2 items-center">
-                                    <input type="text" id="chatInput" placeholder="Ketik pesan Anda..."
-                                        class="flex-1 bg-[#2D3A4F] border border-gray-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="chatInput" placeholder="Ketik pesan..."
+                                        class="flex-1 bg-gray-100 border border-gray-300 rounded-lg py-3 px-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"> {{-- Ubah background, border, teks, tambahkan shadow-sm --}}
                                     <button id="sendMessageBtn"
                                         class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg">
                                         <i class="fa-solid fa-paper-plane"></i>
@@ -199,22 +193,46 @@
         }
 
         .help-topic-link.active {
-            background-color: #3b82f6;
+            background-color: #2563EB; /* Warna biru aktif */
             color: white;
             font-weight: 600;
         }
+        .help-topic-link.active i.fa-solid { /* Ikon aktif */
+            color: white;
+        }
 
+        /* Scrollbar untuk chat messages container */
         #chat-messages::-webkit-scrollbar {
-            width: 6px;
+            width: 8px; /* Lebih lebar dari 6px agar lebih terlihat */
         }
 
         #chat-messages::-webkit-scrollbar-track {
-            background: #1E293B;
+            background: #F8FAFC; /* Track cerah */
+            border-radius: 10px;
         }
 
         #chat-messages::-webkit-scrollbar-thumb {
-            background: #3b82f6;
-            border-radius: 3px;
+            background: #60A5FA; /* Thumb biru terang */
+            border-radius: 10px;
+            border: 2px solid #F8FAFC; /* Border sesuai background track */
+        }
+        #chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #3B82F6; /* Hover thumb biru */
+        }
+
+        /* Gaya untuk pesan chat di dalam panel chat */
+        #chat-softably-content .bg-blue-600 { /* Pesan saya (terkirim) */
+            background-color: #2563EB; /* Biru terang */
+        }
+        #chat-softably-content .bg-gray-700 { /* Pesan lawan bicara (diterima) */
+            background-color: #E5E7EB; /* Abu-abu terang */
+            color: #374151; /* Teks abu-abu gelap */
+        }
+        #chat-softably-content .bg-blue-600 .text-xs.opacity-70 { /* Waktu pesan saya */
+            color: rgba(255,255,255,0.8); /* Waktu pesan terkirim */
+        }
+        #chat-softably-content .bg-gray-700 .text-xs.opacity-70 { /* Waktu pesan lawan bicara */
+            color: rgba(55,65,81,0.7); /* Waktu pesan diterima */
         }
     </style>
 @endsection
@@ -311,7 +329,7 @@
                         chatMessages.innerHTML = '';
                         if (messages.length === 0) {
                             chatMessages.innerHTML =
-                                '<div class="text-center text-gray-500 py-10">Belum ada percakapan</div>';
+                                '<div class="text-center text-gray-600 py-10">Belum ada percakapan</div>'; /* Ubah warna teks */
                             return;
                         }
                         messages.forEach(msg => {
@@ -345,10 +363,19 @@
                 });
                 helpTopicLinks.forEach(link => {
                     link.classList.remove('active');
+                    // Mengembalikan warna ikon dan teks normal jika tidak aktif
+                    link.querySelector('i').style.color = '#2563EB'; // Warna ikon default
+                    link.style.color = '#4A5568'; // text-gray-700
                 });
 
                 document.getElementById(targetId).classList.add('active');
-                document.querySelector(`.help-topic-link[data-target="${targetId}"]`).classList.add('active');
+                const activeLink = document.querySelector(`.help-topic-link[data-target="${targetId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                    // Mengubah warna ikon dan teks untuk link aktif
+                    activeLink.querySelector('i').style.color = 'white';
+                    activeLink.style.color = 'white';
+                }
             }
 
             helpTopicLinks.forEach(link => {

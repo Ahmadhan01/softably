@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Conversation extends Model
 {
-    protected $fillable = ['user1_id','user2_id'];
+    protected $fillable = ['user1_id','user2_id','is_pinned'];
 
     /* relasi dua arah */
     public function user1(): BelongsTo { return $this->belongsTo(User::class,'user1_id'); }
