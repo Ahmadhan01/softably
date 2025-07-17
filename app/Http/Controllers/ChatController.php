@@ -1,15 +1,14 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Events\MessageSent;
+use App\Events\NewChatMessage;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Events\NewChatMessage;
-use App\Events\MessageSent;
-
+// Pastikan ini di-import
 
 class ChatController extends Controller
 {
@@ -36,7 +35,6 @@ class ChatController extends Controller
         return view('view-seller.chat-seller', compact('user', 'conversations', 'availableUsersToChat'));
     }
 
-
     public function index()
     {
         $user = auth()->user();
@@ -60,27 +58,24 @@ class ChatController extends Controller
     }
 
     public function getMessages(Conversation $conversation)
-{
-    $authId = Auth::id();
+    {
+        $authId = Auth::id();
 
-    // Validasi partisipasi
-    if (!in_array($authId, [$conversation->user1_id, $conversation->user2_id])) {
-        abort(403, 'Unauthorized access to conversation');
-    }
+        if (! in_array($authId, [$conversation->user1_id, $conversation->user2_id])) {
+            abort(403, 'Unauthorized access to conversation');
+        }
 
     // Tandai pesan masuk sebagai read
-    // $conversation->messages()
-    //     ->where('sender_id', '!=', $authId)
-    //     ->whereNull('read_at')
-    //     ->update(['read_at' => now()]);
+    $conversation->messages()
+        ->where('sender_id', '!=', $authId)
+        ->whereNull('read_at')
+        ->update(['read_at' => now()]);
 
-    return response()->json([
-        'messages'  => $conversation->messages()->with('sender:id,name,username')->get(),
-        'otherUser' => $conversation->otherUser($authId, ['id', 'name', 'username']),
-    ]);
-}
-
-
+        return response()->json([
+            'messages'  => $conversation->messages()->with('sender:id,name,username')->get(),
+            'otherUser' => $conversation->otherUser($authId, ['id', 'name', 'username']),
+        ]);
+    }
 
     public function sendMessage(Request $r, Conversation $conversation)
     {
@@ -88,22 +83,22 @@ class ChatController extends Controller
         abort_unless($conversation->participants->contains(Auth::id()), 403);
 
         $loggedInUser = Auth::user();
-        $otherUser = $conversation->otherUser($loggedInUser->id);
+        $otherUser    = $conversation->otherUser($loggedInUser->id);
 
-        if (!$otherUser) {
+        if (! $otherUser) {
             return response()->json(['success' => false, 'message' => 'Other user not found.'], 422);
         }
 
-        if (($loggedInUser->isCustomer() && !$otherUser->isSeller()) ||
-            ($loggedInUser->isSeller() && !$otherUser->isCustomer())) {
+        if (($loggedInUser->isCustomer() && ! $otherUser->isSeller()) ||
+            ($loggedInUser->isSeller() && ! $otherUser->isCustomer())) {
             return response()->json(['success' => false, 'message' => 'Unauthorized chat partner.'], 403);
         }
 
         try {
             $msg = $conversation->messages()->create([
-                'sender_id' => Auth::id(),
+                'sender_id'   => Auth::id(),
                 'receiver_id' => $otherUser->id,
-                'content' => $r->content,
+                'content'     => $r->content,
             ]);
 
             broadcast(new NewChatMessage($msg))->toOthers();
@@ -120,10 +115,10 @@ class ChatController extends Controller
         $r->validate(['other_user_id' => 'required|exists:users,id|different:' . Auth::id()]);
 
         $loggedInUser = Auth::user();
-        $otherUser = User::find($r->other_user_id);
+        $otherUser    = User::find($r->other_user_id);
 
-        if (($loggedInUser->isCustomer() && !$otherUser->isSeller()) ||
-            ($loggedInUser->isSeller() && !$otherUser->isCustomer())) {
+        if (($loggedInUser->isCustomer() && ! $otherUser->isSeller()) ||
+            ($loggedInUser->isSeller() && ! $otherUser->isCustomer())) {
             return response()->json(['success' => false, 'message' => 'Cannot start chat with this user role.'], 403);
         }
 
@@ -137,109 +132,81 @@ class ChatController extends Controller
         return response()->json(['conversation_id' => $conversation->id]);
     }
 
-    // customer to admin
-
-     public function fetchMessagesWithAdmin()
+    // Modified to allow both customer and seller to chat with admin
+    public function fetchMessagesWithAdmin()
     {
         $admin = User::where('role', 'admin')->first();
-        if (!$admin) return response()->json(['error' => 'Admin not found'], 404);
+        if (! $admin) {
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
 
         $messages = Message::where(function ($q) use ($admin) {
             $q->where('sender_id', auth()->id())
-              ->where('receiver_id', $admin->id);
-        })->orWhere(function ($q) use ($admin) {
-            $q->where('sender_id', $admin->id)
-              ->where('receiver_id', auth()->id());
-        })->orderBy('created_at', 'asc')->get();
+                ->where('receiver_id', $admin->id);
+        })
+            ->orWhere(function ($q) use ($admin) {
+                $q->where('sender_id', $admin->id)
+                    ->where('receiver_id', auth()->id());
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return response()->json($messages);
     }
 
+    // Modified to allow both customer and seller to send messages to admin
     public function sendMessageToAdmin(Request $request)
-    {
-        $admin = User::where('role', 'admin')->first();
-        if (!$admin) return response()->json(['error' => 'Admin not found'], 404);
+{
+    $admin = User::where('role', 'admin')->first();
+    if (!$admin) return response()->json(['error' => 'Admin not found'], 404);
 
-        $request->validate(['message' => 'required|string']);
+    $request->validate(['message' => 'required|string']);
 
-        $message = Message::create([
-            'sender_id' => auth()->id(),
-            'receiver_id' => $admin->id,
-            'content' => $request->message,
-        ]);
+    $message = Message::create([
+        'sender_id' => auth()->id(),
+        'receiver_id' => $admin->id,
+        'content' => $request->message,
+    ]);
 
-        broadcast(new MessageSent($message))->toOthers();
-        event(new \App\Events\MessageSent($message));
+    broadcast(new MessageSent($message))->toOthers();
+    event(new \App\Events\MessageSent($message));
 
-        return response()->json($message);
-    }
+    return response()->json($message);
+}
 
 
-        public function getCustomerListForAdmin()
-    {
-        $customers = User::where('role', 'customer')->select('id', 'name')->get();
-        return response()->json($customers);
-    }
+    public function getCustomerListForAdmin()
+{
+    $customers = User::where('role', 'customer')->select('id', 'name')->get();
+    return response()->json($customers);
+}
 
-    public function fetchMessagesWithCustomer($id)
-    {
-        $messages = Message::where(function ($q) use ($id) {
-            $q->where('sender_id', auth()->id())
-            ->where('receiver_id', $id);
-        })->orWhere(function ($q) use ($id) {
-            $q->where('sender_id', $id)
-            ->where('receiver_id', auth()->id());
-        })->orderBy('created_at', 'asc')->get();
+public function fetchMessagesWithCustomer($id)
+{
+    $messages = Message::where(function ($q) use ($id) {
+        $q->where('sender_id', auth()->id())
+          ->where('receiver_id', $id);
+    })->orWhere(function ($q) use ($id) {
+        $q->where('sender_id', $id)
+          ->where('receiver_id', auth()->id());
+    })->orderBy('created_at', 'asc')->get();
 
         return response()->json($messages);
     }
 
-    public function sendMessageToCustomer(Request $request, $id)
-    {
-        $request->validate(['message' => 'required|string']);
+public function sendMessageToCustomer(Request $request, $id)
+{
+    $request->validate(['message' => 'required|string']);
 
-        $message = Message::create([
-            'sender_id' => auth()->id(),     // admin
-            'receiver_id' => $id,            // customer yang dipilih
-            'content' => $request->message,
-        ]);
+    $message = Message::create([
+        'sender_id' => auth()->id(),     // admin
+        'receiver_id' => $id,            // customer yang dipilih
+        'content' => $request->message,
+    ]);
 
-        return response()->json($message);
-    }
-    public function getUnreadMessagesCount()
-    {
-        $userId = Auth::id();
-        if (!$userId) {
-            return response()->json(['count' => 0]);
-        }
+    return response()->json($message);
+}
 
-        // Menghitung pesan masuk yang belum dibaca (read_at is NULL)
-        $unreadCount = Message::where('receiver_id', $userId)
-                              ->whereNull('read_at')
-                              ->count();
 
-        return response()->json(['count' => $unreadCount]);
-    }
 
-    /**
-     * Menandai semua pesan dalam suatu percakapan sebagai sudah dibaca
-     * untuk user yang sedang login.
-     */
-    public function markConversationAsRead(Conversation $conversation)
-    {
-        $userId = Auth::id();
-
-        // Pastikan user adalah peserta dari percakapan ini
-        if (!in_array($userId, [$conversation->user1_id, $conversation->user2_id])) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        }
-
-        // Tandai semua pesan yang diterima oleh user ini dalam percakapan ini sebagai dibaca
-        $conversation->messages()
-                     ->where('receiver_id', $userId)
-                     ->whereNull('read_at')
-                     ->update(['read_at' => now()]);
-
-        return response()->json(['success' => true, 'message' => 'Conversation marked as read.']);
-    }
 }

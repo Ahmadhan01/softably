@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Events;
 
 use App\Models\Message;
@@ -14,19 +13,43 @@ class MessageSent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+    public $receiverId;
+    public $senderId;
 
-    public function __construct(Message $message)
+    public function __construct(Message $message, int $receiverId, int $senderId)
     {
-        $this->message = $message;
+        $this->message    = $message;
+        $this->receiverId = $receiverId;
+        $this->senderId   = $senderId;
     }
 
-    public function broadcastOn(): Channel
+    public function broadcastOn()
     {
-        return new Channel('admin-notif');
+        return [
+            new Channel('chat.' . $this->receiverId),
+            new Channel('chat.' . $this->senderId),
+        ];
     }
 
     public function broadcastAs()
     {
-        return 'new-message';
+        return 'MessageSent';
     }
+
+    public function broadcastWith()
+    {
+        return [
+            'id'           => $this->message->id,
+            'sender_id'    => $this->message->sender_id,
+            'sender_name'  => $this->message->sender->name,
+            'sender_role'  => $this->message->sender->role,
+            'receiver_id'  => $this->message->receiver_id,
+            'content'      => $this->message->content,
+            'created_at'   => $this->message->created_at->toISOString(),
+            'unread_count' => Message::where('receiver_id', $this->message->receiver_id)
+                ->whereNull('read_at')
+                ->count(),
+        ];
+    }
+
 }
